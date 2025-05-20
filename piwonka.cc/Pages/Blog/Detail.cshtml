@@ -1,0 +1,268 @@
+﻿
+@page "{id:int}/{slug?}"
+@using Microsoft.EntityFrameworkCore
+@model Piwonka.CC.Pages.Blog.DetailModel
+@{
+    ViewData["Title"] = Model.Post.Titel;
+}
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
+                    <li class="breadcrumb-item"><a asp-page="./Index">Blog</a></li>
+                    @if (Model.Post.Kategorie != null)
+                    {
+                        <li class="breadcrumb-item">
+                            <a asp-page="./Index" asp-route-kategorie="@Model.Post.KategorieId">
+                                @Model.Post.Kategorie.Name
+                            </a>
+                        </li>
+                    }
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Post.Titel</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <article class="blog-post">
+                <h1 class="blog-post-title mb-3">@Model.Post.Titel</h1>
+                
+                <div class="blog-post-meta mb-4">
+                    <span class="me-3">
+                        <i class="bi bi-calendar"></i> 
+                        <time datetime="@Model.Post.ErstelltAm.ToString("yyyy-MM-dd")">
+                            @Model.Post.ErstelltAm.ToString("dd. MMMM yyyy")
+                        </time>
+                    </span>
+                    @if (Model.Post.Kategorie != null)
+                    {
+                        <span>
+                            <i class="bi bi-folder"></i> 
+                            <a asp-page="./Index" asp-route-kategorie="@Model.Post.KategorieId">
+                                @Model.Post.Kategorie.Name
+                            </a>
+                        </span>
+                    }
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.Post.BildUrl))
+                {
+                    <div class="blog-featured-image mb-4">
+                        <img src="@Model.Post.BildUrl" alt="@Model.Post.Titel" class="img-fluid rounded">
+                    </div>
+                }
+                
+                <div class="blog-content">
+                    @Html.Raw(Model.Post.Inhalt)
+                </div>
+            </article>
+
+            <!-- Social Share Buttons -->
+            <div class="share-buttons mt-4 mb-5">
+                <h5>Teilen Sie diesen Beitrag</h5>
+                <div class="d-flex">
+                  @*   <a href="https://www.facebook.com/sharer/sharer.php?u=@(Context.Request.Scheme)://@(Context.Request.Host)@(Context.Request.Path)" 
+                       target="_blank" class="btn btn-outline-primary me-2" aria-label="Auf Facebook teilen">
+                        <i class="bi bi-facebook"></i>
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url=@(Context.Request.Scheme)://@(Context.Request.Host)@(Context.Request.Path)&text=@Model.Post.Titel" 
+                       target="_blank" class="btn btn-outline-primary me-2" aria-label="Auf Twitter teilen">
+                        <i class="bi bi-twitter"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&url=@(Context.Request.Scheme)://@(Context.Request.Host)@(Context.Request.Path)&title=@Model.Post.Titel" 
+                       target="_blank" class="btn btn-outline-primary me-2" aria-label="Auf LinkedIn teilen">
+                        <i class="bi bi-linkedin"></i>
+                    </a>
+                    <a href="mailto:?subject=@Model.Post.Titel&body=@(Context.Request.Scheme)://@(Context.Request.Host)@(Context.Request.Path)" 
+                       class="btn btn-outline-primary" aria-label="Per E-Mail teilen">
+                        <i class="bi bi-envelope"></i>
+                    </a> *@
+                </div>
+            </div>
+
+            <div class="post-navigation mt-5 pt-4 border-top">
+                <div class="row">
+                    <div class="col-6">
+                        @if (Model.PreviousPost != null)
+                        {
+                            <a asp-page="./Detail" asp-route-id="@Model.PreviousPost.Id" asp-route-slug="@Model.PreviousPost.Slug" class="post-nav-link prev-post">
+                                <span class="text-muted"><i class="bi bi-arrow-left"></i> Vorheriger Beitrag</span>
+                                <h6 class="post-nav-title">@Model.PreviousPost.Titel</h6>
+                            </a>
+                        }
+                    </div>
+                    <div class="col-6 text-end">
+                        @if (Model.NextPost != null)
+                        {
+                            <a asp-page="./Detail" asp-route-id="@Model.NextPost.Id" asp-route-slug="@Model.NextPost.Slug" class="post-nav-link next-post">
+                                <span class="text-muted">Nächster Beitrag <i class="bi bi-arrow-right"></i></span>
+                                <h6 class="post-nav-title">@Model.NextPost.Titel</h6>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verwandte Beiträge -->
+            @if (Model.RelatedPosts.Any())
+            {
+                <div class="related-posts mt-5 pt-4 border-top">
+                    <h4 class="mb-4">Das könnte Sie auch interessieren</h4>
+                    <div class="row">
+                        @foreach (var related in Model.RelatedPosts)
+                        {
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    @if (!string.IsNullOrEmpty(related.BildUrl))
+                                    {
+                                        <div style="height: 150px; overflow: hidden;">
+                                            <img src="@related.BildUrl" class="card-img-top" alt="@related.Titel" style="object-fit: cover; height: 100%; width: 100%;">
+                                        </div>
+                                    }
+                                    <div class="card-body">
+                                        <h5 class="card-title">@related.Titel</h5>
+                                        <p class="card-text small text-muted">@related.ErstelltAm.ToString("dd.MM.yyyy")</p>
+                                        <a asp-page="./Detail" asp-route-id="@related.Id" asp-route-slug="@related.Slug" class="stretched-link"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+            <div class="position-sticky" style="top: 2rem;">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Kategorien</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var kategorie in Model.Kategorien)
+                            {
+                                <li class="mb-2">
+                                    <a asp-page="./Index" asp-route-kategorie="@kategorie.Id" class="text-decoration-none">
+                                        @kategorie.Name
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Neueste Beiträge</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var recentPost in Model.RecentPosts)
+                            {
+                                <li class="d-flex mb-3 pb-3 @(recentPost != Model.RecentPosts.Last() ? "border-bottom" : "")">
+                                    @if (!string.IsNullOrEmpty(recentPost.BildUrl))
+                                    {
+                                        <div class="flex-shrink-0" style="width: 60px; height: 60px;">
+                                            <img src="@recentPost.BildUrl" class="img-fluid rounded" style="width: 100%; height: 100%; object-fit: cover;" alt="@recentPost.Titel">
+                                        </div>
+                                    }
+                                    <div class="@(!string.IsNullOrEmpty(recentPost.BildUrl) ? "ms-3" : "")">
+                                        <h6 class="mb-1">
+                                            <a asp-page="./Detail" asp-route-id="@recentPost.Id" asp-route-slug="@recentPost.Slug" class="text-decoration-none">
+                                                @recentPost.Titel
+                                            </a>
+                                        </h6>
+                                        <div class="small text-muted">
+                                            @recentPost.ErstelltAm.ToString("dd. MMM yyyy")
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section styles {
+    <style>
+        .blog-post-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .blog-post-meta {
+            color: #6c757d;
+        }
+        
+        .blog-featured-image {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .blog-content {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .blog-content p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .blog-content h2, 
+        .blog-content h3, 
+        .blog-content h4 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .blog-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin: 1.5rem 0;
+        }
+        
+        .blog-content blockquote {
+            border-left: 4px solid var(--papaya);
+            padding-left: 1rem;
+            margin-left: 0;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .blog-content pre {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        
+        .post-nav-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+        }
+        
+        .post-nav-link:hover {
+            color: var(--papaya);
+        }
+        
+        .post-nav-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+     
+    </style>
+}

@@ -1,0 +1,43 @@
+﻿@page
+@model Piwonka.CC.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "Admin-Bereich";
+}
+
+<div class="row mb-4">
+    <div class="col">
+        <h1>Admin-Bereich</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Posts verwalten</h5>
+                <p class="card-text">Erstellen, bearbeiten und löschen Sie Ihre Blog-Posts.</p>
+                <a asp-page="/Admin/Posts/Index" class="btn btn-primary">Posts verwalten</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Kategorien verwalten</h5>
+                <p class="card-text">Verwalten Sie die Kategorien für Ihre Blog-Posts.</p>
+                <a asp-page="/Admin/Kategorien/Index" class="btn btn-primary">Kategorien verwalten</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">WordPress-Import</h5>
+                <p class="card-text">Importieren Sie Posts von Ihrer WordPress-Seite.</p>
+                <a asp-page="/Admin/Import/Wordpress" class="btn btn-primary">Import starten</a>
+            </div>
+        </div>
+    </div>
+</div>

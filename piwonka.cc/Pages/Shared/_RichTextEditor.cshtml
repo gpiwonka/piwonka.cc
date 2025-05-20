@@ -1,0 +1,50 @@
+﻿
+@model string
+@{
+    var fieldId = ViewData["FieldId"] as string ?? "Inhalt";
+}
+
+<textarea id="@fieldId" name="@fieldId" class="rich-text-editor" rows="15">@Html.Raw(Model)</textarea>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialisieren des TinyMCE für dieses spezifische Feld
+        tinymce.init({
+            selector: '#@(fieldId)',
+            plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
+            menubar: 'file edit view insert format tools table help',
+            toolbar: 'undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
+            toolbar_sticky: true,
+            codesample_languages: [
+                { text: 'HTML/XML', value: 'markup' },
+                { text: 'JavaScript', value: 'javascript' },
+                { text: 'CSS', value: 'css' },
+                { text: 'C#', value: 'csharp' },
+                { text: 'PHP', value: 'php' },
+                { text: 'Python', value: 'python' },
+                { text: 'SQL', value: 'sql' }
+            ],
+            codesample_global_prismjs: true,
+            image_advtab: true,
+            height: 400,
+            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
+            noneditable_class: 'mceNonEditable',
+            toolbar_mode: 'sliding',
+            contextmenu: 'link image table',
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
+            relative_urls: false,
+            remove_script_host: false,
+            convert_urls: true,
+            // WICHTIG: Konfiguration für die Behandlung von HTML-Entitäten
+            entity_encoding: 'raw',
+            encoding: 'utf-8',
+            // Der Inhalt enthält bereits HTML, also vermeiden wir die Konvertierung
+            setup: function(editor) {
+                editor.on('init', function() {
+                    // Stellen Sie sicher, dass der ursprüngliche HTML-Inhalt korrekt geladen wird
+                    editor.setContent(document.getElementById('@(fieldId)').value);
+                });
+            }
+        });
+    });
+</script>

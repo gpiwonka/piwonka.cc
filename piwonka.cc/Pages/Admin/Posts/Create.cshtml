@@ -1,0 +1,61 @@
+﻿@page
+@model Piwonka.CC.Pages.admin.Posts.CreateModel
+
+@{
+    ViewData["Title"] = "Neuen Post erstellen";
+}
+
+<div class="row mb-4">
+    <div class="col">
+        <h1>Neuen Post erstellen</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <form method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Post.Titel" class="form-label">Titel</label>
+                <input asp-for="Post.Titel" class="form-control" />
+                <span asp-validation-for="Post.Titel" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Post.Inhalt" class="form-label">Inhalt</label>
+                <textarea asp-for="Post.Inhalt" class="form-control" rows="10"></textarea>
+                <span asp-validation-for="Post.Inhalt" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Post.BildUrl" class="form-label">Bild URL</label>
+                <input asp-for="Post.BildUrl" class="form-control" />
+                <span asp-validation-for="Post.BildUrl" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input asp-for="Post.IstVeröffentlicht" class="form-check-input" />
+                <label asp-for="Post.IstVeröffentlicht" class="form-check-label">Veröffentlichen</label>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Post.KategorieId" class="form-label">Kategorie</label>
+                <select asp-for="Post.KategorieId" class="form-select" asp-items="Model.KategorieOptions">
+                    <option value="">-- Keine Kategorie --</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <a asp-page="./Index" class="btn btn-secondary">Abbrechen</a>
+                <button type="submit" class="btn btn-primary">Speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
