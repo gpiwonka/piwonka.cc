@@ -1,0 +1,10 @@
+﻿<!-- Views/Shared/Components/FooterSeiten/Default.cshtml -->
+@model IEnumerable<Piwonka.CC.Models.Seite>
+
+@if (Model.Any())
+{
+    @foreach (var seite in Model)
+    {
+        <a asp-page="/Seite" asp-route-slug="@seite.Slug" class="text-muted me-3">@seite.Titel</a>
+    }
+}

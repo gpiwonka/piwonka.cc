@@ -1,0 +1,71 @@
+﻿@page "{id:int}"
+@model Piwonka.CC.Pages.Admin.Seiten.DeleteModel
+@{
+    ViewData["Title"] = "Seite löschen";
+}
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Seite löschen</h1>
+            <h3 class="text-danger">Sind Sie sicher, dass Sie diese Seite löschen möchten?</h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>@Model.Seite.Titel</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>URL-Slug:</strong> <code>/seite/@Model.Seite.Slug</code></p>
+                    <p><strong>Template:</strong> @Model.Seite.Template</p>
+                    <p><strong>Meta-Beschreibung:</strong> @(Model.Seite.MetaDescription ?? "Keine")</p>
+                    <p><strong>Status:</strong> 
+                        @if(Model.Seite.IstVeroeffentlicht)
+                        {
+                            <span class="badge bg-success">Veröffentlicht</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Entwurf</span>
+                        }
+                    </p>
+                    <p><strong>Im Menü:</strong> 
+                        @if(Model.Seite.ImMenuAnzeigen)
+                        {
+                            <span class="badge bg-info">Ja (Reihenfolge: @Model.Seite.Reihenfolge)</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-light text-dark">Nein</span>
+                        }
+                    </p>
+                    <p><strong>Erstellt am:</strong> @Model.Seite.ErstelltAm.ToString("dd.MM.yyyy HH:mm")</p>
+                    @if (Model.Seite.BearbeitetAm.HasValue)
+                    {
+                        <p><strong>Zuletzt bearbeitet:</strong> @Model.Seite.BearbeitetAm.Value.ToString("dd.MM.yyyy HH:mm")</p>
+                    }
+                    
+                    <div class="mt-3">
+                        <h5>Inhalt-Vorschau:</h5>
+                        <div style="max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 5px;">
+                            @Html.Raw(Model.Seite.Inhalt?.Substring(0, Math.Min(500, Model.Seite.Inhalt?.Length ?? 0)))
+                            @if (Model.Seite.Inhalt?.Length > 500)
+                            {
+                                <text>...</text>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <form method="post">
+                <input type="hidden" asp-for="Seite.Id" />
+                <a asp-page="./Index" class="btn btn-secondary">Abbrechen</a>
+                <button type="submit" class="btn btn-danger">Löschen</button>
+            </form>
+        </div>
+    </div>
+</div>

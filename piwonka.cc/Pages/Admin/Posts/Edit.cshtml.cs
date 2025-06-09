@@ -1,15 +1,18 @@
-// Pages/Admin/Posts/Edit.cshtml.cs (korrigiert)
-using System.Linq;
-using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Piwonka.CC.Data.Piwonka.CC.Data;
+using Piwonka.CC.Data;
+using Piwonka.CC.Data;
+using Piwonka.CC.Filters;
 using Piwonka.CC.Models;
 using Piwonka.CC.Services;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Piwonka.CC.Pages.Admin.Posts
 {
+    [TypeFilter(typeof(AdminAuthFilter))]
     public class EditModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -28,7 +31,6 @@ namespace Piwonka.CC.Pages.Admin.Posts
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            // Post vollständig laden
             Post = await _context.Posts
                 .Include(p => p.Kategorie)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -44,13 +46,33 @@ namespace Piwonka.CC.Pages.Admin.Posts
 
         public async Task<IActionResult> OnPostAsync()
         {
+            // Debug: Schauen wir, was im Post.Inhalt steht
+            System.Diagnostics.Debug.WriteLine($"Post.Inhalt beim Submit: {Post.Inhalt?.Substring(0, Math.Min(100, Post.Inhalt?.Length ?? 0))}...");
+
+            // Explizit den Inhalt aus dem Request lesen, falls der Model Binder versagt
+            if (string.IsNullOrEmpty(Post.Inhalt))
+            {
+                var formInhalt = Request.Form["Post.Inhalt"].ToString();
+                if (!string.IsNullOrEmpty(formInhalt))
+                {
+                    Post.Inhalt = formInhalt;
+                    System.Diagnostics.Debug.WriteLine($"Inhalt aus Form geholt: {Post.Inhalt.Substring(0, Math.Min(100, Post.Inhalt.Length))}...");
+                }
+            }
+
             if (!ModelState.IsValid)
             {
+                // Debug: ModelState-Fehler ausgeben
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    System.Diagnostics.Debug.WriteLine($"ModelState Error: {error.ErrorMessage}");
+                }
+
                 await LoadKategorien();
                 return Page();
             }
 
-            // WICHTIG: Den ursprünglichen Post aus der Datenbank laden
+            // Den existierenden Post aus der Datenbank laden
             var existingPost = await _context.Posts.FindAsync(Post.Id);
             if (existingPost == null)
             {
@@ -70,24 +92,27 @@ namespace Piwonka.CC.Pages.Admin.Posts
 
             // Aktualisieren Sie nur die Eigenschaften, die geändert werden sollen
             existingPost.Titel = Post.Titel;
-            existingPost.Inhalt = Post.Inhalt;
+            existingPost.Inhalt = Post.Inhalt; // Das sollte jetzt den Editor-Inhalt haben
             existingPost.KategorieId = Post.KategorieId;
-            existingPost.IstVeröffentlicht = Post.IstVeröffentlicht;
+            existingPost.IstVeroeffentlicht = Post.IstVeroeffentlicht;
             existingPost.BildUrl = Post.BildUrl;
 
-            // Wenn kein Slug vorhanden ist oder der Titel geändert wurde, generieren wir einen neuen
+            // Slug aktualisieren, falls der Titel geändert wurde
             if (string.IsNullOrEmpty(existingPost.Slug) ||
                 !string.Equals(existingPost.Titel, Post.Titel))
             {
                 existingPost.Slug = SlugGenerator.GenerateSlug(Post.Titel);
             }
 
-            // Den existierenden Post markieren als geändert
+            // Debug: Finaler Inhalt vor dem Speichern
+            System.Diagnostics.Debug.WriteLine($"Finaler Inhalt vor dem Speichern: {existingPost.Inhalt?.Substring(0, Math.Min(100, existingPost.Inhalt?.Length ?? 0))}...");
+
             _context.Entry(existingPost).State = EntityState.Modified;
 
             try
             {
                 await _context.SaveChangesAsync();
+                System.Diagnostics.Debug.WriteLine("Post erfolgreich gespeichert!");
             }
             catch (DbUpdateConcurrencyException)
             {

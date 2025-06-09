@@ -11,10 +11,10 @@ namespace Piwonka.CC.Models
         [StringLength(50)]
         public string Name { get; set; }
 
-        [StringLength(100)]
+        [StringLength(500)]
         public string Beschreibung { get; set; }
 
         // Navigation Property für Posts
-        public ICollection<Post> Posts { get; set; }
+        public ICollection<Post>? Posts { get; set; }
     }
 }

@@ -1,0 +1,19 @@
+﻿@model Piwonka.CC.ViewModels.AdminNavViewModel
+
+<div class="admin-nav mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>Admin-Bereich</h2>
+        <a asp-page="/Admin/Logout" class="btn btn-outline-secondary">Abmelden</a>
+    </div>
+    <nav class="nav nav-pills nav-fill mt-3">
+        @foreach (var item in Model.NavItems)
+        {
+            var isActive = Model.IsActive(item);
+            <a asp-page="@item.PagePath"
+               class="nav-item nav-link @(isActive ? "active" : "")"
+               style="background-color: @(isActive ? "var(--papaya)" : ""); color: @(isActive ? "white" : "");">
+                @item.Title
+            </a>
+        }
+    </nav>
+</div>

@@ -1,0 +1,107 @@
+﻿@page
+@model Piwonka.CC.Pages.Admin.Seiten.IndexModel
+@{
+    ViewData["Title"] = "Seiten verwalten";
+}
+
+<div class="container py-4">
+    @await Component.InvokeAsync("AdminNav")
+    
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Seiten verwalten</h1>
+        </div>
+        <div class="col-auto">
+            <a asp-page="Create" class="btn btn-primary">Neue Seite erstellen</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    @if (Model.Seiten.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Titel</th>
+                                        <th>Slug</th>
+                                        <th>Status</th>
+                                        <th>Menü</th>
+                                        <th>Template</th>
+                                        <th>Erstellt</th>
+                                        <th>Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var seite in Model.Seiten)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@seite.Titel</strong>
+                                                @if (!string.IsNullOrEmpty(seite.MenuGruppe))
+                                                {
+                                                    <br><small class="text-muted">Gruppe: @seite.MenuGruppe</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                <code>/seite/@seite.Slug</code>
+                                            </td>
+                                            <td>
+                                                @if (seite.IstVeroeffentlicht)
+                                                {
+                                                    <span class="badge bg-success">Veröffentlicht</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Entwurf</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (seite.ImMenuAnzeigen)
+                                                {
+                                                    <span class="badge bg-info">Im Menü (@seite.Reihenfolge)</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-light text-dark">Nicht im Menü</span>
+                                                }
+                                            </td>
+                                            <td>@seite.Template</td>
+                                            <td>@seite.ErstelltAm.ToString("dd.MM.yyyy")</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-page="./Edit" asp-route-id="@seite.Id" class="btn btn-sm btn-outline-primary">Bearbeiten</a>
+                                                    <a asp-page="/Seite" asp-route-slug="@seite.Slug" target="_blank" class="btn btn-sm btn-outline-info">Anzeigen</a>
+                                                    <a asp-page="./Delete" asp-route-id="@seite.Id" class="btn btn-sm btn-outline-danger">Löschen</a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <h4>Keine Seiten vorhanden</h4>
+                            <p class="text-muted">Erstellen Sie Ihre erste Seite, um zu beginnen.</p>
+                            <a asp-page="Create" class="btn btn-primary">Erste Seite erstellen</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

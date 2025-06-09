@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Piwonka.CC.Data.Piwonka.CC.Data;
+using Piwonka.CC.Data;
 
 #nullable disable
 
 namespace Piwonka.CC.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250510194449_Initital")]
-    partial class Initital
+    [Migration("20250609150901_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,8 +35,8 @@ namespace Piwonka.CC.Migrations
 
                     b.Property<string>("Beschreibung")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -86,7 +86,7 @@ namespace Piwonka.CC.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IstVeröffentlicht")
+                    b.Property<bool>("IstVeroeffentlicht")
                         .HasColumnType("bit");
 
                     b.Property<int?>("KategorieId")
@@ -109,6 +109,79 @@ namespace Piwonka.CC.Migrations
                     b.ToTable("Posts");
                 });
 
+            modelBuilder.Entity("Piwonka.CC.Models.Seite", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("BearbeitetAm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ErstelltAm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("ImMenuAnzeigen")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Inhalt")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IstMenuGruppe")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IstVeroeffentlicht")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MenuGruppe")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("MenuTitel")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("MetaDescription")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("MetaKeywords")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Reihenfolge")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Template")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Titel")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Seiten");
+                });
+
             modelBuilder.Entity("Piwonka.CC.Models.Post", b =>
                 {
                     b.HasOne("Piwonka.CC.Models.Kategorie", "Kategorie")
@@ -118,9 +191,23 @@ namespace Piwonka.CC.Migrations
                     b.Navigation("Kategorie");
                 });
 
+            modelBuilder.Entity("Piwonka.CC.Models.Seite", b =>
+                {
+                    b.HasOne("Piwonka.CC.Models.Seite", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
             modelBuilder.Entity("Piwonka.CC.Models.Kategorie", b =>
                 {
                     b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("Piwonka.CC.Models.Seite", b =>
+                {
+                    b.Navigation("Children");
                 });
 #pragma warning restore 612, 618
         }

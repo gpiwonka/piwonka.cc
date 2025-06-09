@@ -22,7 +22,7 @@ namespace Piwonka.CC.Models
 
         public string? BildUrl { get; set; }
 
-        public bool IstVeröffentlicht { get; set; } = false;
+        public bool IstVeroeffentlicht { get; set; } = false;
 
         // Fremdschlüssel für Kategorie
         public int? KategorieId { get; set; }

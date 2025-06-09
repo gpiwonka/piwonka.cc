@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Piwonka.CC.Data.Piwonka.CC.Data;
+using Piwonka.CC.Data;
 using Piwonka.CC.Filters;
 using Piwonka.CC.Models;
 

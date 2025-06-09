@@ -1,0 +1,9 @@
+﻿<!-- Views/Shared/Components/MenuSeiten/Default.cshtml -->
+@model IEnumerable<Piwonka.CC.Models.Seite>
+
+@foreach (var seite in Model)
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-page="/Seite" asp-route-slug="@seite.Slug">@seite.Titel</a>
+    </li>
+}

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Piwonka.CC.Data;
 using Piwonka.CC.Models;
-using Piwonka.CC.Data.Piwonka.CC.Data;
+using Piwonka.CC.Data;
 
 namespace Piwonka.CC.Pages.admin.Posts
 {

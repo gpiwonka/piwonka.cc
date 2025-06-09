@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Piwonka.CC.Data;
-using Piwonka.CC.Data.Piwonka.CC.Data;
+using Piwonka.CC.Data;
 using Piwonka.CC.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +52,7 @@ namespace Piwonka.CC.Pages.Blog
             // Query für Posts erstellen
             var postsQuery = _context.Posts
                 .Include(p => p.Kategorie)
-                .Where(p => p.IstVeröffentlicht)
+                .Where(p => p.IstVeroeffentlicht)
                 .AsQueryable();
 
             // Nach Kategorie filtern, falls angegeben

@@ -13,7 +13,7 @@
 
 <div class="row">
     <div class="col-md-8">
-        <form method="post">
+        <form method="post" enctype="multipart/form-data" id="editPostForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
             <input type="hidden" asp-for="Post.Id" />
@@ -24,31 +24,57 @@
                 <input asp-for="Post.Titel" class="form-control" />
                 <span asp-validation-for="Post.Titel" class="text-danger"></span>
             </div>
-
+            
             <div class="mb-3">
                 <label asp-for="Post.Inhalt" class="form-label">Inhalt</label>
                 <span asp-validation-for="Post.Inhalt" class="text-danger"></span>
-
-                @{
-                    ViewData["FieldId"] = "Post_Inhalt";
-                }
-                <partial name="_RichTextEditor" model="@Model.Post.Inhalt" />
+                
+                <!-- WICHTIG: Das name-Attribut muss exakt "Post.Inhalt" sein -->
+                <textarea id="Post_Inhalt" name="Post.Inhalt" rows="15" class="form-control">@Html.Raw(Model.Post.Inhalt)</textarea>
             </div>
             
             <div class="mb-3">
-                <label asp-for="Post.BildUrl" class="form-label">Bild URL</label>
+                <label asp-for="Post.KategorieId" class="form-label">Kategorie</label>
+                <select asp-for="Post.KategorieId" class="form-select" asp-items="Model.KategorieOptions">
+                    <option value="">-- Keine Kategorie --</option>
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Aktuelles Bild</label>
+                @if (!string.IsNullOrEmpty(Model.Post.BildUrl))
+                {
+                    <div class="mb-2">
+                        <img src="@Model.Post.BildUrl" alt="Aktuelles Bild" style="max-width: 200px; max-height: 150px;" />
+                    </div>
+                }
+                else
+                {
+                    <p>Kein Bild vorhanden</p>
+                }
+            </div>
+            
+            <div class="mb-3">
+                <label asp-for="Post.UploadedImage" class="form-label">Neues Bild hochladen</label>
+                <input type="file" asp-for="Post.UploadedImage" class="form-control" accept="image/*" />
+                <div class="form-text">
+                    Lassen Sie dieses Feld leer, um das aktuelle Bild beizubehalten.
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label asp-for="Post.BildUrl" class="form-label">oder Bild URL ändern</label>
                 <input asp-for="Post.BildUrl" class="form-control" />
-                <span asp-validation-for="Post.BildUrl" class="text-danger"></span>
             </div>
             
             <div class="mb-3 form-check">
-                <input asp-for="Post.IstVeröffentlicht" class="form-check-input" />
-                <label asp-for="Post.IstVeröffentlicht" class="form-check-label">Veröffentlichen</label>
+                <input asp-for="Post.IstVeroeffentlicht" class="form-check-input" />
+                <label asp-for="Post.IstVeroeffentlicht" class="form-check-label">Veröffentlichen</label>
             </div>
             
             <div class="mb-3">
                 <a asp-page="./Index" class="btn btn-secondary">Abbrechen</a>
-                <button type="submit" class="btn btn-primary">Speichern</button>
+                <button type="button" class="btn btn-primary" onclick="savePost()">Speichern</button>
             </div>
         </form>
     </div>
@@ -56,4 +82,90 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        let editorInitialized = false;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initTinyMCE();
+        });
+        
+        function initTinyMCE() {
+            if (typeof tinymce === 'undefined') {
+                console.log('TinyMCE noch nicht geladen, warte...');
+                setTimeout(initTinyMCE, 100);
+                return;
+            }
+            
+            if (editorInitialized) {
+                console.log('Editor bereits initialisiert');
+                return;
+            }
+            
+            console.log('Initialisiere TinyMCE...');
+            
+            tinymce.init({
+                selector: '#Post_Inhalt',
+                plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
+                menubar: 'file edit view insert format tools table help',
+                toolbar: 'undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
+                toolbar_sticky: true,
+                height: 400,
+                entity_encoding: 'raw',
+                
+                init_instance_callback: function(editor) {
+                    console.log('TinyMCE Editor initialisiert:', editor.id);
+                    editorInitialized = true;
+                    
+                    // Sicherstellen, dass der ursprüngliche Inhalt korrekt geladen wird
+                    var textarea = document.getElementById('Post_Inhalt');
+                    if (textarea && textarea.value) {
+                        console.log('Setze ursprünglichen Inhalt:', textarea.value.substring(0, 100) + '...');
+                        editor.setContent(textarea.value);
+                    }
+                },
+                
+                setup: function(editor) {
+                    // Bei jeder Änderung den Inhalt zurück ins Textarea schreiben
+                    editor.on('Change KeyUp Paste NodeChange', function() {
+                        var content = editor.getContent();
+                        document.getElementById('Post_Inhalt').value = content;
+                        console.log('Inhalt aktualisiert:', content.substring(0, 50) + '...');
+                    });
+                }
+            });
+        }
+        
+        function savePost() {
+            console.log('savePost() aufgerufen');
+            
+            // TinyMCE-Inhalt explizit speichern
+            var editor = tinymce.get('Post_Inhalt');
+            if (editor) {
+                var content = editor.getContent();
+                document.getElementById('Post_Inhalt').value = content;
+                console.log('Editor-Inhalt vor Submit gesetzt:', content.substring(0, 100) + '...');
+                console.log('Textarea-Wert vor Submit:', document.getElementById('Post_Inhalt').value.substring(0, 100) + '...');
+            } else {
+                console.error('Editor nicht gefunden!');
+            }
+            
+            // Form absenden
+            document.getElementById('editPostForm').submit();
+        }
+        
+        // Backup: Event-Listener für Form-Submit
+        document.addEventListener('submit', function(e) {
+            if (e.target.id === 'editPostForm') {
+                console.log('Form wird abgesendet...');
+                
+                var editor = tinymce.get('Post_Inhalt');
+                if (editor) {
+                    var content = editor.getContent();
+                    document.getElementById('Post_Inhalt').value = content;
+                    console.log('Backup: Editor-Inhalt gesetzt bei Form-Submit');
+                }
+            }
+        });
+    </script>
 }

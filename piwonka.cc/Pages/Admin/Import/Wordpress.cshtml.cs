@@ -10,7 +10,7 @@ using System.Xml.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Piwonka.CC.Data.Piwonka.CC.Data;
+using Piwonka.CC.Data;
 using Piwonka.CC.Models;
 using Piwonka.CC.Services;
 using Piwonka.CC.Filters;
@@ -266,7 +266,7 @@ namespace Piwonka.CC.Pages.admin.Import
                         Inhalt = modifiedContent,
                         ErstelltAm = publishDate,
                         BildUrl = featuredImageUrl,
-                        IstVeröffentlicht = isPublished,
+                        IstVeroeffentlicht = isPublished,
                         KategorieId = postKategorie?.Id,
                         Slug = slug
                     };

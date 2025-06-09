@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Piwonka.CC.Migrations
 {
     /// <inheritdoc />
-    public partial class Initital : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,11 +20,43 @@ namespace Piwonka.CC.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Beschreibung = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    Beschreibung = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Kategorien", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Seiten",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Titel = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Slug = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Inhalt = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MetaDescription = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    MetaKeywords = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    IstVeroeffentlicht = table.Column<bool>(type: "bit", nullable: false),
+                    ImMenuAnzeigen = table.Column<bool>(type: "bit", nullable: false),
+                    Reihenfolge = table.Column<int>(type: "int", nullable: false),
+                    Template = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    ErstelltAm = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BearbeitetAm = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ParentId = table.Column<int>(type: "int", nullable: true),
+                    MenuGruppe = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    MenuTitel = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    IstMenuGruppe = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Seiten", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Seiten_Seiten_ParentId",
+                        column: x => x.ParentId,
+                        principalTable: "Seiten",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -38,7 +70,7 @@ namespace Piwonka.CC.Migrations
                     Slug = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     ErstelltAm = table.Column<DateTime>(type: "datetime2", nullable: false),
                     BildUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IstVeröffentlicht = table.Column<bool>(type: "bit", nullable: false),
+                    IstVeroeffentlicht = table.Column<bool>(type: "bit", nullable: false),
                     KategorieId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -65,6 +97,17 @@ namespace Piwonka.CC.Migrations
                 name: "IX_Posts_KategorieId",
                 table: "Posts",
                 column: "KategorieId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Seiten_ParentId",
+                table: "Seiten",
+                column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Seiten_Slug",
+                table: "Seiten",
+                column: "Slug",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -72,6 +115,9 @@ namespace Piwonka.CC.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Posts");
+
+            migrationBuilder.DropTable(
+                name: "Seiten");
 
             migrationBuilder.DropTable(
                 name: "Kategorien");

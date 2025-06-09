@@ -2,49 +2,62 @@
 @model string
 @{
     var fieldId = ViewData["FieldId"] as string ?? "Inhalt";
+    var content = Model ?? "";
 }
 
-<textarea id="@fieldId" name="@fieldId" class="rich-text-editor" rows="15">@Html.Raw(Model)</textarea>
+<!-- Das Textarea MUSS den Inhalt haben, bevor TinyMCE initialisiert wird -->
+<textarea id="@fieldId" name="@fieldId" rows="15" style="width: 100%;">@Html.Raw(content)</textarea>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialisieren des TinyMCE für dieses spezifische Feld
-        tinymce.init({
-            selector: '#@(fieldId)',
-            plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
-            menubar: 'file edit view insert format tools table help',
-            toolbar: 'undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
-            toolbar_sticky: true,
-            codesample_languages: [
-                { text: 'HTML/XML', value: 'markup' },
-                { text: 'JavaScript', value: 'javascript' },
-                { text: 'CSS', value: 'css' },
-                { text: 'C#', value: 'csharp' },
-                { text: 'PHP', value: 'php' },
-                { text: 'Python', value: 'python' },
-                { text: 'SQL', value: 'sql' }
-            ],
-            codesample_global_prismjs: true,
-            image_advtab: true,
-            height: 400,
-            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
-            noneditable_class: 'mceNonEditable',
-            toolbar_mode: 'sliding',
-            contextmenu: 'link image table',
-            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
-            relative_urls: false,
-            remove_script_host: false,
-            convert_urls: true,
-            // WICHTIG: Konfiguration für die Behandlung von HTML-Entitäten
-            entity_encoding: 'raw',
-            encoding: 'utf-8',
-            // Der Inhalt enthält bereits HTML, also vermeiden wir die Konvertierung
-            setup: function(editor) {
-                editor.on('init', function() {
-                    // Stellen Sie sicher, dass der ursprüngliche HTML-Inhalt korrekt geladen wird
-                    editor.setContent(document.getElementById('@(fieldId)').value);
-                });
+        // Warten bis das DOM vollständig geladen ist
+        setTimeout(function() {
+            console.log('Initialisiere TinyMCE für @fieldId');
+
+            // Prüfen, ob das Textarea-Element existiert
+            var textarea = document.getElementById('@fieldId');
+            if (!textarea) {
+                console.error('Textarea mit ID @fieldId nicht gefunden!');
+                return;
             }
-        });
+
+            console.log('Textarea-Inhalt vor TinyMCE-Init:', textarea.value.substring(0, 100) + '...');
+
+            tinymce.init({
+                selector: '#@fieldId',
+                plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
+                menubar: 'file edit view insert format tools table help',
+                toolbar: 'undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
+                toolbar_sticky: true,
+                height: 400,
+                entity_encoding: 'raw',
+                forced_root_block: 'p',
+
+                setup: function(editor) {
+                    console.log('TinyMCE Setup für Editor:', editor.id);
+
+                    editor.on('init', function() {
+                        console.log('TinyMCE initialisiert für:', editor.id);
+
+                        // Den Inhalt aus dem Textarea lesen und setzen
+                        var originalContent = document.getElementById('@fieldId').value;
+                        console.log('Original Content Länge:', originalContent.length);
+                        console.log('Original Content Preview:', originalContent.substring(0, 100) + '...');
+
+                        if (originalContent && originalContent.trim() !== '') {
+                            editor.setContent(originalContent);
+                            console.log('Inhalt in Editor gesetzt');
+                        } else {
+                            console.log('Kein Inhalt vorhanden oder leer');
+                        }
+                    });
+
+                    // Content-Updates zurück ins Textarea schreiben
+                    editor.on('Change KeyUp Paste NodeChange', function() {
+                        editor.save(); // Schreibt automatisch zurück ins Textarea
+                    });
+                }
+            });
+        }, 100); // Kurze Verzögerung, um sicherzustellen, dass alles geladen ist
     });
 </script>

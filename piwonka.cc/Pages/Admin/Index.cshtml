@@ -1,42 +1,107 @@
-﻿@page
-@model Piwonka.CC.Pages.Admin.IndexModel
+﻿
+@page
+@model Piwonka.CC.Pages.Admin.Seiten.IndexModel
 @{
-    ViewData["Title"] = "Admin-Bereich";
+    ViewData["Title"] = "Seiten verwalten";
 }
 
-<div class="row mb-4">
-    <div class="col">
-        <h1>Admin-Bereich</h1>
+<div class="container py-4">
+    @await Component.InvokeAsync("AdminNav")
+    
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Seiten verwalten</h1>
+        </div>
+        <div class="col-auto">
+            <a asp-page="Create" class="btn btn-primary">Neue Seite erstellen</a>
+        </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Posts verwalten</h5>
-                <p class="card-text">Erstellen, bearbeiten und löschen Sie Ihre Blog-Posts.</p>
-                <a asp-page="/Admin/Posts/Index" class="btn btn-primary">Posts verwalten</a>
-            </div>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Kategorien verwalten</h5>
-                <p class="card-text">Verwalten Sie die Kategorien für Ihre Blog-Posts.</p>
-                <a asp-page="/Admin/Kategorien/Index" class="btn btn-primary">Kategorien verwalten</a>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">WordPress-Import</h5>
-                <p class="card-text">Importieren Sie Posts von Ihrer WordPress-Seite.</p>
-                <a asp-page="/Admin/Import/Wordpress" class="btn btn-primary">Import starten</a>
+    }
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    @if (Model.Seiten.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Titel</th>
+                                        <th>Slug</th>
+                                        <th>Status</th>
+                                        <th>Menü</th>
+                                        <th>Template</th>
+                                        <th>Erstellt</th>
+                                        <th>Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var seite in Model.Seiten)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@seite.Titel</strong>
+                                                @if (!string.IsNullOrEmpty(seite.MenuGruppe))
+                                                {
+                                                    <br><small class="text-muted">Gruppe: @seite.MenuGruppe</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                <code>/seite/@seite.Slug</code>
+                                            </td>
+                                            <td>
+                                                @if (seite.IstVeroeffentlicht)
+                                                {
+                                                    <span class="badge bg-success">Veröffentlicht</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Entwurf</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (seite.ImMenuAnzeigen)
+                                                {
+                                                    <span class="badge bg-info">Im Menü (@seite.Reihenfolge)</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-light text-dark">Nicht im Menü</span>
+                                                }
+                                            </td>
+                                            <td>@seite.Template</td>
+                                            <td>@seite.ErstelltAm.ToString("dd.MM.yyyy")</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-page="./Edit" asp-route-id="@seite.Id" class="btn btn-sm btn-outline-primary">Bearbeiten</a>
+                                                    <a asp-page="/Seite" asp-route-slug="@seite.Slug" target="_blank" class="btn btn-sm btn-outline-info">Anzeigen</a>
+                                                    <a asp-page="./Delete" asp-route-id="@seite.Id" class="btn btn-sm btn-outline-danger">Löschen</a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <h4>Keine Seiten vorhanden</h4>
+                            <p class="text-muted">Erstellen Sie Ihre erste Seite, um zu beginnen.</p>
+                            <a asp-page="Create" class="btn btn-primary">Erste Seite erstellen</a>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>

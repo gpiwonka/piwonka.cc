@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Piwonka.CC.Data;
-using Piwonka.CC.Data.Piwonka.CC.Data;
+using Piwonka.CC.Data;
 using Piwonka.CC.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +31,7 @@ namespace Piwonka.CC.Pages.Blog
             // Den angeforderten Post laden
             Post = await _context.Posts
                 .Include(p => p.Kategorie)
-                .FirstOrDefaultAsync(m => m.Id == id && m.IstVeröffentlicht);
+                .FirstOrDefaultAsync(m => m.Id == id && m.IstVeroeffentlicht);
 
             if (Post == null)
             {
@@ -46,18 +46,18 @@ namespace Piwonka.CC.Pages.Blog
 
             // Vorherigen und nächsten Post laden
             PreviousPost = await _context.Posts
-                .Where(p => p.IstVeröffentlicht && p.ErstelltAm < Post.ErstelltAm)
+                .Where(p => p.IstVeroeffentlicht && p.ErstelltAm < Post.ErstelltAm)
                 .OrderByDescending(p => p.ErstelltAm)
                 .FirstOrDefaultAsync();
 
             NextPost = await _context.Posts
-                .Where(p => p.IstVeröffentlicht && p.ErstelltAm > Post.ErstelltAm)
+                .Where(p => p.IstVeroeffentlicht && p.ErstelltAm > Post.ErstelltAm)
                 .OrderBy(p => p.ErstelltAm)
                 .FirstOrDefaultAsync();
 
             // Neueste Posts laden (außer dem aktuellen)
             RecentPosts = await _context.Posts
-                .Where(p => p.IstVeröffentlicht && p.Id != Post.Id)
+                .Where(p => p.IstVeroeffentlicht && p.Id != Post.Id)
                 .OrderByDescending(p => p.ErstelltAm)
                 .Take(5)
                 .ToListAsync();
@@ -66,7 +66,7 @@ namespace Piwonka.CC.Pages.Blog
             if (Post.KategorieId.HasValue)
             {
                 RelatedPosts = await _context.Posts
-                    .Where(p => p.IstVeröffentlicht && p.Id != Post.Id && p.KategorieId == Post.KategorieId)
+                    .Where(p => p.IstVeroeffentlicht && p.Id != Post.Id && p.KategorieId == Post.KategorieId)
                     .OrderByDescending(p => p.ErstelltAm)
                     .Take(4)
                     .ToListAsync();
