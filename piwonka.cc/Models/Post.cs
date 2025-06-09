@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Piwonka.CC.Models;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Piwonka.CC.Models
 {
@@ -23,6 +24,12 @@ namespace Piwonka.CC.Models
         public string? BildUrl { get; set; }
 
         public bool IstVeroeffentlicht { get; set; } = false;
+
+        // NEU: Sprache hinzufügen
+        [Required]
+        [StringLength(5)]
+        [Display(Name = "Sprache")]
+        public string Sprache { get; set; } = "de"; // Standard: Deutsch
 
         // Fremdschlüssel für Kategorie
         public int? KategorieId { get; set; }
