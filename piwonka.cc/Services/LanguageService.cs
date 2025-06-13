@@ -1,76 +1,38 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Piwonka.CC.Data;
-using Piwonka.CC.Interfaces;
-using Piwonka.CC.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Piwonka.CC.Models;
 
 namespace Piwonka.CC.Services
 {
-	public class LanguageService : ILanguageService
+	public class LanguageService 
 	{
-		private readonly ApplicationDbContext _context;
-		private readonly IHttpContextAccessor _httpContextAccessor;
-		private const string LANGUAGE_SESSION_KEY = "CurrentLanguage";
-
-		public LanguageService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
+		public static Dictionary<Language, string> SupportedLanguages { get; } = new Dictionary<Language, string>
 		{
-			_context = context;
-			_httpContextAccessor = httpContextAccessor;
-		}
+			{ Language.DE, "Deutsch" },
+			{ Language.EN, "English" }
+		};
 
-		public async Task<List<Language>> GetActiveLanguagesAsync()
+		public static Language GetLanguageFromString(string languageCode)
 		{
-			return await _context.Languages
-				.Where(l => l.IsActive)
-				.OrderBy(l => l.SortOrder)
-				.ThenBy(l => l.Name)
-				.ToListAsync();
-		}
-
-		public async Task<Language?> GetLanguageByCodeAsync(string code)
-		{
-			return await _context.Languages
-				.FirstOrDefaultAsync(l => l.Code == code && l.IsActive);
-		}
-
-		public async Task<Language> GetDefaultLanguageAsync()
-		{
-			var defaultLang = await _context.Languages
-				.FirstOrDefaultAsync(l => l.IsDefault && l.IsActive);
-
-			if (defaultLang == null)
+			return languageCode?.ToUpper() switch
 			{
-				defaultLang = await _context.Languages
-					.FirstOrDefaultAsync(l => l.IsActive);
-			}
-
-			return defaultLang ?? new Language { Code = "de", Name = "Deutsch" };
+				"DE" => Language.DE,
+				"EN" => Language.EN,
+				_ => Language.DE // Default
+			};
 		}
 
-		public async Task<string> GetCurrentLanguageCodeAsync()
+		public static string GetLanguageCode(Language language)
 		{
-			var session = _httpContextAccessor.HttpContext?.Session;
-			var currentLang = session?.GetString(LANGUAGE_SESSION_KEY);
-
-			if (string.IsNullOrEmpty(currentLang))
+			return language switch
 			{
-				var defaultLang = await GetDefaultLanguageAsync();
-				currentLang = defaultLang.Code;
-				await SetCurrentLanguageAsync(currentLang);
-			}
-
-			return currentLang;
+				Language.DE => "de",
+				Language.EN => "en",
+				_ => "de"
+			};
 		}
 
-		public async Task SetCurrentLanguageAsync(string languageCode)
+		public static string GetLanguageName(Language language)
 		{
-			var session = _httpContextAccessor.HttpContext?.Session;
-			if (session != null)
-			{
-				session.SetString(LANGUAGE_SESSION_KEY, languageCode);
-			}
+			return SupportedLanguages.TryGetValue(language, out var name) ? name : "Deutsch";
 		}
 	}
 }

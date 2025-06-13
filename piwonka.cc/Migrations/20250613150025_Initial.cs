@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Piwonka.CC.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,7 +20,8 @@ namespace Piwonka.CC.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Beschreibung = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                    Beschreibung = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Language = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -47,7 +48,8 @@ namespace Piwonka.CC.Migrations
                     ParentId = table.Column<int>(type: "int", nullable: true),
                     MenuGruppe = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     MenuTitel = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    IstMenuGruppe = table.Column<bool>(type: "bit", nullable: false)
+                    IstMenuGruppe = table.Column<bool>(type: "bit", nullable: false),
+                    Language = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -71,6 +73,7 @@ namespace Piwonka.CC.Migrations
                     ErstelltAm = table.Column<DateTime>(type: "datetime2", nullable: false),
                     BildUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IstVeroeffentlicht = table.Column<bool>(type: "bit", nullable: false),
+                    Language = table.Column<int>(type: "int", nullable: false),
                     KategorieId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -85,12 +88,12 @@ namespace Piwonka.CC.Migrations
 
             migrationBuilder.InsertData(
                 table: "Kategorien",
-                columns: new[] { "Id", "Beschreibung", "Name" },
+                columns: new[] { "Id", "Beschreibung", "Language", "Name" },
                 values: new object[,]
                 {
-                    { 1, "Allgemeine Beiträge", "Allgemein" },
-                    { 2, "Beiträge über Technologie", "Technologie" },
-                    { 3, "Beiträge über Lifestyle", "Lifestyle" }
+                    { 1, "Allgemeine Beiträge", 0, "Allgemein" },
+                    { 2, "Beiträge über Technologie", 0, "Technologie" },
+                    { 3, "Beiträge über Lifestyle", 0, "Lifestyle" }
                 });
 
             migrationBuilder.CreateIndex(

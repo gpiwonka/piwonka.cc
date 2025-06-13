@@ -12,8 +12,8 @@ using Piwonka.CC.Data;
 namespace Piwonka.CC.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250609150901_Init")]
-    partial class Init
+    [Migration("20250613150025_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,8 +35,11 @@ namespace Piwonka.CC.Migrations
 
                     b.Property<string>("Beschreibung")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Language")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -52,18 +55,21 @@ namespace Piwonka.CC.Migrations
                         {
                             Id = 1,
                             Beschreibung = "Allgemeine Beiträge",
+                            Language = 0,
                             Name = "Allgemein"
                         },
                         new
                         {
                             Id = 2,
                             Beschreibung = "Beiträge über Technologie",
+                            Language = 0,
                             Name = "Technologie"
                         },
                         new
                         {
                             Id = 3,
                             Beschreibung = "Beiträge über Lifestyle",
+                            Language = 0,
                             Name = "Lifestyle"
                         });
                 });
@@ -90,6 +96,9 @@ namespace Piwonka.CC.Migrations
                         .HasColumnType("bit");
 
                     b.Property<int?>("KategorieId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Language")
                         .HasColumnType("int");
 
                     b.Property<string>("Slug")
@@ -134,6 +143,9 @@ namespace Piwonka.CC.Migrations
 
                     b.Property<bool>("IstVeroeffentlicht")
                         .HasColumnType("bit");
+
+                    b.Property<int>("Language")
+                        .HasColumnType("int");
 
                     b.Property<string>("MenuGruppe")
                         .HasMaxLength(100)

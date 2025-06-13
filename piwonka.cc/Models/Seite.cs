@@ -52,7 +52,7 @@ namespace Piwonka.CC.Models
         [ForeignKey("ParentId")]
         public virtual Seite? Parent { get; set; }
 
-        public virtual Language Language { get; set; } = null!;
+        public virtual Language Language { get; set; } = Language.DE;
 
         public virtual ICollection<Seite> Children { get; set; } = new List<Seite>();
     }

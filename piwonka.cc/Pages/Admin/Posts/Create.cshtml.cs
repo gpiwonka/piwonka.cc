@@ -51,7 +51,7 @@ namespace Piwonka.CC.Pages.admin.Posts
         }
 
         // API-Endpoint für AJAX-Kategorien-Abfrage
-        public async Task<IActionResult> OnGetKategorienByLanguageAsync(string language)
+        public async Task<IActionResult> OnGetKategorienByLanguageAsync(Language language)
         {
             var kategorien = await _context.Kategorien
                 .Where(k => k.Language == language)
@@ -69,7 +69,7 @@ namespace Piwonka.CC.Pages.admin.Posts
                 "Value", "Text", Post.Language);
 
             // Kategorien für die ausgewählte Language (Standard: Deutsch)
-            var selectedLanguage = Post.Language ?? "de";
+            var selectedLanguage = Post.Language;
             var kategorien = await _context.Kategorien
                 .Where(k => k.Language == selectedLanguage)
                 .ToListAsync();

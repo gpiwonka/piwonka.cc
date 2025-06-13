@@ -12,8 +12,8 @@ using Piwonka.CC.Data;
 namespace Piwonka.CC.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250613125651_AddLanguageFields")]
-    partial class AddLanguageFields
+    [Migration("20250613172037_PropertiesAdded")]
+    partial class PropertiesAdded
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,42 +38,25 @@ namespace Piwonka.CC.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                    b.Property<DateTime>("ErstelltAm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Language")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Kategorien");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Beschreibung = "Allgemeine Beiträge",
-                            Language = "de",
-                            Name = "Allgemein"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Beschreibung = "Beiträge über Technologie",
-                            Language = "de",
-                            Name = "Technologie"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Beschreibung = "Beiträge über Lifestyle",
-                            Language = "de",
-                            Name = "Lifestyle"
-                        });
                 });
 
             modelBuilder.Entity("Piwonka.CC.Models.Post", b =>
@@ -90,6 +73,10 @@ namespace Piwonka.CC.Migrations
                     b.Property<DateTime>("ErstelltAm")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Excerpt")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Inhalt")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -100,10 +87,16 @@ namespace Piwonka.CC.Migrations
                     b.Property<int?>("KategorieId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                    b.Property<int>("Language")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MetaDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("MetaKeywords")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -147,6 +140,9 @@ namespace Piwonka.CC.Migrations
 
                     b.Property<bool>("IstVeroeffentlicht")
                         .HasColumnType("bit");
+
+                    b.Property<int>("Language")
+                        .HasColumnType("int");
 
                     b.Property<string>("MenuGruppe")
                         .HasMaxLength(100)

@@ -41,6 +41,9 @@ namespace Piwonka.CC
             // Add services to the container.
             builder.Services.AddScoped<IMenuService, MenuService>();
             builder.Services.AddScoped<FileUploadService>();
+            
+            builder.Services.AddScoped<ISearchService, SearchService>();
+
             builder.Services.AddRazorPages();
 
 

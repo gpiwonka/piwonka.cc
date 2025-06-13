@@ -14,8 +14,12 @@ namespace Piwonka.CC.Models
         [StringLength(100)]
         public string Beschreibung { get; set; }
 
-        public virtual Language Language { get; set; } = null!;
+        public virtual Language Language { get; set; } 
         // Navigation Property für Posts
         public ICollection<Post> Posts { get; set; }
+
+        [StringLength(100)]
+        public string Slug { get; internal set; } = default!;
+        public DateTime ErstelltAm { get; internal set; }
     }
 }

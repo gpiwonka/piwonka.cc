@@ -1,4 +1,3 @@
-// Pages/Blog/Detail.cshtml.cs - Erweitert um Sprach-Support
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -19,67 +18,96 @@ namespace Piwonka.CC.Pages.Blog
 		}
 
 		public Post Post { get; set; }
-		public Post? PreviousPost { get; set; }
-		public Post? NextPost { get; set; }
+		public Post PreviousPost { get; set; }
+		public Post NextPost { get; set; }
 		public IList<Post> RelatedPosts { get; set; } = new List<Post>();
-		public IList<Post> RecentPosts { get; set; } = new List<Post>();
 		public IList<Kategorie> Kategorien { get; set; } = new List<Kategorie>();
-		public Language CurrentLanguage { get; set; }
+		public IList<Post> RecentPosts { get; set; } = new List<Post>();
+		public Language CurrentLanguage { get; set; } = Language.DE;
 
-		public async Task<IActionResult> OnGetAsync(int id, string? slug)
+		public async Task<IActionResult> OnGetAsync(int id, string slug = null, string lang = null)
 		{
+			// Sprache aus Parameter oder Standard setzen
+			CurrentLanguage = !string.IsNullOrEmpty(lang)
+				? LanguageService.GetLanguageFromString(lang)
+				: Language.DE;
+
+			// Post laden
 			Post = await _context.Posts
 				.Include(p => p.Kategorie)
-				.FirstOrDefaultAsync(p => p.Id == id && p.IstVeroeffentlicht);
+				.Where(p => p.Id == id && p.IstVeroeffentlicht && p.Language == CurrentLanguage)
+				.FirstOrDefaultAsync();
 
 			if (Post == null)
 			{
 				return NotFound();
 			}
 
-			CurrentLanguage = Post.Language;
+			// SEO: Redirect wenn Slug nicht korrekt ist
+			if (!string.IsNullOrEmpty(Post.Slug) && slug != Post.Slug)
+			{
+				var languageCode = LanguageService.GetLanguageCode(CurrentLanguage);
+				return RedirectToPage("./Detail", new { id = Post.Id, slug = Post.Slug, lang = languageCode });
+			}
 
-			// Language in Session setzen, falls vom Post abweichend
-			LanguageService.SetCurrentLanguage(HttpContext, CurrentLanguage);
+			// Vorherigen und nächsten Post laden
+			await LoadNavigationPosts(id);
 
-			// Navigation (vorheriger/nächster Post in derselben Language)
+			// Verwandte Posts laden (gleiche Kategorie)
+			await LoadRelatedPosts();
+
+			// Kategorien für Sidebar laden
+			await LoadKategorien();
+
+			// Neueste Posts für Sidebar laden
+			await LoadRecentPosts();
+
+			return Page();
+		}
+
+		private async Task LoadNavigationPosts(int currentPostId)
+		{
 			PreviousPost = await _context.Posts
-				.Where(p => p.Id < id && p.IstVeroeffentlicht && p.Language == CurrentLanguage)
+				.Where(p => p.Id < currentPostId && p.IstVeroeffentlicht && p.Language == CurrentLanguage)
 				.OrderByDescending(p => p.Id)
 				.FirstOrDefaultAsync();
 
 			NextPost = await _context.Posts
-				.Where(p => p.Id > id && p.IstVeroeffentlicht && p.Language == CurrentLanguage)
+				.Where(p => p.Id > currentPostId && p.IstVeroeffentlicht && p.Language == CurrentLanguage)
 				.OrderBy(p => p.Id)
 				.FirstOrDefaultAsync();
+		}
 
-			// Verwandte Posts (gleiche Kategorie, gleiche Language)
+		private async Task LoadRelatedPosts()
+		{
 			if (Post.KategorieId.HasValue)
 			{
 				RelatedPosts = await _context.Posts
-					.Include(p => p.Kategorie)
 					.Where(p => p.KategorieId == Post.KategorieId &&
-							   p.Id != id &&
+							   p.Id != Post.Id &&
 							   p.IstVeroeffentlicht &&
 							   p.Language == CurrentLanguage)
+					.OrderByDescending(p => p.ErstelltAm)
 					.Take(4)
 					.ToListAsync();
 			}
+		}
 
-			// Neueste Posts in derselben Language
+		private async Task LoadKategorien()
+		{
+			Kategorien = await _context.Kategorien
+				.Where(k => k.Posts.Any(p => p.IstVeroeffentlicht && p.Language == CurrentLanguage))
+				.OrderBy(k => k.Name)
+				.ToListAsync();
+		}
+
+		private async Task LoadRecentPosts()
+		{
 			RecentPosts = await _context.Posts
-				.Where(p => p.IstVeroeffentlicht && p.Language == CurrentLanguage)
+				.Where(p => p.IstVeroeffentlicht && p.Language == CurrentLanguage && p.Id != Post.Id)
 				.OrderByDescending(p => p.ErstelltAm)
 				.Take(5)
 				.ToListAsync();
-
-			// Kategorien für die Sidebar
-			Kategorien = await _context.Kategorien
-				.Where(k => k.Language == CurrentLanguage)
-				.OrderBy(k => k.Name)
-				.ToListAsync();
-
-			return Page();
 		}
 	}
 }

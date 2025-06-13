@@ -12,7 +12,17 @@ namespace Piwonka.CC.Models
         [StringLength(100)]
         public string Titel { get; set; }
 
-        [Required]
+
+		[Required]
+		public string Excerpt { get; set; }
+
+        [StringLength(500)]
+        public string? MetaDescription { get; set; }
+        [StringLength(500)]
+        public string? MetaKeywords { get; set; }
+        [DataType(DataType.Html)]   
+
+		[Required]
         public string Inhalt { get; set; }
 
         [StringLength(100)]
@@ -25,7 +35,7 @@ namespace Piwonka.CC.Models
 
         public bool IstVeroeffentlicht { get; set; } = false;
 
-		public virtual Language Language { get; set; } = null!;
+		public virtual Language Language { get; set; } = Language.DE;
 
 		// Fremdschlüssel für Kategorie
 		public int? KategorieId { get; set; }
