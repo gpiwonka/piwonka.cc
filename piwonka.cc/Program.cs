@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Piwonka.CC.Data;
+using Piwonka.CC.Middleware;
 using Piwonka.CC.Services;
 
 namespace Piwonka.CC
@@ -38,12 +39,15 @@ namespace Piwonka.CC
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
+            builder.Services.AddHttpContextAccessor();
             // Add services to the container.
             builder.Services.AddScoped<IMenuService, MenuService>();
             builder.Services.AddScoped<FileUploadService>();
-            
-            builder.Services.AddScoped<ISearchService, SearchService>();
 
+            builder.Services.AddScoped<ILanguageService, LanguageService>();
+            builder.Services.AddScoped<ISearchService, SearchService>();
+            
+            
             builder.Services.AddRazorPages();
 
 
@@ -71,6 +75,8 @@ namespace Piwonka.CC
                     // Environment.Exit(1);
                 }
             }
+
+            app.UseMiddleware<LanguageMiddleware>();
 
 
             // Configure the HTTP request pipeline.

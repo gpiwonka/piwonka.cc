@@ -30,7 +30,7 @@ namespace Piwonka.CC.Services
             // Aktuelle Sprache ermitteln
             if (languageCode == null)
             {
-                languageCode = await _languageService.GetCurrentLanguageCodeAsync();
+                languageCode = await _languageService.GetCurrentLanguageAsync();
             }
 
             
@@ -82,7 +82,7 @@ namespace Piwonka.CC.Services
 
             if (languageCode == null)
             {
-                languageCode = await _languageService.GetCurrentLanguageCodeAsync();
+                languageCode = await _languageService.GetCurrentLanguageAsync();
             }
 
             

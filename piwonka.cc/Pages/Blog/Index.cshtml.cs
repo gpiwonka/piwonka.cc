@@ -11,11 +11,13 @@ namespace Piwonka.CC.Pages.Blog
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILanguageService languageService;
         private const int PageSize = 9;
 
-        public IndexModel(ApplicationDbContext context)
+        public IndexModel(ApplicationDbContext context, ILanguageService language)
         {
             _context = context;
+            languageService = language;        
         }
 
         public IList<Post> Posts { get; set; } = new List<Post>();
@@ -29,7 +31,7 @@ namespace Piwonka.CC.Pages.Blog
         {
             // Sprache aus Parameter oder Standard setzen
             CurrentLanguage = !string.IsNullOrEmpty(lang)
-                ? LanguageService.GetLanguageFromString(lang)
+                ? languageService.GetLanguageFromString(lang)
                 : Language.DE;
 
             CurrentKategorie = kategorie;

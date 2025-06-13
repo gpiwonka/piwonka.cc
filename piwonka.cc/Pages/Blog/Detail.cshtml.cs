@@ -11,10 +11,12 @@ namespace Piwonka.CC.Pages.Blog
 	public class DetailModel : PageModel
 	{
 		private readonly ApplicationDbContext _context;
+		private readonly ILanguageService _languageService;
 
-		public DetailModel(ApplicationDbContext context)
+		public DetailModel(ApplicationDbContext context,ILanguageService languageService)
 		{
 			_context = context;
+			_languageService = languageService;	
 		}
 
 		public Post Post { get; set; }
@@ -25,11 +27,11 @@ namespace Piwonka.CC.Pages.Blog
 		public IList<Post> RecentPosts { get; set; } = new List<Post>();
 		public Language CurrentLanguage { get; set; } = Language.DE;
 
-		public async Task<IActionResult> OnGetAsync(int id, string slug = null, string lang = null)
+		public async Task<IActionResult> OnGetAsync(int id, string slug = null, String lang = null)
 		{
 			// Sprache aus Parameter oder Standard setzen
 			CurrentLanguage = !string.IsNullOrEmpty(lang)
-				? LanguageService.GetLanguageFromString(lang)
+				? _languageService.GetLanguageFromString(lang)
 				: Language.DE;
 
 			// Post laden
@@ -46,7 +48,7 @@ namespace Piwonka.CC.Pages.Blog
 			// SEO: Redirect wenn Slug nicht korrekt ist
 			if (!string.IsNullOrEmpty(Post.Slug) && slug != Post.Slug)
 			{
-				var languageCode = LanguageService.GetLanguageCode(CurrentLanguage);
+				var languageCode = LanguageService.GetLanguageCodeStatic(CurrentLanguage);
 				return RedirectToPage("./Detail", new { id = Post.Id, slug = Post.Slug, lang = languageCode });
 			}
 

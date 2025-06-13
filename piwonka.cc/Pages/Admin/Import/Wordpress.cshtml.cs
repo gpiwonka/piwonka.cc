@@ -118,7 +118,8 @@ namespace Piwonka.CC.Pages.admin.Import
                     defaultKategorie = new Kategorie
                     {
                         Name = "Allgemein",
-                        Beschreibung = "Allgemeine Beiträge"
+                        Beschreibung = "Allgemeine Beiträge",
+                        Slug = "allgemein",     
                     };
                     _context.Kategorien.Add(defaultKategorie);
                     await _context.SaveChangesAsync();
@@ -264,6 +265,7 @@ namespace Piwonka.CC.Pages.admin.Import
                     {
                         Titel = title,
                         Inhalt = modifiedContent,
+                        Excerpt = item.Element(excerpt + "excerpt")?.Value ?? string.Empty,     
                         ErstelltAm = publishDate,
                         BildUrl = featuredImageUrl,
                         IstVeroeffentlicht = isPublished,

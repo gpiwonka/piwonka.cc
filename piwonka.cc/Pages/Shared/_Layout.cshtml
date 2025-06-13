@@ -39,7 +39,7 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand fw-bold" asp-area="" asp-page="/Index">
-                    <i class="fas fa-globe text-primary"></i> Piwonka.CC
+                    piwonka.cc
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -52,12 +52,12 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">
-                                <i class="fas fa-home"></i> Home
+                                Home
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Blog/Index">
-                                <i class="fas fa-blog"></i> Blog
+                                Blog
                             </a>
                         </li>
 
@@ -80,49 +80,10 @@
 
                         <!-- Admin-Bereich -->
                         <div class="dropdown">
-                            <a class="btn btn-outline-secondary btn-sm dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-cog"></i> Admin
+
+                            <a class="dropdown-item" asp-page="/Admin/Index">
+                                Admin
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
-                                <li>
-                                    <a class="dropdown-item" asp-page="/Admin/Index">
-                                        <i class="fas fa-tachometer-alt"></i> Dashboard
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" asp-page="/Admin/Seiten/Index">
-                                        <i class="fas fa-file-alt"></i> Seiten
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-page="/Admin/Blog/Index">
-                                        <i class="fas fa-blog"></i> Blog
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-page="/Admin/Kategorien/Index">
-                                        <i class="fas fa-tags"></i> Kategorien
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" asp-page="/Admin/Languages/Index">
-                                        <i class="fas fa-language"></i> Sprachen
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-page="/Admin/Search/Index">
-                                        <i class="fas fa-search"></i> Suchindex
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" asp-page="/Admin/Settings/Index">
-                                        <i class="fas fa-cog"></i> Einstellungen
-                                    </a>
-                                </li>
-                            </ul>
                         </div>
                     </div>
                 </div>
@@ -138,40 +99,17 @@
 
     <footer class="border-top footer text-muted mt-5">
         <div class="container">
-            <div class="row py-4">
-                <div class="col-md-3">
-                    <h5>Piwonka.CC</h5>
-                    <p class="small text-muted">Ihr Content Management System mit Mehrsprachigkeit und Volltextsuche.</p>
-                </div>
-                <div class="col-md-3">
-                    <h6>Navigation</h6>
-                    @await Component.InvokeAsync("MenuSeiten")
-                </div>
-                <div class="col-md-3">
-                    <h6>Rechtliches</h6>
-                    @await Component.InvokeAsync("FooterSeiten")
-                </div>
-                <div class="col-md-3">
-                    <h6>Suche & Sprachen</h6>
-                    <div class="mb-2">
-                        @await Component.InvokeAsync("SearchBox")
-                    </div>
-                    <div>
-                        @await Component.InvokeAsync("LanguageSwitcher")
-                    </div>
-                </div>
-            </div>
-            <hr>
+
             <div class="row">
                 <div class="col-md-6">
                     <p class="small mb-0">
-                        &copy; @DateTime.Now.Year - Piwonka.CC -
+                        &copy; @DateTime.Now.Year - piwonka.cc - Baustelle seit 2000
                         <a asp-area="" asp-page="/Privacy" class="text-decoration-none">Privacy</a>
                     </p>
                 </div>
                 <div class="col-md-6 text-end">
                     <p class="small mb-0">
-                        <i class="fas fa-heart text-danger"></i> Made with ASP.NET Core
+                        made with ASP.NET Core
                     </p>
                 </div>
             </div>

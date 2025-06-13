@@ -38,7 +38,7 @@ namespace Piwonka.CC.Pages
             if (!string.IsNullOrEmpty(query))
             {
                 SearchForm.Query = query;
-                SearchForm.LanguageCode = await _languageService.GetCurrentLanguageCodeAsync();
+                SearchForm.LanguageCode = await _languageService.GetCurrentLanguageAsync();
 
                 SearchResult = await _searchService.SearchAsync(query, SearchForm.LanguageCode, page);
             }
