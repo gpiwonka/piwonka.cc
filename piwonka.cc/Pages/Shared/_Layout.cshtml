@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿<!-- Pages/Shared/_Layout.cshtml (UPDATE mit Suchbox und Sprachauswahl) -->
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="utf-8" />
@@ -26,36 +27,104 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Piwonka.CC.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- TinyMCE CDN -->
-    
-    <script src="https://cdn.tiny.cloud/1/1zkjur802vt67keg6k9wfwsj6861v424cpawdcgzoqdcqftj/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
-    <!-- Zusätzliche Styles für Seiten -->
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">piwonka.cc</a>
+                <a class="navbar-brand fw-bold" asp-area="" asp-page="/Index">
+                    <i class="fas fa-globe text-primary"></i> Piwonka.CC
+                </a>
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
+                    <!-- Hauptmenü -->
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">
+                                <i class="fas fa-home"></i> Home
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Blog/Index">Blog</a>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Blog/Index">
+                                <i class="fas fa-blog"></i> Blog
+                            </a>
                         </li>
 
                         <!-- Hierarchisches Menü -->
                         @await Component.InvokeAsync("MainMenu")
 
                     </ul>
+
+                    <!-- Rechte Seite: Suche, Sprache, Admin -->
+                    <div class="d-flex align-items-center">
+                        <!-- Suchbox -->
+                        <div class="me-3">
+                            @await Component.InvokeAsync("SearchBox")
+                        </div>
+
+                        <!-- Sprachauswahl -->
+                        <div class="me-3">
+                            @await Component.InvokeAsync("LanguageSwitcher")
+                        </div>
+
+                        <!-- Admin-Bereich -->
+                        <div class="dropdown">
+                            <a class="btn btn-outline-secondary btn-sm dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-cog"></i> Admin
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Admin/Index">
+                                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Admin/Seiten/Index">
+                                        <i class="fas fa-file-alt"></i> Seiten
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Admin/Blog/Index">
+                                        <i class="fas fa-blog"></i> Blog
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Admin/Kategorien/Index">
+                                        <i class="fas fa-tags"></i> Kategorien
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Admin/Languages/Index">
+                                        <i class="fas fa-language"></i> Sprachen
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Admin/Search/Index">
+                                        <i class="fas fa-search"></i> Suchindex
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Admin/Settings/Index">
+                                        <i class="fas fa-cog"></i> Einstellungen
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -67,15 +136,43 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer text-muted mt-5">
         <div class="container">
-            <div class="row py-3">
+            <div class="row py-4">
+                <div class="col-md-3">
+                    <h5>Piwonka.CC</h5>
+                    <p class="small text-muted">Ihr Content Management System mit Mehrsprachigkeit und Volltextsuche.</p>
+                </div>
+                <div class="col-md-3">
+                    <h6>Navigation</h6>
+                    @await Component.InvokeAsync("MenuSeiten")
+                </div>
+                <div class="col-md-3">
+                    <h6>Rechtliches</h6>
+                    @await Component.InvokeAsync("FooterSeiten")
+                </div>
+                <div class="col-md-3">
+                    <h6>Suche & Sprachen</h6>
+                    <div class="mb-2">
+                        @await Component.InvokeAsync("SearchBox")
+                    </div>
+                    <div>
+                        @await Component.InvokeAsync("LanguageSwitcher")
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
                 <div class="col-md-6">
-                    &copy; 2024 - Piwonka.CC -
-                    <a asp-area="" asp-page="/Privacy">Privacy</a>
+                    <p class="small mb-0">
+                        &copy; @DateTime.Now.Year - Piwonka.CC -
+                        <a asp-area="" asp-page="/Privacy" class="text-decoration-none">Privacy</a>
+                    </p>
                 </div>
                 <div class="col-md-6 text-end">
-                    @await Component.InvokeAsync("FooterSeiten")
+                    <p class="small mb-0">
+                        <i class="fas fa-heart text-danger"></i> Made with ASP.NET Core
+                    </p>
                 </div>
             </div>
         </div>
@@ -85,7 +182,6 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <!-- JavaScript Section für Seiten -->
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

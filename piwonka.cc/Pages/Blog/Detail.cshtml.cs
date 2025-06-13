@@ -24,7 +24,7 @@ namespace Piwonka.CC.Pages.Blog
 		public IList<Post> RelatedPosts { get; set; } = new List<Post>();
 		public IList<Post> RecentPosts { get; set; } = new List<Post>();
 		public IList<Kategorie> Kategorien { get; set; } = new List<Kategorie>();
-		public string CurrentLanguage { get; set; } = "de";
+		public Language CurrentLanguage { get; set; }
 
 		public async Task<IActionResult> OnGetAsync(int id, string? slug)
 		{

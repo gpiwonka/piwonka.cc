@@ -23,7 +23,7 @@ namespace Piwonka.CC.Pages.Blog
 		public int CurrentPage { get; set; } = 1;
 		public int TotalPages { get; set; }
 		public string? CurrentKategorie { get; set; }
-		public string CurrentLanguage { get; set; } = "de";
+		public Language CurrentLanguage { get; set; }
 
 		[BindProperty(SupportsGet = true)]
 		public string? Lang { get; set; }

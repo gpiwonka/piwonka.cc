@@ -14,12 +14,7 @@ namespace Piwonka.CC.Models
         [StringLength(100)]
         public string Beschreibung { get; set; }
 
-        // NEU: Language hinzufügen
-        [Required]
-        [StringLength(5)]
-        [Display(Name = "Language")]
-        public string Language { get; set; } = "de"; // Standard: Deutsch
-
+        public virtual Language Language { get; set; } = null!;
         // Navigation Property für Posts
         public ICollection<Post> Posts { get; set; }
     }

@@ -25,14 +25,10 @@ namespace Piwonka.CC.Models
 
         public bool IstVeroeffentlicht { get; set; } = false;
 
-        // NEU: Language hinzufügen
-        [Required]
-        [StringLength(5)]
-        [Display(Name = "Language")]
-        public string Language { get; set; } = "de"; // Standard: Deutsch
+		public virtual Language Language { get; set; } = null!;
 
-        // Fremdschlüssel für Kategorie
-        public int? KategorieId { get; set; }
+		// Fremdschlüssel für Kategorie
+		public int? KategorieId { get; set; }
 
         // Navigation Property für Kategorie
         [ForeignKey("KategorieId")]

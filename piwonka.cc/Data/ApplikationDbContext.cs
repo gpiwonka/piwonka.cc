@@ -15,6 +15,7 @@ namespace Piwonka.CC.Data
         public DbSet<Kategorie> Kategorien { get; set; }
         public DbSet<Seite> Seiten { get; set; } // Neue DbSet für Seiten
 
+        public DbSet<Language> Languages { get; set; } // Neue DbSet für Sprachen   
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
