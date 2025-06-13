@@ -25,11 +25,11 @@ namespace Piwonka.CC.Models
 
         public bool IstVeroeffentlicht { get; set; } = false;
 
-        // NEU: Sprache hinzufügen
+        // NEU: Language hinzufügen
         [Required]
         [StringLength(5)]
-        [Display(Name = "Sprache")]
-        public string Sprache { get; set; } = "de"; // Standard: Deutsch
+        [Display(Name = "Language")]
+        public string Language { get; set; } = "de"; // Standard: Deutsch
 
         // Fremdschlüssel für Kategorie
         public int? KategorieId { get; set; }

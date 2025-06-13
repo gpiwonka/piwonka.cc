@@ -22,6 +22,14 @@
                 <span asp-validation-for="Post.Titel" class="text-danger"></span>
             </div>
 
+            <!-- NEU: Sprach-Auswahl -->
+            <div class="mb-3">
+                <label asp-for="Post.Language" class="form-label">Language</label>
+                <select asp-for="Post.Language" class="form-select" asp-items="Model.SprachOptions" id="sprachSelect">
+                </select>
+                <span asp-validation-for="Post.Language" class="text-danger"></span>
+            </div>
+
             <div class="mb-3">
                 <label asp-for="Post.Inhalt" class="form-label">Inhalt</label>
                 <textarea asp-for="Post.Inhalt" class="form-control" rows="10"></textarea>
@@ -41,7 +49,7 @@
 
             <div class="mb-3">
                 <label asp-for="Post.KategorieId" class="form-label">Kategorie</label>
-                <select asp-for="Post.KategorieId" class="form-select" asp-items="Model.KategorieOptions">
+                <select asp-for="Post.KategorieId" class="form-select" asp-items="Model.KategorieOptions" id="kategorieSelect">
                     <option value="">-- Keine Kategorie --</option>
                 </select>
             </div>
@@ -58,4 +66,27 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    
+    <script>
+        // Kategorien basierend auf Language laden
+        document.getElementById('sprachSelect').addEventListener('change', function() {
+            const selectedLanguage = this.value;
+            
+            // AJAX-Call um Kategorien für die Language zu laden
+            fetch(`/Admin/Posts/Create?handler=KategorienByLanguage&language=${selectedLanguage}`)
+                .then(response => response.json())
+                .then(data => {
+                    const kategorieSelect = document.getElementById('kategorieSelect');
+                    kategorieSelect.innerHTML = '<option value="">-- Keine Kategorie --</option>';
+                    
+                    data.forEach(kategorie => {
+                        const option = document.createElement('option');
+                        option.value = kategorie.id;
+                        option.textContent = kategorie.name;
+                        kategorieSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Fehler beim Laden der Kategorien:', error));
+        });
+    </script>
 }

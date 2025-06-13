@@ -30,10 +30,10 @@ namespace Piwonka.CC.Pages.Blog
 
 		public async Task OnGetAsync(int page = 1, string? kategorie = null)
 		{
-			// Aktuelle Sprache bestimmen
+			// Aktuelle Language bestimmen
 			CurrentLanguage = LanguageService.GetCurrentLanguage(HttpContext);
 
-			// Sprache aus URL-Parameter berücksichtigen
+			// Language aus URL-Parameter berücksichtigen
 			if (!string.IsNullOrEmpty(Lang) && LanguageService.SupportedLanguages.ContainsKey(Lang))
 			{
 				CurrentLanguage = Lang;
@@ -44,10 +44,10 @@ namespace Piwonka.CC.Pages.Blog
 			CurrentKategorie = kategorie;
 			const int pageSize = 6;
 
-			// Query für Posts in der aktuellen Sprache
+			// Query für Posts in der aktuellen Language
 			var query = _context.Posts
 				.Include(p => p.Kategorie)
-				.Where(p => p.IstVeroeffentlicht && p.Sprache == CurrentLanguage);
+				.Where(p => p.IstVeroeffentlicht && p.Language == CurrentLanguage);
 
 			// Kategorie-Filter
 			if (!string.IsNullOrEmpty(kategorie) && int.TryParse(kategorie, out int kategorieId))
@@ -66,9 +66,9 @@ namespace Piwonka.CC.Pages.Blog
 				.Take(pageSize)
 				.ToListAsync();
 
-			// Kategorien für die aktuelle Sprache
+			// Kategorien für die aktuelle Language
 			Kategorien = await _context.Kategorien
-				.Where(k => k.Sprache == CurrentLanguage)
+				.Where(k => k.Language == CurrentLanguage)
 				.OrderBy(k => k.Name)
 				.ToListAsync();
 		}

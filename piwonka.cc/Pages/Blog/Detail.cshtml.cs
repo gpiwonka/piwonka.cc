@@ -37,23 +37,23 @@ namespace Piwonka.CC.Pages.Blog
 				return NotFound();
 			}
 
-			CurrentLanguage = Post.Sprache;
+			CurrentLanguage = Post.Language;
 
-			// Sprache in Session setzen, falls vom Post abweichend
+			// Language in Session setzen, falls vom Post abweichend
 			LanguageService.SetCurrentLanguage(HttpContext, CurrentLanguage);
 
-			// Navigation (vorheriger/nächster Post in derselben Sprache)
+			// Navigation (vorheriger/nächster Post in derselben Language)
 			PreviousPost = await _context.Posts
-				.Where(p => p.Id < id && p.IstVeroeffentlicht && p.Sprache == CurrentLanguage)
+				.Where(p => p.Id < id && p.IstVeroeffentlicht && p.Language == CurrentLanguage)
 				.OrderByDescending(p => p.Id)
 				.FirstOrDefaultAsync();
 
 			NextPost = await _context.Posts
-				.Where(p => p.Id > id && p.IstVeroeffentlicht && p.Sprache == CurrentLanguage)
+				.Where(p => p.Id > id && p.IstVeroeffentlicht && p.Language == CurrentLanguage)
 				.OrderBy(p => p.Id)
 				.FirstOrDefaultAsync();
 
-			// Verwandte Posts (gleiche Kategorie, gleiche Sprache)
+			// Verwandte Posts (gleiche Kategorie, gleiche Language)
 			if (Post.KategorieId.HasValue)
 			{
 				RelatedPosts = await _context.Posts
@@ -61,21 +61,21 @@ namespace Piwonka.CC.Pages.Blog
 					.Where(p => p.KategorieId == Post.KategorieId &&
 							   p.Id != id &&
 							   p.IstVeroeffentlicht &&
-							   p.Sprache == CurrentLanguage)
+							   p.Language == CurrentLanguage)
 					.Take(4)
 					.ToListAsync();
 			}
 
-			// Neueste Posts in derselben Sprache
+			// Neueste Posts in derselben Language
 			RecentPosts = await _context.Posts
-				.Where(p => p.IstVeroeffentlicht && p.Sprache == CurrentLanguage)
+				.Where(p => p.IstVeroeffentlicht && p.Language == CurrentLanguage)
 				.OrderByDescending(p => p.ErstelltAm)
 				.Take(5)
 				.ToListAsync();
 
 			// Kategorien für die Sidebar
 			Kategorien = await _context.Kategorien
-				.Where(k => k.Sprache == CurrentLanguage)
+				.Where(k => k.Language == CurrentLanguage)
 				.OrderBy(k => k.Name)
 				.ToListAsync();
 

@@ -20,7 +20,7 @@ namespace Piwonka.CC.Services
 
         public static string GetCurrentLanguage(HttpContext httpContext)
         {
-            // Sprache aus URL-Parameter
+            // Language aus URL-Parameter
             var langFromQuery = httpContext.Request.Query["lang"].FirstOrDefault();
             if (!string.IsNullOrEmpty(langFromQuery) && SupportedLanguages.ContainsKey(langFromQuery))
             {
@@ -28,7 +28,7 @@ namespace Piwonka.CC.Services
                 return langFromQuery;
             }
 
-            // Sprache aus Session
+            // Language aus Session
             var langFromSession = httpContext.Session.GetString("SelectedLanguage");
             if (!string.IsNullOrEmpty(langFromSession) && SupportedLanguages.ContainsKey(langFromSession))
             {

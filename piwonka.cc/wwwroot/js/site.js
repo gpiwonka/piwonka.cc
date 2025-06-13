@@ -23,7 +23,7 @@ function refreshPrismCodeBlocks() {
             if (parentPre && parentPre.tagName === 'PRE') {
                 parentPre.classList.add('line-numbers');
 
-                // Versuchen, die Sprache zu erkennen
+                // Versuchen, die Language zu erkennen
                 let language = 'markup'; // Standard ist HTML/Markup
                 const code = block.textContent;
 

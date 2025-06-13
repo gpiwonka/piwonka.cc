@@ -25,7 +25,7 @@ namespace Piwonka.CC.Helpers
             var codeBlockRegex = new Regex(@"<pre><code>(.*?)</code></pre>", RegexOptions.Singleline);
             content = codeBlockRegex.Replace(content, match =>
             {
-                // Versuchen, die Sprache zu erkennen
+                // Versuchen, die Language zu erkennen
                 var code = match.Groups[1].Value;
                 var language = "markup"; // Standard ist HTML/Markup
 
