@@ -1,0 +1,114 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="split-layout">
+    <div class="right-side">
+        <img src="/images/piwonka.png" alt="Bild" />
+    </div>
+    <div class="left-side">
+        <h1>PIWONKA</h1>
+        <p class="tagline" id="tagline">Code, Coffee & Creative Chaos</p>
+    </div>
+</div>
+
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .split-layout {
+        display: flex;
+        height: 100vh;
+    }
+
+    .left-side, .right-side {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .left-side {
+        background-color: white;
+        flex-direction: column;
+    }
+
+        .left-side h1 {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #FF9A3C; /* Papaya-Farbe */
+            margin-bottom: 0.5rem;
+        }
+
+    .tagline {
+        font-size: 1.5rem;
+        color: #666;
+        font-weight: 300;
+        text-align: center;
+        opacity: 1;
+        transition: opacity 0.5s ease-in-out;
+        margin: 0;
+        min-height: 2rem;
+    }
+
+        .tagline.fade-out {
+            opacity: 0;
+        }
+
+    .right-side img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const taglines = [
+            "Code, Coffee & Creative Chaos",
+            "Debugging Life Since 1972",
+            "Where Bugs Become Features",
+            "Ctrl+Alt+Delicious Content",
+            "Powered by Caffeine & Curiosity",
+            "Making Digital Magic Happen",
+            "Baustelle seit 2000 - und stolz drauf!",
+            "Wo Ideen Realität werden",
+            "Professional Procrastinator & Pixel Pusher",
+            "Turning Coffee into Code",
+            "Still Under Construction",
+            "Work in Progress Since Forever",
+            "Eternally Beta",
+            "Coming Soon... Eventually",
+            "Digital Dreams & Data",
+            "Bits, Bytes & Brilliant Ideas",
+            "Creating Tomorrow, Today",
+            "Think Different, Code Better"
+        ];
+
+        const taglineElement = document.getElementById('tagline');
+        let currentIndex = 0;
+
+        function changeTagline() {
+            // Fade out
+            taglineElement.classList.add('fade-out');
+
+            setTimeout(() => {
+                // Change text
+                currentIndex = (currentIndex + 1) % taglines.length;
+                taglineElement.textContent = taglines[currentIndex];
+
+                // Fade in
+                taglineElement.classList.remove('fade-out');
+            }, 250); // Half of transition time
+        }
+
+        // Change tagline every 3 seconds
+        setInterval(changeTagline, 3000);
+    });
+</script>

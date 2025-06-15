@@ -1,0 +1,156 @@
+﻿@page
+@model Piwonka.CC.Pages.Admin.Seiten.IndexModel
+@{
+    ViewData["Title"] = "Seiten verwalten";
+}
+
+<div class="container py-4">
+    @await Component.InvokeAsync("AdminNav")
+
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Seiten verwalten</h1>
+        </div>
+        <div class="col-auto">
+            <a asp-page="Create" class="btn btn-primary">Neue Seite erstellen</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Sprachfilter -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body py-2">
+                    <form method="get" class="d-flex align-items-center">
+                        <label class="form-label me-2 mb-0">Filter nach Sprache:</label>
+                        <select name="language" class="form-select form-select-sm me-2" style="width: auto;" onchange="this.form.submit()">
+                            <option value="">Alle Sprachen</option>
+                            <option value="0" selected="@(Model.Language == 0)">🇩🇪 Deutsch</option>
+                            <option value="1" selected="@(Model.Language == 1)">🇬🇧 English</option>
+                        </select>
+                        @if (Model.Language.HasValue)
+                        {
+                            <a href="@Url.Page("./Index")" class="btn btn-sm btn-outline-secondary">Filter zurücksetzen</a>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body py-2">
+                    <small class="text-muted">
+                        <strong>@Model.Seiten.Count()</strong> Seiten gesamt
+                        (@Model.Seiten.Count(s => s.Language == Piwonka.CC.Models.Language.DE) deutsch,
+                        @Model.Seiten.Count(s => s.Language == Piwonka.CC.Models.Language.EN) englisch)
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    @if (Model.Seiten.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Titel</th>
+                                        <th>Sprache</th>
+                                        <th>Slug</th>
+                                        <th>Status</th>
+                                        <th>Menü</th>
+                                        <th>Template</th>
+                                        <th>Erstellt</th>
+                                        <th>Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var seite in Model.Seiten)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@seite.Titel</strong>
+                                                @if (!string.IsNullOrEmpty(seite.MenuGruppe))
+                                                {
+                                                    <br>
+                                                    <small class="text-muted">Gruppe: @seite.MenuGruppe</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (seite.Language == Piwonka.CC.Models.Language.DE)
+                                                {
+                                                    <span class="badge bg-primary">🇩🇪 DE</span>
+                                                }
+                                                else if (seite.Language == Piwonka.CC.Models.Language.EN)
+                                                {
+                                                    <span class="badge bg-success">🇬🇧 EN</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">?</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <code>/seite/@seite.Slug</code>
+                                            </td>
+                                            <td>
+                                                @if (seite.IstVeroeffentlicht)
+                                                {
+                                                    <span class="badge bg-success">Veröffentlicht</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Entwurf</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (seite.ImMenuAnzeigen)
+                                                {
+                                                    <span class="badge bg-info">Im Menü (@seite.Reihenfolge)</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-light text-dark">Nicht im Menü</span>
+                                                }
+                                            </td>
+                                            <td>@seite.Template</td>
+                                            <td>@seite.ErstelltAm.ToString("dd.MM.yyyy")</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-page="./Edit" asp-route-id="@seite.Id" class="btn btn-sm btn-outline-primary">Bearbeiten</a>
+                                                    <a asp-page="/Seite" asp-route-slug="@seite.Slug" target="_blank" class="btn btn-sm btn-outline-info">Anzeigen</a>
+                                                    <a asp-page="./Delete" asp-route-id="@seite.Id" class="btn btn-sm btn-outline-danger">Löschen</a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <h4>Keine Seiten vorhanden</h4>
+                            <p class="text-muted">Erstellen Sie Ihre erste Seite, um zu beginnen.</p>
+                            <a asp-page="Create" class="btn btn-primary">Erste Seite erstellen</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,47 @@
+﻿
+@using Piwonka.CC.Services
+@using Piwonka.CC.Models
+@inject ILanguageService LanguageService
+
+@{
+    var currentLanguage = await LanguageService.GetCurrentLanguageAsync();
+    var availableLanguages = await LanguageService.GetActiveLanguagesAsync();
+    var currentUrl = Context.Request.Path + Context.Request.QueryString;
+}
+
+<div class="dropdown">
+    <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-globe"></i> @LanguageService.GetLanguageName(currentLanguage)
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+        @foreach (var language in availableLanguages)
+        {
+            var languageCode = LanguageService.GetLanguageCode(language);
+            var switchUrl = GetLanguageSwitchUrl(currentUrl, languageCode);
+
+            <li>
+                <a class="dropdown-item @(language == currentLanguage ? "active" : "")"
+                   href="@switchUrl">
+                    <i class="bi bi-check-circle-fill text-success @(language == currentLanguage ? "" : "d-none")"></i>
+                    @LanguageService.GetLanguageName(language)
+                </a>
+            </li>
+        }
+    </ul>
+</div>
+
+@functions {
+    private string GetLanguageSwitchUrl(string currentUrl, string languageCode)
+    {
+        var uri = new UriBuilder(Context.Request.Scheme, Context.Request.Host.Host, Context.Request.Host.Port ?? -1);
+        uri.Path = Context.Request.Path;
+
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(Context.Request.QueryString.Value ?? "");
+        query["lang"] = languageCode;
+
+        uri.Query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("", query)
+            .TrimStart('?');
+
+        return uri.ToString();
+    }
+}

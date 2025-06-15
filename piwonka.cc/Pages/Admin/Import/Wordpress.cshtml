@@ -1,0 +1,95 @@
+﻿@page
+@model Piwonka.CC.Pages.admin.Import.WordpressModel
+
+@{
+    ViewData["Title"] = "WordPress-Import";
+}
+
+<div class="row mb-4">
+    <div class="col">
+        <h1>WordPress-Posts importieren</h1>
+        <p class="lead">Laden Sie Ihre WordPress-Export-Datei hoch, um Ihre Posts zu importieren.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        @if (Model.StatusMessage != null)
+        {
+            <div class="alert @(Model.Success ? "alert-success" : "alert-danger")" role="alert">
+                @Model.StatusMessage
+            </div>
+        }
+
+        <form method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="wpXmlFile" class="form-label">WordPress-Export-Datei (XML)</label>
+                <input type="file" id="wpXmlFile" name="wpXmlFile" class="form-control" accept=".xml" required />
+                <div class="form-text">
+                    Die XML-Datei aus dem WordPress-Export (Tools > Exportieren)
+                </div>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" id="importImages" name="importImages" class="form-check-input" value="true" checked />
+                <label for="importImages" class="form-check-label">Bilder importieren</label>
+                <div class="form-text">
+                    Versucht, Bilder aus den Posts herunterzuladen und zu speichern
+                </div>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" id="defaultCategory" name="defaultCategory" class="form-check-input" value="true" checked />
+                <label for="defaultCategory" class="form-check-label">Standard-Kategorie verwenden</label>
+                <div class="form-text">
+                    Wenn aktiviert, werden alle Posts der Kategorie "Allgemein" zugeordnet. Andernfalls werden WordPress-Kategorien importiert.
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-upload"></i> Import starten
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.ImportedPosts != null && Model.ImportedPosts.Count > 0)
+{
+    <div class="row mt-4">
+        <div class="col">
+            <h3>Importierte Posts (@Model.ImportedPosts.Count)</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Titel</th>
+                        <th>Datum</th>
+                        <th>Kategorie</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var post in Model.ImportedPosts)
+                    {
+                        <tr>
+                            <td>@post.Titel</td>
+                            <td>@post.ErstelltAm.ToString("dd.MM.yyyy")</td>
+                            <td>@(post.Kategorie?.Name ?? "Keine Kategorie")</td>
+                            <td>
+                                @if (post.IstVeroeffentlicht)
+                                {
+                                    <span class="badge bg-success">Veröffentlicht</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Entwurf</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

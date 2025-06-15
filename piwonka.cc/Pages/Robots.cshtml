@@ -1,0 +1,11 @@
+﻿@page
+@{
+    Response.ContentType = "text/plain";
+}User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: @(Request.Scheme)://@(Request.Host)/sitemap
+
+# Disallow admin areas
+Disallow: /Admin/

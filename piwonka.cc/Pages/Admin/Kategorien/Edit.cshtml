@@ -1,0 +1,116 @@
+﻿@page "{id:int}"
+@model Piwonka.CC.Pages.Admin.Kategorien.EditModel
+@{
+    ViewData["Title"] = "Kategorie bearbeiten";
+}
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Kategorie bearbeiten</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <form method="post" id="editKategorieForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+                <input type="hidden" asp-for="KategorieViewModel.Id" />
+                
+                <div class="mb-3">
+                    <label asp-for="KategorieViewModel.Name" class="form-label">Name</label>
+                    <input asp-for="KategorieViewModel.Name" class="form-control" required />
+                    <span asp-validation-for="KategorieViewModel.Name" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label asp-for="KategorieViewModel.Language" class="form-label">@(Model.CurrentLanguage == Piwonka.CC.Models.Language.DE ? "Sprache" : "Language")</label>
+                        <select asp-for="KategorieViewModel.Language" class="form-select" asp-items="Model.LanguageOptions">
+                        </select>
+                        <span asp-validation-for="KategorieViewModel.Language" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="KategorieViewModel.Beschreibung" class="form-label">Beschreibung</label>
+                    <span asp-validation-for="KategorieViewModel.Beschreibung" class="text-danger"></span>
+                    
+                    <!-- TinyMCE Editor für Beschreibung -->
+                    <textarea id="KategorieViewModel_Beschreibung" name="KategorieViewModel.Beschreibung" rows="6" class="form-control">@Html.Raw(Model.KategorieViewModel?.Beschreibung)</textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <a asp-page="./Index" class="btn btn-secondary">Abbrechen</a>
+                    <button type="button" class="btn btn-primary" onclick="saveKategorie()">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        let kategorieEditorInitialized = false;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initKategorieEditor();
+        });
+        
+        function initKategorieEditor() {
+            if (typeof tinymce === 'undefined') {
+                setTimeout(initKategorieEditor, 100);
+                return;
+            }
+            
+            if (kategorieEditorInitialized) {
+                return;
+            }
+            
+            console.log('Initialisiere TinyMCE für Kategorie-Beschreibung...');
+            
+            tinymce.init({
+                selector: '#KategorieViewModel_Beschreibung',
+                height: 200,
+                plugins: 'lists link code table',
+                toolbar: 'undo redo | bold italic | bullist numlist | link | code',
+                menubar: false,
+                entity_encoding: 'raw',
+                
+                init_instance_callback: function(editor) {
+                    console.log('Kategorie-Editor initialisiert:', editor.id);
+                    kategorieEditorInitialized = true;
+                    
+                    // Ursprünglichen Inhalt setzen
+                    var textarea = document.getElementById('KategorieViewModel_Beschreibung');
+                    if (textarea && textarea.value) {
+                        editor.setContent(textarea.value);
+                    }
+                },
+                
+                setup: function(editor) {
+                    editor.on('Change KeyUp Paste NodeChange', function() {
+                        var content = editor.getContent();
+                        document.getElementById('KategorieViewModel_Beschreibung').value = content;
+                    });
+                }
+            });
+        }
+        
+        function saveKategorie() {
+            console.log('saveKategorie() aufgerufen');
+            
+            // TinyMCE-Inhalt explizit speichern
+            var editor = tinymce.get('KategorieViewModel_Beschreibung');
+            if (editor) {
+                var content = editor.getContent();
+                document.getElementById('KategorieViewModel_Beschreibung').value = content;
+                console.log('Kategorie-Beschreibung gesetzt:', content);
+            }
+            
+            // Form absenden
+            document.getElementById('editKategorieForm').submit();
+        }
+    </script>
+}

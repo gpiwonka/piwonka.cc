@@ -1,0 +1,129 @@
+﻿@page "/search"
+@model Piwonka.CC.Pages.SearchModel
+@{
+    ViewData["Title"] = string.IsNullOrEmpty(Model.SearchResult.Query) ? "Suche" : $"Suche: {Model.SearchResult.Query}";
+    if (!string.IsNullOrEmpty(Model.SearchResult.Query))
+    {
+        ViewData["MetaDescription"] = $"Suchergebnisse für '{Model.SearchResult.Query}' - {Model.SearchResult.TotalResults} Ergebnisse gefunden";
+    }
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h1>🔍 Suche</h1>
+            
+            <!-- Suchformular -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" id="searchForm">
+                        <div class="input-group">
+                            <input type="text" asp-for="SearchForm.Query" class="form-control form-control-lg" 
+                                   placeholder="Was suchen Sie?" autocomplete="off" id="searchInput">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-search"></i> Suchen
+                            </button>
+                        </div>
+                        <div id="suggestions" class="list-group mt-2" style="display: none;"></div>
+                        <span asp-validation-for="SearchForm.Query" class="text-danger"></span>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sprachauswahl -->
+            @if (Model.AvailableLanguages.Count > 1)
+            {
+                <div class="mb-3">
+                    <label class="form-label">Sprache:</label>
+                    @foreach (var lang in Model.AvailableLanguages)
+                    {
+                        <a href="?query=@Model.SearchForm.Query&lang=@lang" 
+                           class="btn btn-sm @(lang == Model.SearchResult.LanguageCode ? "btn-primary" : "btn-outline-primary") me-2">
+                            @lang.ToString("g");     
+                        </a>
+                    }
+                </div>
+            }
+
+            <!-- Suchergebnisse -->
+            @if (!string.IsNullOrEmpty(Model.SearchResult.Query))
+            {
+                <div class="search-results">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3>Suchergebnisse</h3>
+                        <small class="text-muted">
+                            @Model.SearchResult.TotalResults Ergebnisse für "@Model.SearchResult.Query"
+                        </small>
+                    </div>
+
+                    @if (Model.SearchResult.Results.Any())
+                    {
+                        @foreach (var result in Model.SearchResult.Results)
+                        {
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title">
+                                                <a href="@result.Url" class="text-decoration-none">@result.Title</a>
+                                            </h5>
+                                            <p class="card-text text-muted"></p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-calendar"></i> @result.CreatedAt.ToString("dd.MM.yyyy")
+                                                </small>
+                                                <span class="badge bg-secondary">@result.Type</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Pagination -->
+                        @if (Model.SearchResult.TotalPages > 1)
+                        {
+                            <nav aria-label="Suchergebnisse Pagination">
+                                <ul class="pagination justify-content-center">
+                                    @if (Model.SearchResult.HasPreviousPage)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="?query=@Model.SearchResult.Query&page=@(Model.SearchResult.CurrentPage - 1)&lang=@Model.SearchResult.LanguageCode">
+                                                Zurück
+                                            </a>
+                                        </li>
+                                    }
+
+                                    @for (int i = Math.Max(1, Model.SearchResult.CurrentPage - 2); i <= Math.Min(Model.SearchResult.TotalPages, Model.SearchResult.CurrentPage + 2); i++)
+                                    {
+                                        <li class="page-item @(i == Model.SearchResult.CurrentPage ? "active" : "")">
+                                            <a class="page-link" href="?query=@Model.SearchResult.Query&page=@i&lang=@Model.SearchResult.LanguageCode">@i</a>
+                                        </li>
+                                    }
+
+                                    @if (Model.SearchResult.HasNextPage)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="?query=@Model.SearchResult.Query&page=@(Model.SearchResult.CurrentPage + 1)&lang=@Model.SearchResult.LanguageCode">
+                                                Weiter
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </nav>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h4>Keine Ergebnisse gefunden</h4>
+                            <p class="text-muted">Versuchen Sie es mit anderen Suchbegriffen oder prüfen Sie die Rechtschreibung.</p>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+

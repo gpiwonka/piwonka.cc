@@ -1,0 +1,534 @@
+﻿@page "/datenschutz"
+@model Piwonka.CC.Pages.DatenschutzModel
+@{
+    ViewData["Title"] = "Datenschutz";
+    ViewData["MetaDescription"] = "Datenschutz bei piwonka.cc - Vollständige Transparenz über unseren Umgang mit Ihren Daten. Kein Google Analytics, kein Tracking.";
+    ViewData["MetaKeywords"] = "Datenschutz, DSGVO, Privacy, Tracking-frei, Google Analytics frei";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-9 mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-bold mb-3">🔒 Datenschutz</h1>
+                <p class="lead text-muted">Transparenz und Respekt für Ihre Privatsphäre</p>
+                <div class="alert alert-success d-inline-block">
+                    <strong>🌟 Tracking-frei seit 2000!</strong> Diese Website verzichtet bewusst auf jegliches Nutzer-Tracking.
+                </div>
+            </div>
+
+            <!-- Schnellübersicht -->
+            <div class="row mb-5">
+                <div class="col-md-4">
+                    <div class="card h-100 border-success">
+                        <div class="card-body text-center">
+                            <i class="fas fa-shield-alt fa-2x text-success mb-3"></i>
+                            <h5>Keine Tracker</h5>
+                            <p class="small">Wir verwenden kein Google Analytics oder ähnliche Tracking-Tools.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body text-center">
+                            <i class="fas fa-cookie-bite fa-2x text-primary mb-3"></i>
+                            <h5>Minimale Cookies</h5>
+                            <p class="small">Nur technisch notwendige Session-Cookies für die Funktionalität.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-info">
+                        <div class="card-body text-center">
+                            <i class="fas fa-user-shield fa-2x text-info mb-3"></i>
+                            <h5>DSGVO-konform</h5>
+                            <p class="small">Vollständige Einhaltung aller europäischen Datenschutzbestimmungen.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hauptinhalt -->
+            <div class="accordion" id="datenschutzAccordion">
+
+                <!-- Verantwortlicher -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading1">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                            1. Verantwortlicher für die Datenverarbeitung
+                        </button>
+                    </h2>
+                    <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#datenschutzAccordion">
+                        <div class="accordion-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Kontaktdaten:</h6>
+                                    <address>
+                                        <strong>[Ihr Name/Firmenname]</strong><br>
+                                        [Straße Hausnummer]<br>
+                                        [PLZ Ort]<br>
+                                        Österreich
+                                    </address>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Kontakt:</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="fas fa-envelope me-2"></i> <a href="mailto:[email]">[Ihre E-Mail]</a></li>
+                                        <li><i class="fas fa-phone me-2"></i> [Telefonnummer]</li>
+                                        <li><i class="fas fa-globe me-2"></i> piwonka.cc</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Was wir NICHT machen -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading2">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                            2. Was wir NICHT tun - Unser Versprechen
+                        </button>
+                    </h2>
+                    <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#datenschutzAccordion">
+                        <div class="accordion-body">
+                            <div class="alert alert-success">
+                                <h5><i class="fas fa-heart text-danger me-2"></i>Datenschutz-freundlich by Design</h5>
+                                <p>Diese Website wurde bewusst <strong>ohne jegliche Tracking-Technologien</strong> entwickelt:</p>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>❌ Keine Analytics:</h6>
+                                    <ul class="list-unstyled">
+                                        <li>• Google Analytics</li>
+                                        <li>• Google Tag Manager</li>
+                                        <li>• Adobe Analytics</li>
+                                        <li>• Matomo/Piwik</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>❌ Kein Social Tracking:</h6>
+                                    <ul class="list-unstyled">
+                                        <li>• Facebook Pixel</li>
+                                        <li>• Twitter-Tracker</li>
+                                        <li>• LinkedIn Insights</li>
+                                        <li>• Instagram-Tracking</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>❌ Keine Werbung:</h6>
+                                    <ul class="list-unstyled">
+                                        <li>• Google Ads</li>
+                                        <li>• Remarketing</li>
+                                        <li>• Personalisierte Anzeigen</li>
+                                        <li>• Affiliate-Tracking</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>❌ Keine externen Dienste:</h6>
+                                    <ul class="list-unstyled">
+                                        <li>• Hotjar/Heatmaps</li>
+                                        <li>• A/B-Testing Tools</li>
+                                        <li>• CDN-Tracking</li>
+                                        <li>• Font-Provider-Tracking</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-light p-3 rounded mt-3">
+                                <strong>💡 Warum wir das machen:</strong> Wir glauben, dass eine Website auch ohne Überwachung ihrer Besucher funktionieren kann. Ihre Privatsphäre ist wichtiger als unsere Statistiken.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Welche Daten wir sammeln -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading3">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                            3. Welche Daten wir sammeln (minimal!)
+                        </button>
+                    </h2>
+                    <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#datenschutzAccordion">
+                        <div class="accordion-body">
+                            <div class="alert alert-info">
+                                <strong>📊 Grundsatz:</strong> Wir sammeln nur die absolut notwendigen Daten für den Betrieb der Website.
+                            </div>
+
+                            <h6>3.1 Automatisch erfasste Daten (Server-Logs):</h6>
+                            <div class="table-responsive mb-4">
+                                <table class="table table-sm table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Datentyp</th>
+                                            <th>Zweck</th>
+                                            <th>Speicherdauer</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>IP-Adresse (anonymisiert)</td>
+                                            <td>Sicherheit, Spam-Schutz</td>
+                                            <td>7 Tage</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Datum/Uhrzeit des Besuchs</td>
+                                            <td>Technische Wartung</td>
+                                            <td>30 Tage</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Aufgerufene Seite</td>
+                                            <td>Fehlerdiagnose</td>
+                                            <td>30 Tage</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Browser-Information</td>
+                                            <td>Kompatibilität</td>
+                                            <td>30 Tage</td>
+                                        </tr>
+                                        <tr>
+                                            <td>HTTP-Status-Code</td>
+                                            <td>Fehleranalyse</td>
+                                            <td>30 Tage</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h6>3.2 Session-Daten:</h6>
+                            <ul>
+                                <li><strong>Sprachauswahl:</strong> Damit die Website in Ihrer gewählten Sprache angezeigt wird</li>
+                                <li><strong>Session-ID:</strong> Für die technische Funktionalität (verschwindet beim Schließen des Browsers)</li>
+                                <li><strong>CSRF-Token:</strong> Schutz vor Cross-Site-Request-Forgery-Angriffen</li>
+                            </ul>
+
+                            <h6>3.3 Freiwillig übermittelte Daten:</h6>
+                            <p>Nur wenn Sie uns aktiv kontaktieren:</p>
+                            <ul>
+                                <li>Name (falls angegeben)</li>
+                                <li>E-Mail-Adresse</li>
+                                <li>Nachrichteninhalt</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cookies -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading4">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
+                            4. Cookies - Nur das Nötigste
+                        </button>
+                    </h2>
+                    <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#datenschutzAccordion">
+                        <div class="accordion-body">
+                            <div class="alert alert-success">
+                                <strong>🍪 Cookie-Politik:</strong> Wir verwenden nur technisch notwendige Cookies. Keine Werbe- oder Tracking-Cookies!
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Cookie-Name</th>
+                                            <th>Typ</th>
+                                            <th>Zweck</th>
+                                            <th>Lebensdauer</th>
+                                            <th>Einwilligung nötig?</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="table-success">
+                                            <td><code>ASP.NET_SessionId</code></td>
+                                            <td>Technisch</td>
+                                            <td>Session-Verwaltung</td>
+                                            <td>Browser-Session</td>
+                                            <td>❌ Nein</td>
+                                        </tr>
+                                        <tr class="table-success">
+                                            <td><code>CurrentLanguage</code></td>
+                                            <td>Funktional</td>
+                                            <td>Sprachauswahl merken</td>
+                                            <td>Browser-Session</td>
+                                            <td>❌ Nein</td>
+                                        </tr>
+                                        <tr class="table-success">
+                                            <td><code>__RequestVerificationToken</code></td>
+                                            <td>Sicherheit</td>
+                                            <td>CSRF-Schutz</td>
+                                            <td>Browser-Session</td>
+                                            <td>❌ Nein</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="bg-light p-3 rounded">
+                                <strong>ℹ️ Hinweis:</strong> Alle verwendeten Cookies sind gemäß ePrivacy-Verordnung <em>technisch notwendig</em> und erfordern keine Einwilligung. Sie können diese Cookies in Ihren Browser-Einstellungen blockieren, jedoch kann dies die Funktionalität der Website beeinträchtigen.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rechtsgrundlagen -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading5">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5">
+                            5. Rechtsgrundlagen (DSGVO)
+                        </button>
+                    </h2>
+                    <div id="collapse5" class="accordion-collapse collapse" data-bs-parent="#datenschutzAccordion">
+                        <div class="accordion-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header bg-primary text-white">
+                                            <h6 class="mb-0">Art. 6 Abs. 1 lit. f DSGVO</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <strong>Berechtigtes Interesse</strong>
+                                            <ul class="small mt-2">
+                                                <li>Bereitstellung der Website</li>
+                                                <li>IT-Sicherheit</li>
+                                                <li>Fehlerdiagnose</li>
+                                                <li>Server-Logs</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header bg-success text-white">
+                                            <h6 class="mb-0">Art. 6 Abs. 1 lit. a DSGVO</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <strong>Einwilligung</strong>
+                                            <ul class="small mt-2">
+                                                <li>Kontaktformulare</li>
+                                                <li>Newsletter (falls vorhanden)</li>
+                                                <li>Freiwillige Angaben</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ihre Rechte -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading6">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6">
+                            6. Ihre Rechte - Wir machen es einfach
+                        </button>
+                    </h2>
+                    <div id="collapse6" class="accordion-collapse collapse" data-bs-parent="#datenschutzAccordion">
+                        <div class="accordion-body">
+                            <div class="alert alert-info">
+                                <strong>📞 Einfach anrufen oder mailen!</strong> Wir setzen Ihre Rechte unbürokratisch um.
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>🔍 Auskunftsrecht (Art. 15 DSGVO)</h6>
+                                    <p class="small">Erfahren Sie, welche Daten wir über Sie gespeichert haben.</p>
+
+                                    <h6>✏️ Berichtigungsrecht (Art. 16 DSGVO)</h6>
+                                    <p class="small">Lassen Sie falsche Daten korrigieren.</p>
+
+                                    <h6>🗑️ Löschungsrecht (Art. 17 DSGVO)</h6>
+                                    <p class="small">Verlangen Sie die Löschung Ihrer Daten.</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>⏸️ Einschränkungsrecht (Art. 18 DSGVO)</h6>
+                                    <p class="small">Beschränken Sie die Verarbeitung Ihrer Daten.</p>
+
+                                    <h6>📦 Datenübertragbarkeit (Art. 20 DSGVO)</h6>
+                                    <p class="small">Erhalten Sie Ihre Daten in einem gängigen Format.</p>
+
+                                    <h6>🚫 Widerspruchsrecht (Art. 21 DSGVO)</h6>
+                                    <p class="small">Widersprechen Sie der Datenverarbeitung.</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-light p-3 rounded">
+                                <h6>📧 So erreichen Sie uns:</h6>
+                                <ul class="list-unstyled mb-0">
+                                    <li><strong>E-Mail:</strong> <a href="mailto:[email]">[Ihre E-Mail]</a></li>
+                                    <li><strong>Betreff:</strong> "Datenschutz-Anfrage"</li>
+                                    <li><strong>Antwortzeit:</strong> Innerhalb von 30 Tagen (meist viel schneller)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hosting & Sicherheit -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading7">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse7">
+                            7. Hosting & Sicherheit
+                        </button>
+                    </h2>
+                    <div id="collapse7" class="accordion-collapse collapse" data-bs-parent="#datenschutzAccordion">
+                        <div class="accordion-body">
+                            <h6>🌐 Hosting-Partner:</h6>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <address>
+                                        <strong>[Name des Hosting-Providers]</strong><br>
+                                        [Adresse des Providers]<br>
+                                        [Land]
+                                    </address>
+                                    <p class="small">Unser Hosting-Partner verarbeitet Daten ausschließlich in unserem Auftrag und ist vertraglich zur Einhaltung der DSGVO verpflichtet.</p>
+                                </div>
+                            </div>
+
+                            <h6>🔒 Unsere Sicherheitsmaßnahmen:</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul>
+                                        <li>SSL/TLS-Verschlüsselung (HTTPS)</li>
+                                        <li>Sichere Server-Konfiguration</li>
+                                        <li>Regelmäßige Security-Updates</li>
+                                        <li>Firewall-Schutz</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul>
+                                        <li>Zugriffskontrollen</li>
+                                        <li>Verschlüsselte Backups</li>
+                                        <li>Monitoring & Alerting</li>
+                                        <li>Incident-Response-Plan</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kontakt & Beschwerden -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading8">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse8">
+                            8. Kontakt & Beschwerden
+                        </button>
+                    </h2>
+                    <div id="collapse8" class="accordion-collapse collapse" data-bs-parent="#datenschutzAccordion">
+                        <div class="accordion-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header bg-primary text-white">
+                                            <h6 class="mb-0">🤝 Direkter Kontakt zu uns</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="list-unstyled">
+                                                <li><i class="fas fa-envelope me-2"></i> <a href="mailto:[email]">[Ihre E-Mail]</a></li>
+                                                <li><i class="fas fa-phone me-2"></i> [Telefonnummer]</li>
+                                                <li><i class="fas fa-clock me-2"></i> Mo-Fr, 9-17 Uhr</li>
+                                            </ul>
+                                            <p class="small text-muted mb-0">Wir helfen gerne bei allen Datenschutz-Fragen!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header bg-warning">
+                                            <h6 class="mb-0">⚖️ Aufsichtsbehörde</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <address class="small mb-2">
+                                                <strong>Österreichische Datenschutzbehörde</strong><br>
+                                                Barichgasse 40-42<br>
+                                                1030 Wien<br>
+                                                Österreich
+                                            </address>
+                                            <p class="small mb-2">
+                                                <i class="fas fa-globe me-2"></i>
+                                                <a href="https://www.dsb.gv.at" target="_blank" rel="noopener">www.dsb.gv.at</a>
+                                            </p>
+                                            <p class="small text-muted mb-0">Falls Sie mit unseren Antworten nicht zufrieden sind.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer der Datenschutzerklärung -->
+            <div class="mt-5 text-center">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5>💙 Vielen Dank für Ihr Vertrauen!</h5>
+                        <p class="mb-3">Datenschutz ist für uns nicht nur Pflicht, sondern Überzeugung.</p>
+                        <div class="small text-muted">
+                            <strong>Letzte Aktualisierung:</strong> @DateTime.Now.ToString("dd.MM.yyyy")<br>
+                            <strong>Version:</strong> 2.0 (Tracking-frei seit 2000)
+                        </div>
+                        <div class="mt-3">
+                            <a asp-page="/Index" class="btn btn-primary me-2">
+                                <i class="fas fa-home me-2"></i>Zur Startseite
+                            </a>
+                            <a href="mailto:[email]?subject=Datenschutz-Frage" class="btn btn-outline-primary">
+                                <i class="fas fa-envelope me-2"></i>Frage stellen
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .accordion-button:not(.collapsed) {
+        background-color: #e7f3ff;
+        color: #0066cc;
+    }
+
+    .accordion-button:focus {
+        box-shadow: none;
+        border-color: #86b7fe;
+    }
+
+    .card {
+        transition: transform 0.2s ease-in-out;
+    }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+    .table th {
+        border-top: none;
+        font-weight: 600;
+    }
+
+    .alert {
+        border-left: 4px solid;
+    }
+
+    .alert-success {
+        border-left-color: #28a745;
+    }
+
+    .alert-info {
+        border-left-color: #17a2b8;
+    }
+
+    code {
+        color: #e83e8c;
+        background-color: #f8f9fa;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+    }
+</style>

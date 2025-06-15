@@ -1,0 +1,148 @@
+﻿@page
+@model Piwonka.CC.Pages.Admin.Kategorien.CreateModel
+@{
+    ViewData["Title"] = "Neue Kategorie erstellen";
+}
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Neue Kategorie erstellen</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <form method="post" id="createKategorieForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Kategorie.Name" class="form-label">Name</label>
+                    <input asp-for="Kategorie.Name" class="form-control" required />
+                    <span asp-validation-for="Kategorie.Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Kategorie.Beschreibung" class="form-label">Beschreibung</label>
+                    <span asp-validation-for="Kategorie.Beschreibung" class="text-danger"></span>
+
+                    <!-- TinyMCE Editor für Beschreibung -->
+                    <textarea id="Kategorie_Beschreibung" name="Kategorie.Beschreibung" rows="6" class="form-control">@Html.Raw(Model.Kategorie?.Beschreibung)</textarea>
+                </div>
+
+                @* Sprache auswählen *@
+                <div class="mb-3">
+                    <label asp-for="Kategorie.Language" class="form-label">Sprache</label>
+                    <select asp-for="Kategorie.Language" class="form-select" required>
+                        <option value="">-- Sprache wählen --</option>
+                        <option value="0">Deutsch</option>
+                        <option value="1">English</option>
+                    </select>
+                    <span asp-validation-for="Kategorie.Language" class="text-danger"></span>
+                </div>
+
+                @* Slug wird automatisch generiert - optional anzeigen *@
+                <div class="mb-3">
+                    <label asp-for="Kategorie.Slug" class="form-label">URL-Slug</label>
+                    <input asp-for="Kategorie.Slug" class="form-control" placeholder="Wird automatisch generiert" readonly />
+                    <div class="form-text">Wird automatisch aus dem Namen generiert</div>
+                </div>
+
+                <div class="mb-3">
+                    <a asp-page="./Index" class="btn btn-secondary">Abbrechen</a>
+                    <button type="button" class="btn btn-primary" onclick="saveKategorie()">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        let kategorieEditorInitialized = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initKategorieEditor();
+            initSlugGeneration();
+        });
+
+        function initKategorieEditor() {
+            if (typeof tinymce === 'undefined') {
+                console.log('TinyMCE noch nicht geladen, warte...');
+                setTimeout(initKategorieEditor, 100);
+                return;
+            }
+
+            if (kategorieEditorInitialized) {
+                return;
+            }
+
+            console.log('Initialisiere TinyMCE für Kategorie-Beschreibung...');
+
+            tinymce.init({
+                selector: '#Kategorie_Beschreibung',
+                height: 200,
+                plugins: 'lists link code table',
+                toolbar: 'undo redo | bold italic | bullist numlist | link | code',
+                menubar: false,
+                entity_encoding: 'raw',
+
+                init_instance_callback: function(editor) {
+                    console.log('Kategorie-Editor initialisiert:', editor.id);
+                    kategorieEditorInitialized = true;
+                },
+
+                setup: function(editor) {
+                    editor.on('Change KeyUp Paste NodeChange', function() {
+                        var content = editor.getContent();
+                        document.getElementById('Kategorie_Beschreibung').value = content;
+                    });
+                }
+            });
+        }
+
+        function initSlugGeneration() {
+            const nameInput = document.querySelector('input[name="Kategorie.Name"]');
+            const slugInput = document.querySelector('input[name="Kategorie.Slug"]');
+
+            if (nameInput && slugInput) {
+                nameInput.addEventListener('input', function() {
+                    const slug = generateSlug(this.value);
+                    slugInput.value = slug;
+                });
+            }
+        }
+
+        function generateSlug(text) {
+            return text
+                .toLowerCase()
+                .replace(/[äöüß]/g, function(match) {
+                    const map = {'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss'};
+                    return map[match];
+                })
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+        }
+
+        function saveKategorie() {
+            console.log('saveKategorie() aufgerufen');
+
+            // TinyMCE-Inhalt explizit speichern
+            var editor = tinymce.get('Kategorie_Beschreibung');
+            if (editor) {
+                var content = editor.getContent();
+                document.getElementById('Kategorie_Beschreibung').value = content;
+                console.log('Kategorie-Beschreibung gesetzt:', content);
+            }
+
+            // Form absenden
+            document.getElementById('createKategorieForm').submit();
+        }
+    </script>
+}

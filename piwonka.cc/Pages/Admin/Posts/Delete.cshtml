@@ -1,0 +1,42 @@
+﻿@page
+@model Piwonka.CC.Pages.admin.Posts.DeleteModel
+@{
+    ViewData["Title"] = "Post löschen";
+}
+
+<div class="row mb-4">
+    <div class="col">
+        <h1>Post löschen</h1>
+        <h3 class="text-danger">Sind Sie sicher, dass Sie diesen Post löschen möchten?</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>@Model.Post.Titel</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Erstellt am:</strong> @Model.Post.ErstelltAm.ToString("dd.MM.yyyy HH:mm")</p>
+                <p><strong>Status:</strong> 
+                    @if(Model.Post.IstVeroeffentlicht)
+                    {
+                        <span class="badge bg-success">Veröffentlicht</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Entwurf</span>
+                    }
+                </p>
+                <p><strong>Bild:</strong> @(string.IsNullOrEmpty(Model.Post.BildUrl) ? "Kein Bild" : Model.Post.BildUrl)</p>
+            </div>
+        </div>
+        
+        <form method="post">
+            <input type="hidden" asp-for="Post.Id" />
+            <a asp-page="./Index" class="btn btn-secondary">Abbrechen</a>
+            <button type="submit" class="btn btn-danger">Löschen</button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,80 @@
+﻿@model Piwonka.CC.ViewModels.MenuViewModel
+
+@if (Model == null)
+{
+    <!-- Fallback wenn kein Model -->
+    <li class="nav-item">
+        <span class="nav-link text-muted">Menü lädt...</span>
+    </li>
+}
+else
+{
+    <!-- Debug-Info (später entfernen) -->
+    @if (Context.RequestServices.GetService<IWebHostEnvironment>()?.IsDevelopment() == true)
+    {
+        <!--
+        Debug: @Model.TopLevelItems.Count Top-Level Items, @Model.MenuGroups.Count Gruppen
+        -->
+    }
+
+    <!-- 1. Top-Level Items zuerst anzeigen -->
+    @foreach (var item in Model.TopLevelItems)
+    {
+        @if (item.HasChildren)
+        {
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle text-dark" href="@item.Url" id="navbarDropdown@(item.Title.Replace(" ", "").Replace("-", ""))" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    @item.Title
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown@(item.Title.Replace(" ", "").Replace("-", ""))">
+                    @foreach (var child in item.Children)
+                    {
+                        <li><a class="dropdown-item" href="@child.Url">@child.Title</a></li>
+                        @if (child.HasChildren)
+                        {
+                            @foreach (var grandchild in child.Children)
+                            {
+                                <li><a class="dropdown-item ps-4" href="@grandchild.Url">↳ @grandchild.Title</a></li>
+                            }
+                        }
+                    }
+                </ul>
+            </li>
+        }
+        else
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="@item.Url">@item.Title</a>
+            </li>
+        }
+    }
+
+    <!-- 2. Dann Gruppierte Items anzeigen -->
+    @foreach (var group in Model.MenuGroups)
+    {
+        <li class="nav-item dropdown">
+            @if (group.HasUrl)
+            {
+                <a class="nav-link dropdown-toggle text-dark" href="@group.Url" id="navbarDropdown@(group.Name.Replace(" ", "").Replace("-", ""))" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    @group.Name
+                </a>
+            }
+            else
+            {
+                <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown@(group.Name.Replace(" ", "").Replace("-", ""))" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    @group.Name
+                </a>
+            }
+
+            @if (group.Items.Any())
+            {
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown@(group.Name.Replace(" ", "").Replace("-", ""))">
+                    @foreach (var item in group.Items)
+                    {
+                        <li><a class="dropdown-item" href="@item.Url">@item.Title</a></li>
+                    }
+                </ul>
+            }
+        </li>
+    }
+}

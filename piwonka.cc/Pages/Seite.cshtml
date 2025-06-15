@@ -1,0 +1,112 @@
+﻿@page "/seite/{slug}"
+@model Piwonka.CC.Pages.SeiteModel
+@{
+    ViewData["Title"] = Model.Seite.Titel;
+    if (!string.IsNullOrEmpty(Model.Seite.MetaDescription))
+    {
+        ViewData["MetaDescription"] = Model.Seite.MetaDescription;
+    }
+    if (!string.IsNullOrEmpty(Model.Seite.MetaKeywords))
+    {
+        ViewData["MetaKeywords"] = Model.Seite.MetaKeywords;
+    }
+}
+
+@if (Model.Seite.Template == "Kontakt")
+{
+    <!-- Kontakt-Template -->
+    <div class="row">
+        <div class="col-md-8">
+            <h1>@Model.Seite.Titel</h1>
+
+            <div class="content">
+                @Html.Raw(Model.Seite.Inhalt)
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Kontakt-Informationen</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>E-Mail:</strong> kontakt@piwonka.cc</p>
+                    <p><strong>Telefon:</strong> +43 123 456 789</p>
+                    <p>
+                        <strong>Adresse:</strong><br>
+                        Musterstraße 123<br>
+                        6800 Feldkirch, Österreich
+                    </p>
+                </div>
+            </div>
+
+            <!-- Kontakt-Formular -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>Nachricht senden</h5>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="contactName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="contactName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactEmail" class="form-label">E-Mail</label>
+                            <input type="email" class="form-control" id="contactEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactMessage" class="form-label">Nachricht</label>
+                            <textarea class="form-control" id="contactMessage" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Senden</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else if (Model.Seite.Template == "Vollbreite")
+{
+    <!-- Vollbreite-Template -->
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4">@Model.Seite.Titel</h1>
+
+            <div class="content">
+                @Html.Raw(Model.Seite.Inhalt)
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Standard-Template -->
+    <div class="row">
+        <div class="col-md-8">
+            <h1>@Model.Seite.Titel</h1>
+
+            <div class="content">
+                @Html.Raw(Model.Seite.Inhalt)
+            </div>
+
+            @if (Model.Seite.BearbeitetAm.HasValue)
+            {
+                <div class="mt-4">
+                    <small class="text-muted">
+                        Zuletzt bearbeitet: @Model.Seite.BearbeitetAm.Value.ToString("dd.MM.yyyy HH:mm")
+                    </small>
+                </div>
+            }
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Navigation</h5>
+                </div>
+                <div class="card-body">
+                    @await Component.InvokeAsync("MenuSeiten")
+                </div>
+            </div>
+        </div>
+    </div>
+}

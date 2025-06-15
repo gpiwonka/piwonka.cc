@@ -1,0 +1,166 @@
+﻿@page
+@model Piwonka.CC.Pages.Admin.Posts.CreateModel
+@{
+    ViewData["Title"] = "Neuen Post erstellen";
+}
+
+<div class="row mb-4">
+    <div class="col">
+        <h1>Neuen Post erstellen</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <form method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Grundinformationen</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Post.Titel" class="form-label">Titel *</label>
+                        <input asp-for="Post.Titel" class="form-control" placeholder="Geben Sie den Titel ein..." />
+                        <span asp-validation-for="Post.Titel" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Post.Slug" class="form-label">URL-Slug</label>
+                        <input asp-for="Post.Slug" class="form-control" placeholder="url-freundlicher-titel (wird automatisch generiert)" />
+                        <div class="form-text">Lassen Sie leer für automatische Generierung aus dem Titel</div>
+                        <span asp-validation-for="Post.Slug" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Post.Excerpt" class="form-label">Kurzbeschreibung *</label>
+                        <textarea asp-for="Post.Excerpt" class="form-control" rows="3" placeholder="Kurze Zusammenfassung des Posts..."></textarea>
+                        <span asp-validation-for="Post.Excerpt" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Post.Kategorie" class="form-label">Kategorie</label>
+                                <select asp-for="Post.Kategorie" class="form-select" asp-items="Model.KategorieOptions">
+                                    <option value="">-- Keine Kategorie --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Post.Language" class="form-label">Sprache</label>
+                                <select asp-for="Post.Language" class="form-select" asp-items="Model.LanguageOptions">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Inhalt</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Post.Inhalt" class="form-label">Inhalt *</label>
+                        <span asp-validation-for="Post.Inhalt" class="text-danger"></span>
+                        @{
+                            ViewData["FieldId"] = "Post_Inhalt";
+                        }
+                        <partial name="_RichTextEditor" model="@Model.Post.Inhalt" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Bild & Medien</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Post.BildUrl" class="form-label">Bild URL</label>
+                        <input asp-for="Post.BildUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                        <span asp-validation-for="Post.BildUrl" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Post.UploadedImage" class="form-label">Oder Bild hochladen</label>
+                        <input asp-for="Post.UploadedImage" type="file" class="form-control" accept="image/*" />
+                        <div class="form-text">Akzeptierte Formate: JPG, PNG, GIF</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">SEO & Meta</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Post.MetaDescription" class="form-label">Meta Description</label>
+                        <textarea asp-for="Post.MetaDescription" class="form-control" rows="2" placeholder="Beschreibung für Suchmaschinen..." maxlength="500"></textarea>
+                        <span asp-validation-for="Post.MetaDescription" class="text-danger"></span>
+                        <div class="form-text">Empfohlen: 150-160 Zeichen</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Post.MetaKeywords" class="form-label">Meta Keywords</label>
+                        <input asp-for="Post.MetaKeywords" class="form-control" placeholder="keyword1, keyword2, keyword3" />
+                        <span asp-validation-for="Post.MetaKeywords" class="text-danger"></span>
+                        <div class="form-text">Komma-getrennte Keywords</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Veröffentlichung</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3 form-check">
+                        <input asp-for="Post.IstVeroeffentlicht" class="form-check-input" />
+                        <label asp-for="Post.IstVeroeffentlicht" class="form-check-label">Sofort veröffentlichen</label>
+                        <div class="form-text">Wenn nicht aktiviert, wird der Post als Entwurf gespeichert</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <a asp-page="./Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Abbrechen
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i> Post erstellen
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Hilfe</h6>
+            </div>
+            <div class="card-body">
+                <h6>Titel</h6>
+                <p class="small">Ein aussagekräftiger Titel für Ihren Post.</p>
+                
+                <h6>Slug</h6>
+                <p class="small">URL-freundliche Version des Titels. Wird automatisch generiert, falls leer.</p>
+                
+                <h6>Excerpt</h6>
+                <p class="small">Kurze Zusammenfassung, die in der Post-Übersicht angezeigt wird.</p>
+                
+                <h6>Meta Description</h6>
+                <p class="small">Beschreibung für Suchmaschinen. Wichtig für SEO.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

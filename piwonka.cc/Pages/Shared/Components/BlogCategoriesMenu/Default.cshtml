@@ -1,0 +1,29 @@
+﻿@model Piwonka.CC.ViewComponents.BlogCategoriesMenuViewModel
+@inject Piwonka.CC.Services.ILocalizationService Localization
+
+@if (Model.Categories.Any())
+{
+    @foreach (var category in Model.Categories)
+    {
+        <li>
+            <a class="dropdown-item d-flex justify-content-between align-items-center"
+               asp-page="/Blog/Index"
+               asp-route-kategorie="@category.Id"
+               title="@category.PostCount @(Model.CurrentLanguage == Piwonka.CC.Models.Language.DE ? "Beiträge" : "posts")">
+                <span>
+                    <i class="fas fa-tag me-2"></i>@category.Name
+                </span>
+                <span class="badge bg-secondary rounded-pill">@category.PostCount</span>
+            </a>
+        </li>
+    }
+}
+else
+{
+    <li>
+        <span class="dropdown-item text-muted">
+            <i class="fas fa-info-circle me-2"></i>
+            @(await Localization.GetLocalizedStringAsync("NoCategoriesAvailable"))
+        </span>
+    </li>
+}

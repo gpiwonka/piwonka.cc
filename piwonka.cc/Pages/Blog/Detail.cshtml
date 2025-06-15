@@ -1,0 +1,421 @@
+﻿@page "{id:int}/{slug?}"
+@using Microsoft.EntityFrameworkCore
+@model Piwonka.CC.Pages.Blog.DetailModel
+@inject Piwonka.CC.Services.ILocalizationService Localization
+@{
+    ViewData["Title"] = Model.Post.Titel;
+}
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-page="/Index">@(await Html.LocalizeAsync("Home"))</a></li>
+                    <li class="breadcrumb-item"><a asp-page="./Index">@(await Html.LocalizeAsync("Blog"))</a></li>
+                    @if (Model.Post.Kategorie != null)
+                    {
+                        <li class="breadcrumb-item">
+                            <a asp-page="./Index" asp-route-kategorie="@Model.Post.Kategorie.Id">
+                                @Model.Post.Kategorie.Name
+                            </a>
+                        </li>
+                    }
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Post.Titel</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <article class="blog-post">
+                <h1 class="blog-post-title mb-3">@Model.Post.Titel</h1>
+
+                <div class="blog-post-meta mb-4">
+                    <span class="me-3">
+                        <i class="bi bi-calendar"></i>
+                        <time datetime="@Model.Post.ErstelltAm.ToString("yyyy-MM-dd")">
+                            @Model.Post.ErstelltAm.FormatDate(Model.CurrentLanguage)
+                        </time>
+                    </span>
+                    @if (Model.Post.Kategorie != null)
+                    {
+                        <span>
+                            <i class="bi bi-folder"></i>
+                            <a asp-page="./Index" asp-route-kategorie="@Model.Post.Kategorie.Id">
+                                @Model.Post.Kategorie.Name
+                            </a>
+                        </span>
+                    }
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Post.BildUrl))
+                {
+                    <div class="blog-featured-image mb-4">
+                        <img src="@Model.Post.BildUrl" alt="@Model.Post.Titel" class="img-fluid rounded">
+                    </div>
+                }
+
+                <div class="blog-content">
+                    @Html.FormatCode(Model.Post.Inhalt)
+                </div>
+            </article>
+
+            <!-- Social Share Buttons -->
+            <div class="share-buttons mt-4 mb-5">
+                <h5>@(await Html.LocalizeAsync("SharePost"))</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=@(HttpContext.Request.Scheme)://@(HttpContext.Request.Host)@(HttpContext.Request.Path)"
+                       target="_blank" class="btn btn-facebook"
+                       aria-label="@(await Html.LocalizeAsync("ShareOnFacebook"))">
+                        <i class="bi bi-facebook"></i>
+                        <span class="d-none d-sm-inline ms-1">Facebook</span>
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url=@(HttpContext.Request.Scheme)://@(HttpContext.Request.Host)@(HttpContext.Request.Path)&text=@Model.Post.Titel"
+                       target="_blank" class="btn btn-twitter"
+                       aria-label="@(await Html.LocalizeAsync("ShareOnTwitter"))">
+                        <i class="bi bi-twitter-x"></i>
+                        <span class="d-none d-sm-inline ms-1">Twitter</span>
+                    </a>
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&url=@(HttpContext.Request.Scheme)://@(HttpContext.Request.Host)@(HttpContext.Request.Path)&title=@Model.Post.Titel"
+                       target="_blank" class="btn btn-linkedin"
+                       aria-label="@(await Html.LocalizeAsync("ShareOnLinkedIn"))">
+                        <i class="bi bi-linkedin"></i>
+                        <span class="d-none d-sm-inline ms-1">LinkedIn</span>
+                    </a>
+                    <a href="https://wa.me/?text=@Model.Post.Titel%20@(HttpContext.Request.Scheme)://@(HttpContext.Request.Host)@(HttpContext.Request.Path)"
+                       target="_blank" class="btn btn-whatsapp"
+                       aria-label="WhatsApp">
+                        <i class="bi bi-whatsapp"></i>
+                        <span class="d-none d-sm-inline ms-1">WhatsApp</span>
+                    </a>
+                    <a href="mailto:?subject=@Model.Post.Titel&body=@(HttpContext.Request.Scheme)://@(HttpContext.Request.Host)@(HttpContext.Request.Path)"
+                       class="btn btn-email"
+                       aria-label="@(await Html.LocalizeAsync("ShareViaEmail"))">
+                        <i class="bi bi-envelope-fill"></i>
+                        <span class="d-none d-sm-inline ms-1">E-Mail</span>
+                    </a>
+                    <button class="btn btn-copy" onclick="copyToClipboard()"
+                            aria-label="@(Model.CurrentLanguage == Piwonka.CC.Models.Language.DE ? "Link kopieren" : "Copy link")">
+                        <i class="bi bi-link-45deg"></i>
+                        <span class="d-none d-sm-inline ms-1">@(Model.CurrentLanguage == Piwonka.CC.Models.Language.DE ? "Link kopieren" : "Copy link")</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="post-navigation mt-5 pt-4 border-top">
+                <div class="row">
+                    <div class="col-6">
+                        @if (Model.PreviousPost != null)
+                        {
+                            <a asp-page="./Detail" asp-route-id="@Model.PreviousPost.Id" asp-route-slug="@Model.PreviousPost.Slug" class="post-nav-link prev-post">
+                                <span class="text-muted"><i class="bi bi-arrow-left"></i> @(await Html.LocalizeAsync("PreviousPost"))</span>
+                                <h6 class="post-nav-title">@Model.PreviousPost.Titel</h6>
+                            </a>
+                        }
+                    </div>
+                    <div class="col-6 text-end">
+                        @if (Model.NextPost != null)
+                        {
+                            <a asp-page="./Detail" asp-route-id="@Model.NextPost.Id" asp-route-slug="@Model.NextPost.Slug" class="post-nav-link next-post">
+                                <span class="text-muted">@(await Html.LocalizeAsync("NextPost")) <i class="bi bi-arrow-right"></i></span>
+                                <h6 class="post-nav-title">@Model.NextPost.Titel</h6>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verwandte Beiträge -->
+            @if (Model.RelatedPosts.Any())
+            {
+                <div class="related-posts mt-5 pt-4 border-top">
+                    <h4 class="mb-4">@(await Html.LocalizeAsync("RelatedPosts"))</h4>
+                    <div class="row">
+                        @foreach (var related in Model.RelatedPosts)
+                        {
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    @if (!string.IsNullOrEmpty(related.BildUrl))
+                                    {
+                                        <div style="height: 150px; overflow: hidden;">
+                                            <img src="@related.BildUrl" class="card-img-top" alt="@related.Titel" style="object-fit: cover; height: 100%; width: 100%;">
+                                        </div>
+                                    }
+                                    <div class="card-body">
+                                        <h5 class="card-title">@related.Titel</h5>
+                                        <p class="card-text small text-muted">
+                                            @related.ErstelltAm.FormatShortDate(Model.CurrentLanguage)
+                                        </p>
+                                        <a asp-page="./Detail" asp-route-id="@related.Id" asp-route-slug="@related.Slug" class="stretched-link"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+            <div class="position-sticky" style="top: 2rem;">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">@(await Html.LocalizeAsync("Categories"))</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var kategorie in Model.Kategorien)
+                            {
+                                <li class="mb-2">
+                                    <a asp-page="./Index" asp-route-kategorie="@kategorie.Id" class="text-decoration-none">
+                                        @kategorie.Name
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">@(await Html.LocalizeAsync("RecentPosts"))</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var recentPost in Model.RecentPosts)
+                            {
+                                <li class="d-flex mb-3 pb-3 @(recentPost != Model.RecentPosts.Last() ? "border-bottom" : "")">
+                                    @if (!string.IsNullOrEmpty(recentPost.BildUrl))
+                                    {
+                                        <div class="flex-shrink-0" style="width: 60px; height: 60px;">
+                                            <img src="@recentPost.BildUrl" class="img-fluid rounded" style="width: 100%; height: 100%; object-fit: cover;" alt="@recentPost.Titel">
+                                        </div>
+                                    }
+                                    <div class="@(!string.IsNullOrEmpty(recentPost.BildUrl) ? "ms-3" : "")">
+                                        <h6 class="mb-1">
+                                            <a asp-page="./Detail" asp-route-id="@recentPost.Id" asp-route-slug="@recentPost.Slug" class="text-decoration-none">
+                                                @recentPost.Titel
+                                            </a>
+                                        </h6>
+                                        <div class="small text-muted">
+                                            @recentPost.ErstelltAm.FormatMediumDate(Model.CurrentLanguage)
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Debug-Info nur in Development anzeigen *@
+@if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+{
+    <div class="alert alert-info mt-4">
+        <p><strong>Debug-Info (Detail):</strong></p>
+        <ul>
+            <li>Post ID: @Model.Post.Id</li>
+            <li>Post Language: @Model.Post.Language</li>
+            <li>Current Language: @Model.CurrentLanguage</li>
+            <li>Related Posts: @Model.RelatedPosts.Count</li>
+            <li>Recent Posts: @Model.RecentPosts.Count</li>
+            <li>Categories: @Model.Kategorien.Count</li>
+        </ul>
+    </div>
+}
+
+@section styles {
+    <style>
+        .blog-post-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .blog-post-meta {
+            color: #6c757d;
+        }
+
+        .blog-featured-image {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .blog-content {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+            .blog-content p {
+                margin-bottom: 1.5rem;
+            }
+
+            .blog-content h2,
+            .blog-content h3,
+            .blog-content h4 {
+                margin-top: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .blog-content img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 5px;
+                margin: 1.5rem 0;
+            }
+
+            .blog-content blockquote {
+                border-left: 4px solid var(--papaya);
+                padding-left: 1rem;
+                margin-left: 0;
+                color: #6c757d;
+                font-style: italic;
+            }
+
+            .blog-content pre {
+                background-color: #f8f9fa;
+                padding: 1rem;
+                border-radius: 5px;
+                overflow-x: auto;
+            }
+
+        .post-nav-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+        }
+
+            .post-nav-link:hover {
+                color: var(--papaya);
+            }
+
+        .post-nav-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .share-buttons .btn {
+            transition: all 0.2s ease;
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            min-width: 50px;
+            justify-content: center;
+        }
+
+            .share-buttons .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                color: white;
+            }
+
+        /* Social Media Button Colors */
+        .btn-facebook {
+            background-color: #1877F2;
+        }
+
+            .btn-facebook:hover {
+                background-color: #166FE5;
+            }
+
+        .btn-twitter {
+            background-color: #000000;
+        }
+
+            .btn-twitter:hover {
+                background-color: #333333;
+            }
+
+        .btn-linkedin {
+            background-color: #0A66C2;
+        }
+
+            .btn-linkedin:hover {
+                background-color: #095BA5;
+            }
+
+        .btn-whatsapp {
+            background-color: #25D366;
+        }
+
+            .btn-whatsapp:hover {
+                background-color: #22C55E;
+            }
+
+        .btn-email {
+            background-color: #6C757D;
+        }
+
+            .btn-email:hover {
+                background-color: #5A6268;
+            }
+
+        .btn-copy {
+            background-color: var(--papaya, #FF9A3C);
+        }
+
+            .btn-copy:hover {
+                background-color: #E8842A;
+            }
+
+            .btn-copy.copied {
+                background-color: #28a745;
+            }
+
+        .related-posts .card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+            .related-posts .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+    </style>
+}
+
+<script>
+    function copyToClipboard() {
+        const currentUrl = window.location.href;
+        const copyButton = document.querySelector('.btn-copy');
+        const originalContent = copyButton.innerHTML;
+
+        navigator.clipboard.writeText(currentUrl).then(function() {
+            // Success feedback
+            copyButton.classList.add('copied');
+            copyButton.innerHTML = '<i class="bi bi-check-lg"></i><span class="d-none d-sm-inline ms-1">@(Model.CurrentLanguage == Piwonka.CC.Models.Language.DE ? "Kopiert!" : "Copied!")</span>';
+
+            setTimeout(function() {
+                copyButton.classList.remove('copied');
+                copyButton.innerHTML = originalContent;
+            }, 2000);
+        }).catch(function(err) {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = currentUrl;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            // Success feedback
+            copyButton.classList.add('copied');
+            copyButton.innerHTML = '<i class="bi bi-check-lg"></i><span class="d-none d-sm-inline ms-1">@(Model.CurrentLanguage == Piwonka.CC.Models.Language.DE ? "Kopiert!" : "Copied!")</span>';
+
+            setTimeout(function() {
+                copyButton.classList.remove('copied');
+                copyButton.innerHTML = originalContent;
+            }, 2000);
+        });
+    }
+</script>

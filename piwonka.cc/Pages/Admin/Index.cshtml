@@ -1,0 +1,530 @@
+﻿@page
+@model Piwonka.CC.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>📊 Admin Dashboard</h1>
+            <p class="text-muted">Willkommen im Verwaltungsbereich von Piwonka.CC</p>
+        </div>
+    </div>
+
+    <!-- Admin Navigation -->
+    <div class="row mb-4">
+        <div class="col">
+            <nav class="admin-nav">
+                <div class="d-flex flex-wrap align-items-center justify-content-between">
+                    <div class="d-flex flex-wrap">
+                        <a asp-page="/Admin/Index" class="btn btn-primary me-2 mb-2">📊 Dashboard</a>
+                        <a asp-page="/Admin/Analytics/Index" class="btn btn-outline-secondary me-2 mb-2">📈 Analytics</a>
+                        <a asp-page="/Admin/Seiten/Index" class="btn btn-outline-secondary me-2 mb-2">📄 Seiten</a>
+                        <a asp-page="/Admin/Posts/Index" class="btn btn-outline-secondary me-2 mb-2">📝 Blog</a>
+                        <a asp-page="/Admin/Kategorien/Index" class="btn btn-outline-secondary me-2 mb-2">🏷️ Kategorien</a>
+                    </div>
+                    <div class="d-flex flex-wrap">
+                        <a asp-page="/Admin/Media/Index" class="btn btn-outline-info me-2 mb-2">🖼️ Media</a>
+                        <a asp-page="/Admin/Settings/Index" class="btn btn-outline-warning me-2 mb-2">⚙️ Settings</a>
+                        <a asp-page="/Index" class="btn btn-outline-success mb-2">🏠 Zur Website</a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Analytics Karten - Neue erste Reihe -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <a asp-page="/Admin/Analytics/Index" class="text-decoration-none">
+                <div class="card text-white bg-dark clickable-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">@Model.Analytics.TodayVisitors</h4>
+                                <p class="card-text">Besucher heute</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small>@Model.Analytics.TodayPageViews Seitenaufrufe</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3">
+            <a asp-page="/Admin/Analytics/Index" class="text-decoration-none">
+                <div class="card text-white bg-secondary clickable-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">@Model.Analytics.Last7DaysVisitors</h4>
+                                <p class="card-text">7-Tage Besucher</p>
+                            </div>
+                            <div class="align-self-center">
+                                @if (Model.Analytics.TrendDirection == "up")
+                                {
+                                    <i class="fas fa-trending-up fa-2x text-success"></i>
+                                }
+                                else if (Model.Analytics.TrendDirection == "down")
+                                {
+                                    <i class="fas fa-trending-down fa-2x text-danger"></i>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-chart-line fa-2x"></i>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small>
+                            @if (Model.Analytics.TrendDirection == "up")
+                            {
+                                <i class="fas fa-arrow-up text-success"></i> <text>Trend steigend</text>
+                            }
+                            else if (Model.Analytics.TrendDirection == "down")
+                            {
+                                <i class="fas fa-arrow-down text-danger"></i> <text>Trend fallend</text>
+                            }
+                            else
+                            {
+                                <i class="fas fa-minus text-muted"></i> <text>Trend stabil</text>
+                            }
+                        </small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-info clickable-card-disabled">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">@DateTime.Now.ToString("dd.MM")</h4>
+                            <p class="card-text">Aktuelles Datum</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small>@DateTime.Now.ToString("dddd", new System.Globalization.CultureInfo("de-DE"))</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-gradient clickable-card-disabled" style="background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">v1.0</h4>
+                            <p class="card-text">System Version</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-code fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small>ASP.NET Core</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Statistik-Karten -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <a asp-page="/Admin/Seiten/Index" class="text-decoration-none">
+                <div class="card text-white bg-primary clickable-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">@Model.Statistics.TotalSeiten</h4>
+                                <p class="card-text">Seiten gesamt</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-file-alt fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small>@Model.Statistics.VeroeffentlichteSeiten veröffentlicht</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3">
+            <a asp-page="/Admin/Posts/Index" class="text-decoration-none">
+                <div class="card text-white bg-success clickable-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">@Model.Statistics.TotalPosts</h4>
+                                <p class="card-text">Blog-Posts</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-blog fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small>@Model.Statistics.VeroeffentlichtePosts veröffentlicht</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3">
+            <a asp-page="/Admin/Kategorien/Index" class="text-decoration-none">
+                <div class="card text-white bg-info clickable-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">@Model.Statistics.TotalKategorien</h4>
+                                <p class="card-text">Kategorien</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-tags fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small>Für Organisation</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-warning clickable-card-disabled">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">@Model.Statistics.EntwuerfeCount</h4>
+                            <p class="card-text">Entwürfe</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-edit fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small>Noch nicht veröffentlicht</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schnellaktionen -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>🚀 Schnellaktionen</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a asp-page="/Admin/Seiten/Create" class="btn btn-primary btn-lg w-100 mb-3">
+                                📄 Neue Seite erstellen
+                            </a>
+                            <a asp-page="/Admin/Posts/Create" class="btn btn-success btn-lg w-100 mb-3">
+                                📝 Neuen Blog-Post schreiben
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a asp-page="/Admin/Kategorien/Create" class="btn btn-info btn-lg w-100 mb-3">
+                                🏷️ Neue Kategorie erstellen
+                            </a>
+                            <a asp-page="/Admin/Media/Index" class="btn btn-secondary btn-lg w-100 mb-3">
+                                🖼️ Media verwalten
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>📈 Analytics Quick-View</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h3 class="text-primary">@Model.Analytics.TodayVisitors</h3>
+                            <small class="text-muted">Heute</small>
+                        </div>
+                        <div class="col-6">
+                            <h3 class="text-secondary">@Model.Analytics.Last7DaysVisitors</h3>
+                            <small class="text-muted">7 Tage</small>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <p><strong>Server-Zeit:</strong><br>@DateTime.Now.ToString("dd.MM.yyyy HH:mm")</p>
+                    <p><strong>Umgebung:</strong> @Model.Environment</p>
+
+                    <div class="d-grid gap-2">
+                        <a asp-page="/Admin/Analytics/Index" class="btn btn-outline-primary">
+                            📊 Vollständige Analytics
+                        </a>
+                        <a asp-page="/Admin/Settings/Index" class="btn btn-outline-secondary">
+                            ⚙️ Einstellungen
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Letzte Aktivitäten -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>📄 Letzte Seiten</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentSeiten.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var seite in Model.RecentSeiten)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">@seite.Titel</h6>
+                                        <small class="text-muted">@seite.ErstelltAm.ToString("dd.MM.yyyy")</small>
+                                    </div>
+                                    <div>
+                                        @if (seite.IstVeroeffentlicht)
+                                        {
+                                            <span class="badge bg-success">Veröffentlicht</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Entwurf</span>
+                                        }
+                                        <a asp-page="/Admin/Seiten/Edit" asp-route-id="@seite.Id" class="btn btn-sm btn-outline-primary ms-2">
+                                            Bearbeiten
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Noch keine Seiten erstellt.</p>
+                        <a asp-page="/Admin/Seiten/Create" class="btn btn-primary">Erste Seite erstellen</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>📝 Letzte Blog-Posts</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentPosts.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var post in Model.RecentPosts)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">@post.Titel</h6>
+                                        <small class="text-muted">@post.ErstelltAm.ToString("dd.MM.yyyy")</small>
+                                    </div>
+                                    <div>
+                                        @if (post.IstVeroeffentlicht)
+                                        {
+                                            <span class="badge bg-success">Veröffentlicht</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Entwurf</span>
+                                        }
+                                        <a asp-page="/Admin/Posts/Edit" asp-route-id="@post.Id" class="btn btn-sm btn-outline-primary ms-2">
+                                            Bearbeiten
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Noch keine Blog-Posts erstellt.</p>
+                        <a asp-page="/Admin/Posts/Create" class="btn btn-success">Ersten Post schreiben</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Admin Navigation */
+        .admin-nav {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+            .admin-nav .btn {
+                transition: all 0.2s ease;
+            }
+
+                .admin-nav .btn:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+
+        /* Klickbare Karten */
+        .clickable-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+            .clickable-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            }
+
+        .clickable-card-disabled {
+            transition: all 0.2s ease;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+            .clickable-card-disabled:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            }
+
+        /* Neue Analytics Karten */
+        .bg-dark {
+            background: linear-gradient(45deg, #2c3e50, #34495e) !important;
+        }
+
+        .bg-secondary {
+            background: linear-gradient(45deg, #6c757d, #495057) !important;
+        }
+
+        /* Card-Farben */
+        .bg-primary {
+            background: linear-gradient(45deg, #007bff, #0056b3) !important;
+        }
+
+        .bg-success {
+            background: linear-gradient(45deg, #28a745, #1e7e34) !important;
+        }
+
+        .bg-info {
+            background: linear-gradient(45deg, #17a2b8, #117a8b) !important;
+        }
+
+        .bg-warning {
+            background: linear-gradient(45deg, #ffc107, #e0a800) !important;
+            color: #212529 !important;
+        }
+
+        /* Trend Icons Animation */
+        .fa-trending-up, .fa-trending-down {
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Allgemeine Card-Styles */
+        .card {
+            transition: transform 0.2s;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+            .card:hover {
+                transform: translateY(-2px);
+            }
+
+        /* Links in Karten ohne Dekoration */
+        a.text-decoration-none:hover {
+            text-decoration: none !important;
+        }
+
+        /* Responsive Verbesserungen */
+        @@media (max-width: 768px) {
+            .admin-nav .d-flex {
+                justify-content: center !important;
+            }
+
+            .admin-nav .btn {
+                margin: 0.25rem;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // Zusätzliche Interaktivität für Karten
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hover-Effekte für bessere UX
+            const cards = document.querySelectorAll('.clickable-card');
+
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px) scale(1.02)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Analytics-Zahlen animieren (wenn gewünscht)
+            const analyticsNumbers = document.querySelectorAll('.card-title');
+            analyticsNumbers.forEach(number => {
+                const finalValue = parseInt(number.textContent);
+                if (!isNaN(finalValue) && finalValue > 0) {
+                    let currentValue = 0;
+                    const increment = finalValue / 20;
+                    const timer = setInterval(() => {
+                        currentValue += increment;
+                        if (currentValue >= finalValue) {
+                            currentValue = finalValue;
+                            clearInterval(timer);
+                        }
+                        number.textContent = Math.floor(currentValue);
+                    }, 50);
+                }
+            });
+        });
+    </script>
+}

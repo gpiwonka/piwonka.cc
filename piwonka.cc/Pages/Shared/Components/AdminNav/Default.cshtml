@@ -1,0 +1,33 @@
+﻿<nav class="admin-nav mb-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between">
+        <div class="d-flex flex-wrap">
+            <a asp-page="/Admin/Index" class="btn btn-outline-primary me-2 mb-2">📊 Dashboard</a>
+            <a asp-page="/Admin/Seiten/Index" class="btn btn-outline-secondary me-2 mb-2">📄 Seiten</a>
+            <a asp-page="/Admin/Blog/Index" class="btn btn-outline-secondary me-2 mb-2">📝 Blog</a>
+            <a asp-page="/Admin/Kategorien/Index" class="btn btn-outline-secondary me-2 mb-2">🏷️ Kategorien</a>
+        </div>
+        <div class="d-flex flex-wrap">
+            <a asp-page="/Admin/Media/Index" class="btn btn-outline-info me-2 mb-2">🖼️ Media</a>
+            <a asp-page="/Admin/Settings/Index" class="btn btn-outline-warning me-2 mb-2">⚙️ Settings</a>
+            <a asp-page="/Index" class="btn btn-outline-success mb-2">🏠 Zur Website</a>
+        </div>
+    </div>
+</nav>
+
+<style>
+    .admin-nav {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        padding: 1rem;
+    }
+
+        .admin-nav .btn {
+            transition: all 0.2s ease;
+        }
+
+            .admin-nav .btn:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+</style>

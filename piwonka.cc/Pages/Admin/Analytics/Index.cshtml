@@ -1,0 +1,157 @@
+﻿<!-- Pages/Admin/Analytics/Index.cshtml -->
+@model Piwonka.CC.Pages.Admin.Analytics.IndexModel
+@{
+    ViewData["Title"] = "Analytics Dashboard";
+}
+
+<div class="container py-4">
+    @await Component.InvokeAsync("AdminNav")
+    
+    <div class="row mb-4">
+        <div class="col">
+            <h1>📊 Analytics Dashboard</h1>
+        </div>
+    </div>
+
+    <!-- Heute's Stats -->
+    @if (Model.TodayStats != null)
+    {
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Heute</h5>
+                        <h2 class="card-text">@Model.TodayStats.UniqueVisitors</h2>
+                        <small>Eindeutige Besucher</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Page Views</h5>
+                        <h2 class="card-text">@Model.TodayStats.PageViews</h2>
+                        <small>Seitenaufrufe heute</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Chart -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Letzte 30 Tage</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="analyticsChart" width="400" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabelle -->
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Tägliche Statistiken</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.DailyStats.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Datum</th>
+                                        <th>Eindeutige Besucher</th>
+                                        <th>Page Views</th>
+                                        <th>Wochentag</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var stat in Model.DailyStats)
+                                    {
+                                        <tr>
+                                            <td>@stat.Date.ToString("dd.MM.yyyy")</td>
+                                            <td>
+                                                <span class="badge bg-primary">@stat.UniqueVisitors</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">@stat.PageViews</span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    @stat.Date.ToDateTime(TimeOnly.MinValue).ToString("dddd", new System.Globalization.CultureInfo("de-DE"))
+                                                </small>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <h4>Noch keine Daten vorhanden</h4>
+                            <p class="text-muted">Analytics werden ab heute gesammelt.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            
+            const chartData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartData));
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Eindeutige Besucher',
+                        data: chartData.visitors,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        tension: 0.1
+                    }, {
+                        label: 'Page Views',
+                        data: chartData.pageViews,
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Website Analytics'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}
+
