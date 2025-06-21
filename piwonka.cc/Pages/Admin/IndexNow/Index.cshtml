@@ -1,0 +1,201 @@
+﻿@page
+@model Piwonka.CC.Pages.Admin.IndexNow.IndexModel
+@{
+    ViewData["Title"] = "IndexNow Verwaltung";
+}
+
+<div class="container py-4">
+    @await Component.InvokeAsync("AdminNav")
+
+    <div class="row mb-4">
+        <div class="col">
+            <h1>IndexNow Verwaltung</h1>
+            <p class="text-muted">Suchmaschinen über neue und geänderte Inhalte benachrichtigen</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Konfiguration -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-cog"></i> Konfiguration</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Status:</label>
+                        @if (Model.IsEnabled)
+                        {
+                            <span class="badge bg-success">Aktiviert</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Deaktiviert</span>
+                        }
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Host:</label>
+                        <code>@Model.Host</code>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">API Key:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" value="@Model.ApiKey" readonly>
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('@Model.ApiKey')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <small class="form-text text-muted">
+                            Key-Datei URL: <a href="@Model.KeyFileUrl" target="_blank">@Model.KeyFileUrl</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manuelle Benachrichtigung -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-bell"></i> Manuelle Benachrichtigung</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="NotifyUrl">
+                        <div class="mb-3">
+                            <label class="form-label">URL benachrichtigen:</label>
+                            <div class="input-group">
+                                <input type="url" name="url" class="form-control" placeholder="https://piwonka.cc/seite/beispiel" required>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Senden
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <hr>
+
+                    <div class="d-grid gap-2">
+                        <form method="post" asp-page-handler="NotifyAllPages" style="display: inline;">
+                            <button type="submit" class="btn btn-outline-info w-100" onclick="return confirm('Alle veröffentlichten Seiten an IndexNow senden?')">
+                                <i class="fas fa-file-alt"></i> Alle Seiten benachrichtigen
+                            </button>
+                        </form>
+
+                        <form method="post" asp-page-handler="NotifyAllPosts" style="display: inline;">
+                            <button type="submit" class="btn btn-outline-info w-100" onclick="return confirm('Alle veröffentlichten Blog-Posts an IndexNow senden?')">
+                                <i class="fas fa-blog"></i> Alle Blog-Posts benachrichtigen
+                            </button>
+                        </form>
+
+                        <form method="post" asp-page-handler="NotifySitemap" style="display: inline;">
+                            <button type="submit" class="btn btn-outline-success w-100">
+                                <i class="fas fa-sitemap"></i> Sitemap benachrichtigen
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiken -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar"></i> Informationen</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h3 class="text-primary">@Model.PublishedPagesCount</h3>
+                                <p class="text-muted">Veröffentlichte Seiten</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h3 class="text-success">@Model.PublishedPostsCount</h3>
+                                <p class="text-muted">Veröffentlichte Posts</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h3 class="text-info">3</h3>
+                                <p class="text-muted">IndexNow Endpunkte</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h3 class="text-warning">@Model.TotalUrls</h3>
+                                <p class="text-muted">URLs insgesamt</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h6>Unterstützte Suchmaschinen:</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success"></i> Microsoft Bing</li>
+                        <li><i class="fas fa-check text-success"></i> Yandex</li>
+                        <li><i class="fas fa-check text-success"></i> IndexNow.org (weitere Partner)</li>
+                    </ul>
+
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Hinweis:</strong> IndexNow benachrichtigt Suchmaschinen automatisch über neue und geänderte Inhalte. 
+                        Manuelle Benachrichtigungen sind nur in Ausnahmefällen erforderlich.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            // Kurzes Feedback
+            const btn = event.target.closest('button');
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check text-success"></i>';
+            setTimeout(() => {
+                btn.innerHTML = originalIcon;
+            }, 1000);
+        });
+    }
+</script>
+
+@section Scripts {
+    <script>
+        // Form-Submit mit Loading-State
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Wird gesendet...';
+                }
+            });
+        });
+    </script>
+}

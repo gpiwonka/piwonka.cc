@@ -1,50 +1,56 @@
-﻿using Piwonka.CC.Models;
+﻿// ViewModels/SeiteCreateViewModel.cs - Mit Language Property
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using Piwonka.CC.Models;
 
-public class SeiteCreateViewModel
+namespace Piwonka.CC.ViewModels
 {
-    [Required(ErrorMessage = "Der Titel ist erforderlich.")]
-    [StringLength(200)]
-    public string Titel { get; set; } = string.Empty;
+    public class SeiteCreateViewModel
+    {
+        [Required(ErrorMessage = "Der Titel ist erforderlich.")]
+        [StringLength(200)]
+        public string Titel { get; set; } = string.Empty;
 
-    [StringLength(200)]
-    public string? Slug { get; set; }
+        [StringLength(200)]
+        public string Slug { get; set; } = string.Empty;
 
-    public string? Inhalt { get; set; }
+        public string? Inhalt { get; set; }
 
-    [StringLength(200)]
-    public string? MetaDescription { get; set; }
+        [StringLength(200)]
+        public string? MetaDescription { get; set; }
 
-    [StringLength(500)]
-    public string? MetaKeywords { get; set; }
+        [StringLength(500)]
+        public string? MetaKeywords { get; set; }
 
-    public bool IstVeroeffentlicht { get; set; } = true;
+        public bool IstVeroeffentlicht { get; set; } = true;
 
-    public bool ImMenuAnzeigen { get; set; } = false;
+        public bool ImMenuAnzeigen { get; set; } = false;
 
-    public int Reihenfolge { get; set; } = 0;
+        public int Reihenfolge { get; set; } = 0;
 
-    [StringLength(50)]
-    public string Template { get; set; } = "Standard";
+        [StringLength(50)]
+        public string Template { get; set; } = "Standard";
 
-    [Required(ErrorMessage = "Die Sprache ist erforderlich.")]
-    public Language Language { get; set; } = Language.DE;
+        // Language Property hinzugefügt
+        [Required(ErrorMessage = "Die Sprache ist erforderlich.")]
+        public Language Language { get; set; } = Language.DE;
 
-    // Neue Menü-Eigenschaften
-    [Display(Name = "Übergeordnete Seite")]
-    public int? ParentId { get; set; }
+        // Neue Menü-Eigenschaften
+        [Display(Name = "Übergeordnete Seite")]
+        public int? ParentId { get; set; }
 
-    [StringLength(100)]
-    [Display(Name = "Menü-Gruppe")]
-    public string? MenuGruppe { get; set; }
+        [StringLength(100)]
+        [Display(Name = "Menü-Gruppe")]
+        public string? MenuGruppe { get; set; }
 
-    [StringLength(100)]
-    [Display(Name = "Menü-Titel (wenn abweichend)")]
-    public string? MenuTitel { get; set; }
+        [StringLength(100)]
+        [Display(Name = "Menü-Titel (wenn abweichend)")]
+        public string? MenuTitel { get; set; }
 
-    [Display(Name = "Ist Menü-Gruppe (ohne eigene Seite)")]
-    public bool IstMenuGruppe { get; set; } = false;
+        [Display(Name = "Ist Menü-Gruppe (ohne eigene Seite)")]
+        public bool IstMenuGruppe { get; set; } = false;
 
-    // Für Dropdown
-    public List<SeiteOption> VerfuegbareParents { get; set; } = new();
+        // Für Dropdown
+        public List<SeiteOption> VerfuegbareParents { get; set; } = new();
+    }
 }

@@ -43,16 +43,23 @@ namespace Piwonka.CC
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
             });
             builder.Services.AddHttpContextAccessor();
+
+            builder.Services.AddHttpClient<IndexNowService>(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(30);
+                client.DefaultRequestHeaders.Add("User-Agent", "piwonka.cc/1.0");
+            });
+
             // Add services to the container.
             builder.Services.AddScoped<IMenuService, MenuService>();
             builder.Services.AddScoped<FileUploadService>();
-
+            builder.Services.AddScoped<IIndexNowService, IndexNowService>();
             builder.Services.AddScoped<ILanguageService, LanguageService>();
             builder.Services.AddScoped<ILocalizationService, LocalizationService>();
             builder.Services.AddScoped<ISearchService, SearchService>();
             builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
             builder.Services.AddScoped<ISimpleCookieService, SimpleCookieService>();
-
+            builder.Services.AddHostedService<DailyAnalyticsBackgroundService>();
             builder.Services.AddRazorPages();
 
             string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -109,7 +116,10 @@ namespace Piwonka.CC
             app.UseSession();
 
             app.UseMiddleware<LanguageMiddleware>();
-            app.UseMiddleware<AnalyticsMiddleware>();    
+            app.UseMiddleware<AnalyticsMiddleware>();
+            app.UseSitemapUpdateNotification();
+            app.MapControllers();
+
             // ✅ MapRazorPages NACH UseSession
             app.MapStaticAssets();
             app.MapRazorPages().WithStaticAssets();
