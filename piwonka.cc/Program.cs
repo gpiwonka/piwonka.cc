@@ -59,6 +59,7 @@ namespace Piwonka.CC
             builder.Services.AddScoped<ISearchService, SearchService>();
             builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
             builder.Services.AddScoped<ISimpleCookieService, SimpleCookieService>();
+            builder.Services.AddScoped<ISitemapService, SitemapService>();
             builder.Services.AddHostedService<DailyAnalyticsBackgroundService>();
             builder.Services.AddRazorPages();
 
@@ -101,6 +102,27 @@ namespace Piwonka.CC
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
+
+            app.UseStatusCodePages(async context =>
+            {
+                var response = context.HttpContext.Response;
+                var request = context.HttpContext.Request;
+
+                if (response.StatusCode == 404)
+                {
+                    // Logging der 404 Anfrage
+                    var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                    logger.LogWarning("404 Error - Path: {Path}, UserAgent: {UserAgent}",
+                        request.Path, request.Headers.UserAgent);
+
+                    // Weiterleitung zur Homepage
+                    response.Redirect("/");
+                    return;
+                }
+
+                // Für andere Status Codes normale Behandlung
+                await context.Next(context.HttpContext);
+            });
 
             app.UseHttpsRedirection();
 

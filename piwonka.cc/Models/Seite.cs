@@ -55,5 +55,15 @@ namespace Piwonka.CC.Models
         public virtual Language Language { get; set; } = Language.DE;
 
         public virtual ICollection<Seite> Children { get; set; } = new List<Seite>();
+
+        public string GetLanguageCode()
+        {
+            return Language switch
+            {
+                Language.DE => "de",
+                Language.EN => "en",
+                _ => "de"
+            };
+        }
     }
 }

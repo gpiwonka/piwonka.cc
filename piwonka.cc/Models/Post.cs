@@ -48,5 +48,16 @@ namespace Piwonka.CC.Models
 		[NotMapped]
         [OptionalFile]
         public IFormFile UploadedImage { get; set; } = default!;
+
+        public string GetLanguageCode()
+        {
+            return Language switch
+            {
+                Language.DE => "de",
+                Language.EN => "en",
+                _ => "de"
+            };
+        }
+
     }
 }
