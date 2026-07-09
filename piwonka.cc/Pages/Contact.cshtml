@@ -1,0 +1,158 @@
+@page
+@model ContactModel
+@inject SiteSettings Site
+@{
+    ViewData["Title"] = "Kontakt";
+    ViewData["MetaDescription"] = "Kontaktieren Sie uns - Wir freuen uns auf Ihre Nachricht!";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1>Kontakt</h1>
+            <p class="lead">Sie haben Fragen oder möchten mit mir in Kontakt treten? Ich freue mich auf Ihre Nachricht!</p>
+
+            @if (Model.MessageSent)
+            {
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading"><i class="fas fa-check-circle me-2"></i>Nachricht gesendet!</h4>
+                    <p class="mb-0">Vielen Dank für Ihre Nachricht. Ich werde mich so schnell wie möglich bei Ihnen melden.</p>
+                </div>
+            }
+            else
+            {
+                @if (Model.HasError)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Fehler</h4>
+                        <p class="mb-0">@Model.ErrorMessage</p>
+                    </div>
+                }
+
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h2 class="h5 mb-0"><i class="fas fa-envelope me-2"></i>Nachricht senden</h2>
+                            </div>
+                            <div class="card-body">
+                                <form method="post">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Contact.Name" class="form-label"></label>
+                                        <input asp-for="Contact.Name" class="form-control" placeholder="Ihr Name" />
+                                        <span asp-validation-for="Contact.Name" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Contact.Email" class="form-label"></label>
+                                        <input asp-for="Contact.Email" class="form-control" type="email" placeholder="ihre.email@beispiel.com" />
+                                        <span asp-validation-for="Contact.Email" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Contact.Subject" class="form-label"></label>
+                                        <input asp-for="Contact.Subject" class="form-control" placeholder="Betreff (optional)" />
+                                        <span asp-validation-for="Contact.Subject" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Contact.Message" class="form-label"></label>
+                                        <textarea asp-for="Contact.Message" class="form-control" rows="5" placeholder="Ihre Nachricht..."></textarea>
+                                        <span asp-validation-for="Contact.Message" class="text-danger small"></span>
+                                    </div>
+
+                                    <!-- Honeypot-Feld für Spam-Schutz (wird mit CSS versteckt) -->
+                                    <div class="hp-field" aria-hidden="true">
+                                        <label for="Contact_Website">Website (Dieses Feld nicht ausfüllen)</label>
+                                        <input asp-for="Contact.Website" tabindex="-1" autocomplete="off" />
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane me-2"></i>Nachricht senden
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h2 class="h5 mb-0"><i class="fas fa-info-circle me-2"></i>Kontaktdaten</h2>
+                            </div>
+                            <div class="card-body">
+                                <address>
+                                    <p><strong>@Site.Author</strong></p>
+                                    <p>
+                                        <i class="fas fa-map-marker-alt me-2 text-muted"></i>
+                                        @Site.Street<br>
+                                        <span class="ms-4">@Site.Zip @Site.City</span><br>
+                                        <span class="ms-4">@Site.CountryName</span>
+                                    </p>
+                                    <p>
+                                        <i class="fas fa-envelope me-2 text-muted"></i>
+                                        <a href="mailto:@Site.ContactEmail">@Site.ContactEmail</a>
+                                    </p>
+                                </address>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="h5 mb-0"><i class="fas fa-clock me-2"></i>Antwortzeit</h2>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-0">
+                                    <small class="text-muted">
+                                        Ich bemühe mich, alle Anfragen innerhalb von 24-48 Stunden zu beantworten.
+                                    </small>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="mt-4 text-center">
+                <a asp-page="/Index" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Zurück zur Startseite
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    address {
+        margin-bottom: 0;
+    }
+
+    .form-control:focus {
+        border-color: var(--papaya);
+        box-shadow: 0 0 0 0.2rem rgba(255, 154, 60, 0.25);
+    }
+
+    /* Honeypot-Feld verstecken */
+    .hp-field {
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

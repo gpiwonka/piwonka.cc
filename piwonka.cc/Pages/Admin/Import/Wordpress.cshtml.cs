@@ -270,7 +270,7 @@ namespace Piwonka.CC.Pages.admin.Import
                             Inhalt = modifiedContent,
                             Excerpt = item.Element(excerpt + "excerpt")?.Value ?? string.Empty,
                             ErstelltAm = publishDate,
-                            BildUrl = featuredImageUrl,
+                            
                             IstVeroeffentlicht = isPublished,
                             Kategorie = postKategorie,
                             Slug = slug

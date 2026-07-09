@@ -1,0 +1,28 @@
+@page "{id:int}"
+@model Piwonka.CC.Pages.Admin.About.DeleteModel
+@{
+    ViewData["Title"] = "About-Karte löschen";
+}
+
+<h1>About-Karte löschen</h1>
+
+<div class="alert alert-warning">
+    <strong>@Model.About.Titel</strong> wirklich löschen?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Sprache</dt>
+    <dd class="col-sm-9">@(Model.About.Language == Piwonka.CC.Models.Language.DE ? "Deutsch" : "English")</dd>
+
+    <dt class="col-sm-3">Inhalt</dt>
+    <dd class="col-sm-9">@Html.Raw(Model.About.Inhalt)</dd>
+
+    <dt class="col-sm-3">Aktiv</dt>
+    <dd class="col-sm-9">@(Model.About.Aktiv ? "Ja" : "Nein")</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="About.Id" />
+    <button type="submit" class="btn btn-danger">Endgültig löschen</button>
+    <a asp-page="./Index" class="btn btn-outline-secondary">Abbrechen</a>
+</form>

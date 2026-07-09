@@ -1,0 +1,77 @@
+@page
+@model Piwonka.CC.Pages.Admin.IndexFeatures.IndexModel
+@{
+    ViewData["Title"] = "Index-Features";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Index-Features</h1>
+    <a asp-page="./Create" class="btn btn-primary">Neues Feature</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<p class="text-muted">Diese Einträge rotieren in der dritten Spalte auf der Startseite.</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Reihenfolge</th>
+            <th>Sprache</th>
+            <th>Titel</th>
+            <th>Beschreibung</th>
+            <th>Link</th>
+            <th>Aktiv</th>
+            <th>Aktionen</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var f in Model.Features)
+        {
+            <tr>
+                <td>@f.Reihenfolge</td>
+                <td><span class="badge bg-info text-uppercase">@(f.Language == Piwonka.CC.Models.Language.DE ? "DE" : "EN")</span></td>
+                <td>
+                    @if (!string.IsNullOrEmpty(f.Icon))
+                    {
+                        <i class="@f.Icon me-1"></i>
+                    }
+                    @f.Titel
+                </td>
+                <td><small>@(f.Beschreibung.Length > 80 ? f.Beschreibung.Substring(0, 80) + "..." : f.Beschreibung)</small></td>
+                <td>
+                    @if (!string.IsNullOrEmpty(f.Link))
+                    {
+                        <a href="@f.Link" target="_blank"><small>@f.Link</small></a>
+                    }
+                </td>
+                <td>
+                    @if (f.Aktiv)
+                    {
+                        <span class="badge bg-success">Aktiv</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Inaktiv</span>
+                    }
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a asp-page="./Edit" asp-route-id="@f.Id" class="btn btn-sm btn-outline-primary">Bearbeiten</a>
+                        <a asp-page="./Delete" asp-route-id="@f.Id" class="btn btn-sm btn-outline-danger">Löschen</a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Features.Any())
+{
+    <div class="text-center my-5">
+        <p class="text-muted">Noch keine Features. Lege das erste an.</p>
+    </div>
+}

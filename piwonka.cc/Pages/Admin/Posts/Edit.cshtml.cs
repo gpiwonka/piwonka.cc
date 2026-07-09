@@ -13,12 +13,10 @@ namespace Piwonka.CC.Pages.Admin.Posts
 	public class EditModel : PageModel
 	{
 		private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
-		private readonly FileUploadService _fileUploadService;
 
-		public EditModel(IDbContextFactory<ApplicationDbContext> contextFactory, FileUploadService fileUploadService)
+		public EditModel(IDbContextFactory<ApplicationDbContext> contextFactory)
 		{
 			_contextFactory = contextFactory;
-			_fileUploadService = fileUploadService;
 		}
 
 		[BindProperty]
@@ -61,19 +59,6 @@ namespace Piwonka.CC.Pages.Admin.Posts
 			Console.WriteLine("=== OnPostAsync aufgerufen ===");
 			Console.WriteLine($"ModelState.IsValid vor Bereinigung: {ModelState.IsValid}");
 
-			// ✅ KORREKTUR 1: Alle UploadedImage-bezogenen ModelState-Fehler entfernen
-			ModelState.Remove("Post.UploadedImage");
-
-			// Zusätzlich alle Keys entfernen, die mit UploadedImage zu tun haben
-			var keysToRemove = ModelState.Keys.Where(k => k.Contains("UploadedImage")).ToList();
-			foreach (var key in keysToRemove)
-			{
-				Console.WriteLine($"Entferne ModelState Key: {key}");
-				ModelState.Remove(key);
-			}
-
-			Console.WriteLine($"ModelState.IsValid nach Bereinigung: {ModelState.IsValid}");
-
 			if (!ModelState.IsValid)
 			{
 				Console.WriteLine("=== ModelState-Fehler ===");
@@ -104,25 +89,6 @@ namespace Piwonka.CC.Pages.Admin.Posts
 			if (string.IsNullOrEmpty(Post.Slug))
 			{
 				Post.Slug = SlugGenerator.GenerateSlug(Post.Titel);
-			}
-
-			// ✅ ÄNDERUNG 1: Bild-Behandlung korrigiert
-			if (Post.UploadedImage != null && Post.UploadedImage.Length > 0)
-			{
-				Console.WriteLine($"Neues Bild wird hochgeladen: {Post.UploadedImage.FileName}");
-				// Neues Bild hochgeladen - Upload verarbeiten
-				var uploadedImageUrl = await _fileUploadService.UploadImageAsync(Post.UploadedImage);
-				postToUpdate.BildUrl = uploadedImageUrl;
-			}
-			else if (!string.IsNullOrEmpty(Post.BildUrl) && Post.BildUrl != postToUpdate.BildUrl)
-			{
-				Console.WriteLine($"Bild-URL wurde geändert: {Post.BildUrl}");
-				// URL wurde manuell geändert
-				postToUpdate.BildUrl = Post.BildUrl;
-			}
-			else
-			{
-				Console.WriteLine("Bild bleibt unverändert");
 			}
 
 			// Post aktualisieren
@@ -172,39 +138,29 @@ namespace Piwonka.CC.Pages.Admin.Posts
 			return await context.Posts.AnyAsync(e => e.Id == id);
 		}
 
+		public async Task<IActionResult> OnGetCategoriesForLanguageAsync(int language)
+		{
+			using var context = _contextFactory.CreateDbContext();
+			var lang = (Language)language;
+			var kategorien = await context.Kategorien
+				.Where(k => k.Language == lang)
+				.OrderBy(k => k.Name)
+				.Select(k => new { id = k.Id, name = k.Name })
+				.ToListAsync();
+			return new JsonResult(kategorien);
+		}
+
 		private async Task LoadSelectLists()
 		{
 			using var context = _contextFactory.CreateDbContext();
 
-			Console.WriteLine($"LoadSelectLists: Post.Language = {Post?.Language}");
-
-			// Alle Kategorien mit ihren Posts laden
-			var allKategorienMitPosts = await context.Kategorien
-				.Include(k => k.Posts)
-				.ToListAsync();
-
-			// Nur Kategorien auswählen, die Posts in der gewünschten Sprache haben
 			var kategorien = await context.Kategorien
 				.Where(k => k.Language == Post.Language)
 				.OrderBy(k => k.Name)
 				.ToListAsync();
 
-			Console.WriteLine($"Gefundene Kategorien für {Post.Language}: {kategorien.Count}");
-			foreach (var kat in kategorien)
-			{
-				Console.WriteLine($"  - {kat.Name} (ID: {kat.Id})");
-			}
-
-			// Falls keine Kategorien für diese Sprache existieren, alle Kategorien anzeigen
-			if (!kategorien.Any())
-			{
-				Console.WriteLine("Keine sprachspezifischen Kategorien gefunden - lade alle Kategorien");
-				kategorien = allKategorienMitPosts.OrderBy(k => k.Name).ToList();
-			}
-
 			KategorieOptions = new SelectList(kategorien, "Id", "Name", SelectedKategorieId);
 
-			// Sprachen laden
 			var languages = new List<object>
 			{
 				new { Value = (int)Language.DE, Text = "Deutsch" },

@@ -15,6 +15,7 @@ namespace Piwonka.CC.Services
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly ILogger<IndexNowService> _logger;
+        private readonly Piwonka.CC.Models.SiteSettings _site;
 
         private readonly string _key;
         private readonly string _keyLocation;
@@ -29,22 +30,62 @@ namespace Piwonka.CC.Services
             "https://yandex.com/indexnow"
         };
 
+        // Datei für persistenten Fallback-Key, wenn Config keinen Wert liefert.
+        private static readonly string KeyCachePath = Path.Combine(AppContext.BaseDirectory, "indexnow.key");
+        private static readonly object KeyCacheLock = new();
+
         public IndexNowService(
             HttpClient httpClient,
             IConfiguration configuration,
-            ILogger<IndexNowService> logger)
+            ILogger<IndexNowService> logger,
+            Piwonka.CC.Models.SiteSettings site)
         {
             _httpClient = httpClient;
             _configuration = configuration;
             _logger = logger;
+            _site = site;
 
-            // Konfiguration lesen
-            _key = _configuration["IndexNow:Key"] ?? GenerateApiKey();
-            _host = _configuration["IndexNow:Host"] ?? "piwonka.cc";
+            // Konfiguration lesen — leere Strings wie null behandeln (Env-Vars / Production-Overrides liefern manchmal "" statt nichts).
+            var configKey = _configuration["IndexNow:Key"];
+            if (string.IsNullOrWhiteSpace(configKey))
+            {
+                _key = LoadOrCreatePersistedKey();
+                _logger.LogWarning("IndexNow:Key fehlt in Konfiguration — verwende persistierten Fallback-Key {KeyFile}", KeyCachePath);
+            }
+            else
+            {
+                _key = configKey.Trim();
+            }
+
+            _host = _configuration["IndexNow:Host"] ?? _site.Name;
             _keyLocation = $"https://{_host}/{_key}.txt";
             _isEnabled = _configuration.GetValue<bool>("IndexNow:Enabled", true);
 
-            _logger.LogInformation($"IndexNow Service initialized. Enabled: {_isEnabled}, Host: {_host}");
+            _logger.LogInformation("IndexNow Service initialized. Enabled: {Enabled}, Host: {Host}, KeyLength: {KeyLength}", _isEnabled, _host, _key.Length);
+        }
+
+        private string LoadOrCreatePersistedKey()
+        {
+            lock (KeyCacheLock)
+            {
+                try
+                {
+                    if (File.Exists(KeyCachePath))
+                    {
+                        var existing = File.ReadAllText(KeyCachePath).Trim();
+                        if (!string.IsNullOrWhiteSpace(existing)) return existing;
+                    }
+
+                    var newKey = GenerateApiKey();
+                    File.WriteAllText(KeyCachePath, newKey);
+                    return newKey;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Konnte persistenten IndexNow-Key nicht lesen/schreiben — generiere flüchtigen Key");
+                    return GenerateApiKey();
+                }
+            }
         }
 
         public async Task NotifyUrlAsync(string url)
@@ -175,11 +216,7 @@ namespace Piwonka.CC.Services
 
         private static string GenerateApiKey()
         {
-            // Generiert einen zufälligen 32-stelligen Hex-String als API Key
-            var random = new Random();
-            var bytes = new byte[16];
-            random.NextBytes(bytes);
-            return Convert.ToHexString(bytes).ToLowerInvariant();
+            return Guid.NewGuid().ToString();
         }
 
         // Methode um den API Key für die Key-Datei zu erhalten

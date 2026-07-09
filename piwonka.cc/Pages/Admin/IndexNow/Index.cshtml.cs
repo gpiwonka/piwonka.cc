@@ -29,7 +29,7 @@ namespace Piwonka.CC.Pages.Admin.IndexNow
             _configuration = configuration;
         }
 
-        // Properties für die View
+        // Properties fï¿½r die View
         public bool IsEnabled { get; set; }
         public string Host { get; set; } = string.Empty;
         public string ApiKey { get; set; } = string.Empty;
@@ -47,7 +47,7 @@ namespace Piwonka.CC.Pages.Admin.IndexNow
         {
             if (string.IsNullOrWhiteSpace(url))
             {
-                TempData["ErrorMessage"] = "Bitte geben Sie eine gültige URL ein.";
+                TempData["ErrorMessage"] = "Bitte geben Sie eine gï¿½ltige URL ein.";
                 await LoadDataAsync();
                 return Page();
             }
@@ -83,7 +83,7 @@ namespace Piwonka.CC.Pages.Admin.IndexNow
                 }
                 else
                 {
-                    TempData["ErrorMessage"] = "Keine veröffentlichten Seiten gefunden.";
+                    TempData["ErrorMessage"] = "Keine verï¿½ffentlichten Seiten gefunden.";
                 }
             }
             catch (Exception ex)
@@ -112,7 +112,7 @@ namespace Piwonka.CC.Pages.Admin.IndexNow
                 }
                 else
                 {
-                    TempData["ErrorMessage"] = "Keine veröffentlichten Blog-Posts gefunden.";
+                    TempData["ErrorMessage"] = "Keine verï¿½ffentlichten Blog-Posts gefunden.";
                 }
             }
             catch (Exception ex)
@@ -144,18 +144,14 @@ namespace Piwonka.CC.Pages.Admin.IndexNow
             IsEnabled = _configuration.GetValue<bool>("IndexNow:Enabled", true);
             Host = _configuration["IndexNow:Host"] ?? "piwonka.cc";
 
-            // API Key von Service holen
-            if (_indexNowService is IndexNowService indexNowService)
-            {
-                ApiKey = indexNowService.GetApiKey();
-            }
+            ApiKey = _indexNowService.GetApiKey();
 
             KeyFileUrl = $"https://{Host}/{ApiKey}.txt";
 
             // Statistiken laden
             PublishedPagesCount = await _context.Seiten.CountAsync(s => s.IstVeroeffentlicht);
             PublishedPostsCount = await _context.Posts.CountAsync(p => p.IstVeroeffentlicht);
-            TotalUrls = PublishedPagesCount + PublishedPostsCount + 1; // +1 für Sitemap
+            TotalUrls = PublishedPagesCount + PublishedPostsCount + 1; // +1 fï¿½r Sitemap
         }
     }
 }

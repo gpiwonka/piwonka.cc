@@ -1,0 +1,110 @@
+@page
+@model Piwonka.CC.Pages.Admin.Downloads.IndexModel
+@{
+    ViewData["Title"] = "Downloads";
+}
+
+@await Component.InvokeAsync("AdminNav")
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Downloads</h1>
+    <a asp-page="./Create" class="btn btn-primary">Neue App</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<p class="text-muted">Apps mit Download-Dateien je Plattform/Version. Die Dateien selbst lädst du per FTP hoch und verlinkst sie hier per Pfad/URL.</p>
+
+@if (!Model.Apps.Any())
+{
+    <div class="text-center my-5">
+        <p class="text-muted">Noch keine App. Lege die erste an.</p>
+    </div>
+}
+
+@foreach (var app in Model.Apps)
+{
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                @if (!string.IsNullOrEmpty(app.Icon))
+                {
+                    <i class="@app.Icon me-2"></i>
+                }
+                <strong>@app.Name</strong>
+                <span class="badge bg-info text-uppercase ms-2">@(app.Language == Piwonka.CC.Models.Language.DE ? "DE" : "EN")</span>
+                @if (!app.Aktiv)
+                {
+                    <span class="badge bg-secondary ms-1">Inaktiv</span>
+                }
+                <span class="text-muted small ms-2">Reihenfolge @app.Reihenfolge</span>
+            </div>
+            <div class="btn-group">
+                <a asp-page="./Dateien/Create" asp-route-appId="@app.Id" class="btn btn-sm btn-outline-success">+ Datei</a>
+                <a asp-page="./Edit" asp-route-id="@app.Id" class="btn btn-sm btn-outline-primary">Bearbeiten</a>
+                <a asp-page="./Delete" asp-route-id="@app.Id" class="btn btn-sm btn-outline-danger">Löschen</a>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(app.Beschreibung))
+            {
+                <p class="text-muted">@app.Beschreibung</p>
+            }
+            @if (app.Dateien.Any())
+            {
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Reihenf.</th>
+                            <th>Plattform</th>
+                            <th>Version</th>
+                            <th>Hinweis</th>
+                            <th>Datei</th>
+                            <th>Größe</th>
+                            <th>Datum</th>
+                            <th>Aktiv</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in app.Dateien.OrderBy(x => x.Reihenfolge).ThenBy(x => x.Plattform))
+                        {
+                            <tr>
+                                <td>@d.Reihenfolge</td>
+                                <td>@d.Plattform</td>
+                                <td>@(d.Version ?? "—")</td>
+                                <td><small>@(d.Hinweis ?? "")</small></td>
+                                <td><a href="@d.DateiPfad" target="_blank"><small>@d.DateiPfad</small></a></td>
+                                <td><small>@(d.Dateigroesse ?? "—")</small></td>
+                                <td><small>@(d.VeroeffentlichtAm?.ToString("yyyy-MM-dd") ?? "—")</small></td>
+                                <td>
+                                    @if (d.Aktiv)
+                                    {
+                                        <span class="badge bg-success">Aktiv</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inaktiv</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a asp-page="./Dateien/Edit" asp-route-id="@d.Id" class="btn btn-sm btn-outline-primary">Bearbeiten</a>
+                                        <a asp-page="./Dateien/Delete" asp-route-id="@d.Id" class="btn btn-sm btn-outline-danger">Löschen</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-muted mb-0"><em>Noch keine Dateien. Über „+ Datei“ hinzufügen.</em></p>
+            }
+        </div>
+    </div>
+}

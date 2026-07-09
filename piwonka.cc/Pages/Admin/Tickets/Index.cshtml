@@ -1,0 +1,94 @@
+@page
+@model Piwonka.CC.Pages.Admin.Tickets.IndexModel
+@using Piwonka.CC.Models
+@{
+    ViewData["Title"] = "Tickets";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Tickets</h1>
+    <div>
+        <span class="badge bg-warning text-dark me-1">Offen: @Model.OffenCount</span>
+        <span class="badge bg-info text-dark me-1">In Bearbeitung: @Model.InBearbeitungCount</span>
+        <span class="badge bg-secondary">Geschlossen: @Model.GeschlossenCount</span>
+    </div>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <select asp-for="StatusFilter" class="form-select" asp-items="Html.GetEnumSelectList<TicketStatus>()">
+            <option value="">Alle Status</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <select asp-for="TypFilter" class="form-select" asp-items="Html.GetEnumSelectList<TicketTyp>()">
+            <option value="">Alle Kategorien</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Filtern</button>
+        <a asp-page="./Index" class="btn btn-outline-secondary">Zurücksetzen</a>
+    </div>
+</form>
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Kategorie</th>
+            <th>Titel</th>
+            <th>Melder</th>
+            <th>Erstellt</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var t in Model.Tickets)
+        {
+            <tr>
+                <td>@t.Id</td>
+                <td>
+                    @if (t.Typ == TicketTyp.Bug)
+                    {
+                        <span class="badge bg-danger"><i class="fas fa-bug me-1"></i>Bug</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-primary"><i class="fas fa-lightbulb me-1"></i>Feature</span>
+                    }
+                </td>
+                <td>@t.Titel</td>
+                <td>
+                    @t.MelderName<br />
+                    <small class="text-muted">@t.MelderEmail</small>
+                </td>
+                <td>@t.ErstelltAm.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>
+                    @switch (t.Status)
+                    {
+                        case TicketStatus.Offen:
+                            <span class="badge bg-warning text-dark">Offen</span>
+                            break;
+                        case TicketStatus.InBearbeitung:
+                            <span class="badge bg-info text-dark">In Bearbeitung</span>
+                            break;
+                        case TicketStatus.Geschlossen:
+                            <span class="badge bg-secondary">Geschlossen</span>
+                            break;
+                    }
+                </td>
+                <td>
+                    <a asp-page="./Detail" asp-route-id="@t.Id" class="btn btn-sm btn-outline-primary">Öffnen</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Tickets.Any())
+{
+    <div class="text-center my-5">
+        <p class="text-muted">Keine Tickets vorhanden.</p>
+    </div>
+}

@@ -24,6 +24,14 @@
         </div>
     }
 
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     <!-- Sprachfilter -->
     <div class="row mb-3">
         <div class="col-md-6">
@@ -132,6 +140,12 @@
                                                 <div class="btn-group" role="group">
                                                     <a asp-page="./Edit" asp-route-id="@seite.Id" class="btn btn-sm btn-outline-primary">Bearbeiten</a>
                                                     <a asp-page="/Seite" asp-route-slug="@seite.Slug" target="_blank" class="btn btn-sm btn-outline-info">Anzeigen</a>
+                                                    <form method="post" asp-page-handler="Kopieren" asp-route-id="@seite.Id" class="d-inline">
+                                                        <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                                                title="Kopie als @(seite.Language == Piwonka.CC.Models.Language.DE ? "🇬🇧 EN" : "🇩🇪 DE")-Entwurf zum Übersetzen anlegen">
+                                                            Kopieren → @(seite.Language == Piwonka.CC.Models.Language.DE ? "EN" : "DE")
+                                                        </button>
+                                                    </form>
                                                     <a asp-page="./Delete" asp-route-id="@seite.Id" class="btn btn-sm btn-outline-danger">Löschen</a>
                                                 </div>
                                             </td>

@@ -31,7 +31,7 @@ namespace Piwonka.CC.Pages.Admin.Seiten
 
         public async Task<IActionResult> OnGetAsync()
         {
-            // Verfügbare Parent-Seiten laden
+            // Verfï¿½gbare Parent-Seiten laden
             var verfuegbareParents = await _menuService.GetSeitenHierarchyAsync();
 
             // ViewModel mit Standardwerten initialisieren
@@ -50,10 +50,10 @@ namespace Piwonka.CC.Pages.Admin.Seiten
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // Verfügbare Parents für den Fall eines Validation-Fehlers neu laden
+            // Verfï¿½gbare Parents fï¿½r den Fall eines Validation-Fehlers neu laden
             SeiteViewModel.VerfuegbareParents = await _menuService.GetSeitenHierarchyAsync();
 
-            // Explizit Inhalt aus Form holen (für TinyMCE)
+            // Explizit Inhalt aus Form holen (fï¿½r TinyMCE)
             var formInhalt = Request.Form["SeiteViewModel.Inhalt"].ToString();
             if (string.IsNullOrEmpty(SeiteViewModel.Inhalt) && !string.IsNullOrEmpty(formInhalt))
             {
@@ -70,7 +70,7 @@ namespace Piwonka.CC.Pages.Admin.Seiten
                 SeiteViewModel.Slug = GenerateSlug(SeiteViewModel.Slug);
             }
 
-            // Prüfen, ob Slug bereits existiert (pro Sprache)
+            // Prï¿½fen, ob Slug bereits existiert (pro Sprache)
             if (!string.IsNullOrWhiteSpace(SeiteViewModel.Slug))
             {
                 using var _context = await _contextFactory.CreateDbContextAsync();
@@ -105,6 +105,7 @@ namespace Piwonka.CC.Pages.Admin.Seiten
                 Inhalt = SeiteViewModel.Inhalt ?? string.Empty,
                 MetaDescription = string.IsNullOrWhiteSpace(SeiteViewModel.MetaDescription) ? null : SeiteViewModel.MetaDescription.Trim(),
                 MetaKeywords = string.IsNullOrWhiteSpace(SeiteViewModel.MetaKeywords) ? null : SeiteViewModel.MetaKeywords.Trim(),
+                JsonLdTyp = string.IsNullOrWhiteSpace(SeiteViewModel.JsonLdTyp) ? null : SeiteViewModel.JsonLdTyp,
                 IstVeroeffentlicht = SeiteViewModel.IstVeroeffentlicht,
                 ImMenuAnzeigen = SeiteViewModel.ImMenuAnzeigen,
                 Reihenfolge = SeiteViewModel.Reihenfolge,
@@ -139,13 +140,13 @@ namespace Piwonka.CC.Pages.Admin.Seiten
             if (string.IsNullOrWhiteSpace(text))
                 return string.Empty;
 
-            text = text.Replace("ä", "ae")
-                      .Replace("ö", "oe")
-                      .Replace("ü", "ue")
-                      .Replace("Ä", "ae")
-                      .Replace("Ö", "oe")
-                      .Replace("Ü", "ue")
-                      .Replace("ß", "ss")
+            text = text.Replace("ï¿½", "ae")
+                      .Replace("ï¿½", "oe")
+                      .Replace("ï¿½", "ue")
+                      .Replace("ï¿½", "ae")
+                      .Replace("ï¿½", "oe")
+                      .Replace("ï¿½", "ue")
+                      .Replace("ï¿½", "ss")
                       .Replace("&", "und");
 
             text = text.ToLowerInvariant();

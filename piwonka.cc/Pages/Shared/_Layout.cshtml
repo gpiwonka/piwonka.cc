@@ -1,9 +1,38 @@
-﻿<!DOCTYPE html>
-<html lang="de" class="h-100">
+﻿@inject Piwonka.CC.Services.ILanguageService LanguageService
+@inject SiteSettings Site
+@{
+    var currentLang = await LanguageService.GetCurrentLanguageAsync();
+    var langCode = currentLang == Piwonka.CC.Models.Language.EN ? "en" : "de";
+    var ogLocale = currentLang == Piwonka.CC.Models.Language.EN ? "en_US" : "de_DE";
+
+    var rawTitle = ViewData["Title"]?.ToString();
+    string fullTitle;
+    if (string.IsNullOrWhiteSpace(rawTitle))
+    {
+        fullTitle = Site.Name;
+    }
+    else if (rawTitle.Contains(Site.Name, StringComparison.OrdinalIgnoreCase))
+    {
+        fullTitle = rawTitle;
+    }
+    else
+    {
+        fullTitle = $"{rawTitle} - {Site.Name}";
+    }
+
+    var canonicalUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}";
+    var ogImageOverride = ViewData["OgImage"] as string;
+    var ogImage = !string.IsNullOrEmpty(ogImageOverride)
+        ? ogImageOverride
+        : $"{Context.Request.Scheme}://{Context.Request.Host}{Site.OgImagePath}";
+    var ogType = ViewData["OgType"] as string ?? "website";
+}
+<!DOCTYPE html>
+<html lang="@langCode" class="h-100">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - piwonka.cc</title>
+    <title>@fullTitle</title>
 
     @if (ViewData["MetaDescription"] != null)
     {
@@ -15,13 +44,30 @@
         <meta name="keywords" content="@ViewData["MetaKeywords"]" />
     }
 
-    <meta property="og:title" content="@ViewData["Title"] - piwonka.cc" />
+    <meta name="author" content="@Site.Author" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="@canonicalUrl" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="@fullTitle" />
     @if (ViewData["MetaDescription"] != null)
     {
         <meta property="og:description" content="@ViewData["MetaDescription"]" />
     }
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="@Context.Request.Scheme://@Context.Request.Host@Context.Request.Path" />
+    <meta property="og:type" content="@ogType" />
+    <meta property="og:url" content="@canonicalUrl" />
+    <meta property="og:site_name" content="@Site.Name" />
+    <meta property="og:locale" content="@ogLocale" />
+    <meta property="og:image" content="@ogImage" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@fullTitle" />
+    @if (ViewData["MetaDescription"] != null)
+    {
+        <meta name="twitter:description" content="@ViewData["MetaDescription"]" />
+    }
+    <meta name="twitter:image" content="@ogImage" />
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -225,14 +271,54 @@
     </style>
 
     @await RenderSectionAsync("Styles", required: false)
+
+    <!-- JSON-LD: Person + WebSite -->
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "Person",
+      "name": "@Site.Author",
+      "url": "@Site.Url",
+      "email": "@Site.AuthorEmail",
+      "jobTitle": "@Site.JobTitle",
+      "address": {
+        "@@type": "PostalAddress",
+        "streetAddress": "@Site.Street",
+        "postalCode": "@Site.Zip",
+        "addressLocality": "@Site.City",
+        "addressCountry": "@Site.Country"
+      },
+      "knowsAbout": @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Site.KnowsAbout))
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "WebSite",
+      "name": "@Site.Name",
+      "url": "@Site.Url",
+      "inLanguage": ["de", "en"],
+      "potentialAction": {
+        "@@type": "SearchAction",
+        "target": "@Site.Url/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "author": {
+        "@@type": "Person",
+        "name": "@Site.Author",
+        "url": "@Site.Url"
+      }
+    }
+    </script>
+    @await RenderSectionAsync("JsonLd", required: false)
 </head>
 <body class="d-flex flex-column h-100">
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand fw-bold d-flex align-items-center" asp-area="" asp-page="/Index">
-                    <img src="/images/logo.png" alt="Piwonka Logo" class="navbar-logo me-2">
-                  @*   <span class="navbar-text">piwonka.cc</span> *@
+                    <img src="@Site.LogoPath" alt="@Site.LogoAlt" class="navbar-logo me-2">
+                  @*   <span class="navbar-text">@Site.Name</span> *@
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -274,9 +360,57 @@
                         <!-- Hierarchisches Menü -->
                         @await Component.InvokeAsync("MainMenu")
 
+                        <!-- SQL Tools Dropdown -->
+                        <li class="nav-item dropdown blog-dropdown">
+                            <a class="nav-link dropdown-toggle text-dark"
+                               href="#"
+                               id="sqlToolsDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="fas fa-tools me-1"></i>SQL Tools
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="sqlToolsDropdown">
+                                <li>
+                                    <a class="dropdown-item" asp-page="/PlanAdvice">
+                                        <i class="fas fa-database me-2"></i>Plan Advice
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Tools/QueryFormatter">
+                                        <i class="fas fa-code me-2"></i>Query Formatter
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Tools/IndexAdvisor">
+                                        <i class="fas fa-list-ol me-2"></i>Index Advisor
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Tools/DeadlockAnalyzer">
+                                        <i class="fas fa-lock me-2"></i>Deadlock Analyzer
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Tools/QueryConverter">
+                                        <i class="fas fa-exchange-alt me-2"></i>Query Converter
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Downloads">
+                                Downloads
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Contact">
+                                Kontakt
+                            </a>
+                        </li>
                     </ul>
 
-                    <!-- Rechte Seite: Suche, Sprache, Admin -->
+                    <!-- Rechte Seite: Suche, Sprache -->
                     <div class="d-flex align-items-center">
                         <!-- Suchbox -->
                         <div class="me-3">
@@ -286,13 +420,6 @@
                         <!-- Sprachauswahl -->
                         <div class="me-3">
                             @await Component.InvokeAsync("LanguageSwitcher")
-                        </div>
-
-                        <!-- Admin-Bereich -->
-                        <div class="dropdown">
-                            <a class="dropdown-item" asp-page="/Admin/Index">
-                                Admin
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -313,7 +440,8 @@
             <div class="row">
                 <div class="col-md-4">
                     <p class="small mb-0">
-                        &copy; @DateTime.Now.Year - piwonka.cc - Baustelle seit 2000
+                        &copy; @DateTime.Now.Year - @Site.Name - @Site.FooterTagline
+                        <a asp-area="" asp-page="/Contact" class="text-decoration-none">Kontakt</a>
                         <a asp-area="" asp-page="/Privacy" class="text-decoration-none">Privacy</a>
                         <a asp-area="" asp-page="/Datenschutz" class="text-decoration-none">Datenschutz</a>
                     </p>
@@ -325,7 +453,7 @@
                 </div>
                 <div class="col-md-4 text-center">
                     <!-- Buy Me a Coffee Button -->
-                    <a href="https://paypal.me/geopiw"
+                    <a href="@Site.CoffeeUrl"
                        target="_blank"
                        class="btn btn-coffee btn-sm">
                         <i class="fas fa-coffee me-1"></i>

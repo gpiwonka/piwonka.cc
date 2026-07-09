@@ -1,0 +1,35 @@
+@page "{id:int}"
+@model Piwonka.CC.Pages.Admin.Downloads.DeleteModel
+@{
+    ViewData["Title"] = "App löschen";
+}
+
+<h1>App löschen</h1>
+
+<div class="alert alert-warning">
+    <strong>@Model.App.Name</strong> wirklich löschen?
+    @if (Model.DateienAnzahl > 0)
+    {
+        <div class="mt-2">
+            Dabei werden auch <strong>@Model.DateienAnzahl</strong> verknüpfte Download-Datei(en) entfernt.
+            Die per FTP hochgeladenen Dateien selbst bleiben auf dem Server bestehen.
+        </div>
+    }
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Beschreibung</dt>
+    <dd class="col-sm-9">@(Model.App.Beschreibung ?? "—")</dd>
+
+    <dt class="col-sm-3">Sprache</dt>
+    <dd class="col-sm-9">@(Model.App.Language == Piwonka.CC.Models.Language.DE ? "Deutsch" : "English")</dd>
+
+    <dt class="col-sm-3">Dateien</dt>
+    <dd class="col-sm-9">@Model.DateienAnzahl</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="App.Id" />
+    <button type="submit" class="btn btn-danger">Endgültig löschen</button>
+    <a asp-page="./Index" class="btn btn-outline-secondary">Abbrechen</a>
+</form>

@@ -2,8 +2,25 @@
 @using Microsoft.EntityFrameworkCore
 @model Piwonka.CC.Pages.Blog.DetailModel
 @inject Piwonka.CC.Services.ILocalizationService Localization
+@inject SiteSettings Site
 @{
-    ViewData["Title"] = Model.Post.Titel;
+    var blogLabel = await Localization.GetLocalizedStringAsync("Blog");
+    var postTitle = string.IsNullOrWhiteSpace(Model.Post?.Titel) ? blogLabel : Model.Post.Titel;
+    ViewData["Title"] = $"{postTitle} – {blogLabel}";
+    ViewData["OgType"] = "article";
+
+    var postDescription = !string.IsNullOrWhiteSpace(Model.Post.MetaDescription)
+        ? Model.Post.MetaDescription
+        : Model.Post.Excerpt;
+    ViewData["MetaDescription"] = postDescription;
+    if (!string.IsNullOrWhiteSpace(Model.Post.MetaKeywords))
+    {
+        ViewData["MetaKeywords"] = Model.Post.MetaKeywords;
+    }
+
+    var postUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/blog/{Model.Post.Id}/{Model.Post.Slug}";
+    var postLangCode = Model.Post.GetLanguageCode();
+    var postKeywords = Model.Post.MetaKeywords;
 }
 
 <div class="container">
@@ -49,13 +66,6 @@
                         </span>
                     }
                 </div>
-
-                @if (!string.IsNullOrEmpty(Model.Post.BildUrl))
-                {
-                    <div class="blog-featured-image mb-4">
-                        <img src="@Model.Post.BildUrl" alt="@Model.Post.Titel" class="img-fluid rounded">
-                    </div>
-                }
 
                 <div class="blog-content">
                     @Html.FormatCode(Model.Post.Inhalt)
@@ -137,12 +147,6 @@
                         {
                             <div class="col-md-6 mb-4">
                                 <div class="card h-100">
-                                    @if (!string.IsNullOrEmpty(related.BildUrl))
-                                    {
-                                        <div style="height: 150px; overflow: hidden;">
-                                            <img src="@related.BildUrl" class="card-img-top" alt="@related.Titel" style="object-fit: cover; height: 100%; width: 100%;">
-                                        </div>
-                                    }
                                     <div class="card-body">
                                         <h5 class="card-title">@related.Titel</h5>
                                         <p class="card-text small text-muted">
@@ -187,13 +191,7 @@
                             @foreach (var recentPost in Model.RecentPosts)
                             {
                                 <li class="d-flex mb-3 pb-3 @(recentPost != Model.RecentPosts.Last() ? "border-bottom" : "")">
-                                    @if (!string.IsNullOrEmpty(recentPost.BildUrl))
-                                    {
-                                        <div class="flex-shrink-0" style="width: 60px; height: 60px;">
-                                            <img src="@recentPost.BildUrl" class="img-fluid rounded" style="width: 100%; height: 100%; object-fit: cover;" alt="@recentPost.Titel">
-                                        </div>
-                                    }
-                                    <div class="@(!string.IsNullOrEmpty(recentPost.BildUrl) ? "ms-3" : "")">
+                                    <div>
                                         <h6 class="mb-1">
                                             <a asp-page="./Detail" asp-route-id="@recentPost.Id" asp-route-slug="@recentPost.Slug" class="text-decoration-none">
                                                 @recentPost.Titel
@@ -419,3 +417,51 @@
         });
     }
 </script>
+
+@section JsonLd {
+    @{
+        var siteRoot = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
+        var jsonHeadline = System.Web.HttpUtility.JavaScriptStringEncode(Model.Post.Titel ?? "");
+        var jsonDesc = System.Web.HttpUtility.JavaScriptStringEncode(postDescription ?? "");
+        var jsonKeywords = System.Web.HttpUtility.JavaScriptStringEncode(postKeywords ?? "");
+        var jsonCategory = Model.Post.Kategorie != null
+            ? System.Web.HttpUtility.JavaScriptStringEncode(Model.Post.Kategorie.Name ?? "")
+            : null;
+    }
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "BlogPosting",
+      "headline": "@Html.Raw(jsonHeadline)",
+      @if (!string.IsNullOrWhiteSpace(postDescription))
+      {
+          <text>"description": "@Html.Raw(jsonDesc)",</text>
+      }
+      @if (!string.IsNullOrWhiteSpace(postKeywords))
+      {
+          <text>"keywords": "@Html.Raw(jsonKeywords)",</text>
+      }
+      "datePublished": "@Model.Post.ErstelltAm.ToString("yyyy-MM-dd")",
+      "inLanguage": "@postLangCode",
+      "url": "@postUrl",
+      "mainEntityOfPage": {
+        "@@type": "WebPage",
+        "@@id": "@postUrl"
+      },
+      "author": {
+        "@@type": "Person",
+        "name": "@Site.Author",
+        "url": "@siteRoot"
+      },
+      "publisher": {
+        "@@type": "Person",
+        "name": "@Site.Author",
+        "url": "@siteRoot"
+      }
+      @if (jsonCategory != null)
+      {
+          <text>,"articleSection": "@Html.Raw(jsonCategory)"</text>
+      }
+    }
+    </script>
+}

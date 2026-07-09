@@ -1,4 +1,4 @@
-// Pages/Admin/Index.cshtml.cs - Vollständige korrigierte Version
+// Pages/Admin/Index.cshtml.cs - Vollstï¿½ndige korrigierte Version
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -82,7 +82,7 @@ namespace Piwonka.CC.Pages.Admin
             }
             catch (Exception)
             {
-                // Fallback wenn Analytics Service nicht verfügbar
+                // Fallback wenn Analytics Service nicht verfï¿½gbar
                 Analytics = new AnalyticsSummary
                 {
                     TodayVisitors = 0,
@@ -107,7 +107,7 @@ namespace Piwonka.CC.Pages.Admin
             }
             catch (Exception)
             {
-                // Fallback wenn IndexNow Service nicht verfügbar
+                // Fallback wenn IndexNow Service nicht verfï¿½gbar
                 IndexNowStats = new IndexNowSummary
                 {
                     IsEnabled = false,
@@ -154,7 +154,7 @@ namespace Piwonka.CC.Pages.Admin
 
                 if (urls.Any())
                 {
-                    // Fire-and-forget für bessere Performance
+                    // Fire-and-forget fï¿½r bessere Performance
                     _ = Task.Run(async () =>
                     {
                         try
@@ -167,11 +167,11 @@ namespace Piwonka.CC.Pages.Admin
                         }
                     });
 
-                    TempData["SuccessMessage"] = $"IndexNow-Benachrichtigung für {urls.Count} URLs gestartet.";
+                    TempData["SuccessMessage"] = $"IndexNow-Benachrichtigung fï¿½r {urls.Count} URLs gestartet.";
                 }
                 else
                 {
-                    TempData["ErrorMessage"] = "Keine veröffentlichten Inhalte zum Benachrichtigen gefunden.";
+                    TempData["ErrorMessage"] = "Keine verï¿½ffentlichten Inhalte zum Benachrichtigen gefunden.";
                 }
             }
             catch (Exception ex)
@@ -222,19 +222,8 @@ namespace Piwonka.CC.Pages.Admin
 
         private string GetIndexNowApiKey()
         {
-            try
-            {
-                if (_indexNowService is IndexNowService indexNowService)
-                {
-                    var fullKey = indexNowService.GetApiKey();
-                    return fullKey.Length > 8 ? fullKey.Substring(0, 8) + "..." : fullKey;
-                }
-            }
-            catch
-            {
-                // Ignorieren wenn Service nicht verfügbar
-            }
-            return "N/A";
+            var fullKey = _indexNowService.GetApiKey();
+            return fullKey.Length > 8 ? fullKey.Substring(0, 8) + "..." : fullKey;
         }
     }
 
@@ -268,7 +257,7 @@ namespace Piwonka.CC.Pages.Admin
         public DateTime LastUpdateTime { get; set; }
         public string ApiKey { get; set; } = string.Empty;
 
-        // Computed Properties für die View
+        // Computed Properties fï¿½r die View
         public string StatusText => IsEnabled ? "Aktiv" : "Deaktiviert";
         public string StatusColor => IsEnabled ? "success" : "secondary";
     }

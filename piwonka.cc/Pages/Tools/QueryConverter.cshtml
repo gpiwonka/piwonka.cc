@@ -1,0 +1,147 @@
+@page
+@model Piwonka.CC.Pages.Tools.QueryConverterModel
+@inject SiteSettings Site
+@{
+    ViewData["Title"] = "SQL Query Converter";
+    ViewData["MetaDescription"] = "SQL-Abfragen zwischen Datenbank-Dialekten konvertieren — T-SQL, PostgreSQL, MySQL, Oracle.";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <h1><i class="fas fa-exchange-alt me-2"></i>Query Converter</h1>
+            <p class="lead">SQL-Abfragen zwischen Datenbank-Dialekten konvertieren.</p>
+
+            <div class="alert alert-info d-flex align-items-start" role="alert">
+                <i class="fas fa-gift me-3 mt-1 fa-lg"></i>
+                <div>
+                    <strong>Dieses Tool ist kostenlos</strong> und funktioniert, solange das Token-Budget reicht.
+                    Wenn dir das Tool hilft, freue ich mich über einen
+                    <a href="@Site.CoffeeUrl" target="_blank" class="alert-link"><i class="fas fa-coffee me-1"></i>Kaffee</a>.
+                </div>
+            </div>
+
+            @if (Model.HasError)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
+                </div>
+            }
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0"><i class="fas fa-keyboard me-2"></i>SQL-Abfrage und Dialekte wählen</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="toolForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Sprache / Language</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Language" id="langDe" value="de"
+                                           checked="@(Model.Language == "de")">
+                                    <label class="form-check-label" for="langDe">Deutsch</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Language" id="langEn" value="en"
+                                           checked="@(Model.Language == "en")">
+                                    <label class="form-check-label" for="langEn">English</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="sourceDialect" class="form-label fw-bold">Quell-Dialekt</label>
+                                <select id="sourceDialect" name="SourceDialect" class="form-select">
+                                    @foreach (var dialect in QueryConverterModel.Dialects)
+                                    {
+                                        <option value="@dialect" selected="@(Model.SourceDialect == dialect)">@dialect</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="targetDialect" class="form-label fw-bold">Ziel-Dialekt</label>
+                                <select id="targetDialect" name="TargetDialect" class="form-select">
+                                    @foreach (var dialect in QueryConverterModel.Dialects)
+                                    {
+                                        <option value="@dialect" selected="@(Model.TargetDialect == dialect)">@dialect</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="sqlInput" class="form-label fw-bold">SQL-Abfrage</label>
+                            <textarea id="sqlInput" name="SqlInput" class="form-control font-monospace"
+                                      rows="10" placeholder="SELECT TOP 10 u.Name, ISNULL(u.Email, 'N/A'),&#10;       DATEDIFF(DAY, u.Created, GETDATE()) AS DaysActive&#10;FROM Users u WITH (NOLOCK)&#10;WHERE u.Status = 1&#10;ORDER BY u.Created DESC;"
+                                      style="font-size: 0.85rem;">@Model.SqlInput</textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-exchange-alt me-2"></i>Konvertieren
+                        </button>
+                        <span id="loadingIndicator" class="ms-3 d-none">
+                            <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                            <span class="text-muted ms-1">Claude konvertiert...</span>
+                        </span>
+                    </form>
+                </div>
+            </div>
+
+            @if (Model.AnalysisComplete && Model.AnalysisResult != null)
+            {
+                <div class="card mb-4">
+                    <div class="card-header bg-success bg-opacity-10 d-flex justify-content-between align-items-center">
+                        <h2 class="h5 mb-0"><i class="fas fa-check-circle me-2 text-success"></i>Konvertierung: @Model.SourceDialect &rarr; @Model.TargetDialect</h2>
+                        <form method="post" asp-page-handler="Share" class="d-inline">
+                            <input type="hidden" name="SqlInput" value="@Model.SqlInput" />
+                            <input type="hidden" name="AnalysisResult" value="@Model.AnalysisResult" />
+                            <input type="hidden" name="Language" value="@Model.Language" />
+                            <input type="hidden" name="SourceDialect" value="@Model.SourceDialect" />
+                            <input type="hidden" name="TargetDialect" value="@Model.TargetDialect" />
+                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-share-alt me-1"></i>Teilen
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card-body" id="analysisResult">
+                        @Html.Raw(ConvertMarkdownToHtml(Model.AnalysisResult))
+                    </div>
+                </div>
+            }
+
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5><i class="fas fa-info-circle me-2"></i>Tipps</h5>
+                    <ul class="mb-0 small">
+                        <li>Unterstützte Dialekte: T-SQL (SQL Server), PostgreSQL, MySQL, Oracle PL/SQL, SQLite, MariaDB.</li>
+                        <li>Die KI konvertiert nicht nur die Syntax, sondern erklärt auch die wichtigsten Unterschiede.</li>
+                        <li>Komplexe Stored Procedures oder Funktionen werden ebenfalls unterstützt.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_ToolStyles")
+
+@section Scripts {
+    <script>
+        document.getElementById('toolForm').addEventListener('submit', function () {
+            var input = document.getElementById('sqlInput').value.trim();
+            if (input.length > 0) {
+                document.getElementById('submitBtn').disabled = true;
+                document.getElementById('loadingIndicator').classList.remove('d-none');
+            }
+        });
+    </script>
+}
+
+@functions {
+    string ConvertMarkdownToHtml(string markdown)
+    {
+        return Piwonka.CC.Helpers.MarkdownHelper.ToHtml(markdown);
+    }
+}

@@ -3,24 +3,28 @@ using Piwonka.CC.Services;
 
 namespace Piwonka.CC.Controllers
 {
-    [Route("[controller]")]
     public class IndexNowController : Controller
     {
         private readonly IndexNowService _indexNowService;
+        private readonly ILogger<IndexNowController> _logger;
 
-        public IndexNowController(IndexNowService indexNowService)
+        public IndexNowController(IndexNowService indexNowService, ILogger<IndexNowController> logger)
         {
             _indexNowService = indexNowService;
+            _logger = logger;
         }
 
-        // Endpoint für die IndexNow Key-Datei
-        [HttpGet("{key}.txt")]
+        // IndexNow erwartet die Key-Datei unter https://<host>/<key>.txt (Root!).
+        // regex-Constraint stellt sicher, dass nur Hex-Strings (mit optionalen GUID-Bindestrichen) matchen —
+        // robots.txt, llms.txt etc. bleiben unberührt.
+        [HttpGet("/{key:regex(^[[a-fA-F0-9-]]+$)}.txt")]
         public IActionResult GetKey(string key)
         {
             var apiKey = _indexNowService.GetApiKey();
 
-            if (key != apiKey)
+            if (!string.Equals(key, apiKey, StringComparison.OrdinalIgnoreCase))
             {
+                _logger.LogWarning("IndexNow key file requested with wrong key: {Requested}", key);
                 return NotFound();
             }
 

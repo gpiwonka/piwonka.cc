@@ -1,50 +1,169 @@
-﻿@page
+@page
 @model IndexModel
+@inject SiteSettings Site
 @{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = Site.HomeTitle;
+    ViewData["MetaDescription"] = Site.HomeMetaDescription;
+    ViewData["MetaKeywords"] = Site.HomeMetaKeywords;
 }
 
-<div class="split-layout">
-    <div class="right-side">
-        <img src="/images/piwonka.png" alt="Bild" />
+<section class="hero" id="hero">
+    <div class="hero-inner">
+        <div class="hero-image">
+            <img src="@Site.HeroImagePath" alt="@Site.Author" />
+        </div>
+        <div class="hero-text">
+            <h1>@Site.Wordmark</h1>
+            <p class="tagline" id="tagline">Code, Coffee &amp; Creative Chaos</p>
+        </div>
     </div>
-    <div class="left-side">
-        <h1>PIWONKA</h1>
-        <p class="tagline" id="tagline">Code, Coffee & Creative Chaos</p>
+</section>
+
+<section class="intro-grid container py-5" id="introGrid">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    @if (Model.About != null)
+                    {
+                        <h2 class="h5">
+                            @if (!string.IsNullOrEmpty(Model.About.Icon))
+                            {
+                                <i class="@Model.About.Icon me-2 text-warning"></i>
+                            }
+                            else
+                            {
+                                <i class="fas fa-user me-2 text-warning"></i>
+                            }
+                            @Model.About.Titel
+                        </h2>
+                        <div>@Html.Raw(Model.About.Inhalt)</div>
+                    }
+                    else
+                    {
+                        <h2 class="h5"><i class="fas fa-user me-2 text-warning"></i>Wer ich bin</h2>
+                        <p class="text-muted small mb-0">Noch kein About-Eintrag.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5"><i class="fas fa-rss me-2 text-warning"></i>Aus dem Blog</h2>
+                    @if (Model.RecentPosts.Any())
+                    {
+                        <div class="rotator" data-rotator-interval="5000">
+                            @foreach (var post in Model.RecentPosts)
+                            {
+                                <div class="rotator-item">
+                                    <a asp-page="/Blog/Detail" asp-route-id="@post.Id" asp-route-slug="@post.Slug" class="text-decoration-none">
+                                        <h3 class="h6 mb-1">@post.Titel</h3>
+                                    </a>
+                                    <p class="small text-muted mb-1">@post.ErstelltAm.ToString("dd.MM.yyyy")</p>
+                                    <p class="small mb-0">@post.Excerpt</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="text-end mt-2">
+                            <a asp-page="/Blog/Index" class="small">Alle Beiträge →</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted small mb-0">Noch keine Beiträge.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5"><i class="fas fa-rocket me-2 text-warning"></i>Was ich mache</h2>
+                    @if (Model.Features.Any())
+                    {
+                        <div class="rotator" data-rotator-interval="6000">
+                            @foreach (var feature in Model.Features)
+                            {
+                                <div class="rotator-item">
+                                    <h3 class="h6 mb-1">
+                                        @if (!string.IsNullOrEmpty(feature.Icon))
+                                        {
+                                            <i class="@feature.Icon me-2"></i>
+                                        }
+                                        @if (!string.IsNullOrEmpty(feature.Link))
+                                        {
+                                            <a href="@feature.Link" class="text-decoration-none">@feature.Titel</a>
+                                        }
+                                        else
+                                        {
+                                            @feature.Titel
+                                        }
+                                    </h3>
+                                    <p class="small mb-0">@feature.Beschreibung</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted small mb-0">Demnächst mehr.</p>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</section>
 
 <style>
-    body, html {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    .split-layout {
-        display: flex;
+    /* Hero startet groß, schrumpft nach Initial-Animation */
+    .hero {
+        position: relative;
         height: 100vh;
+        background-color: white;
+        overflow: hidden;
+        transition: height 1s ease-in-out;
     }
 
-    .left-side, .right-side {
+    .hero.collapsed {
+        height: 35vh;
+        min-height: 220px;
+    }
+
+    .hero-inner {
+        display: flex;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hero-image,
+    .hero-text {
         flex: 1;
         display: flex;
         justify-content: center;
         align-items: center;
+        padding: 1rem;
     }
 
-    .left-side {
-        background-color: white;
+    .hero-text {
         flex-direction: column;
     }
 
-        .left-side h1 {
+        .hero-text h1 {
             font-size: 4rem;
             font-weight: bold;
-            color: #FF9A3C; /* Papaya-Farbe */
+            color: #FF9A3C;
             margin-bottom: 0.5rem;
+            transition: font-size 1s ease-in-out, margin-bottom 1s ease-in-out;
         }
+
+    .hero.collapsed .hero-text h1 {
+        font-size: 2.2rem;
+        margin-bottom: 0.25rem;
+    }
 
     .tagline {
         font-size: 1.5rem;
@@ -52,7 +171,7 @@
         font-weight: 300;
         text-align: center;
         opacity: 1;
-        transition: opacity 0.5s ease-in-out;
+        transition: opacity 0.5s ease-in-out, font-size 1s ease-in-out;
         margin: 0;
         min-height: 2rem;
     }
@@ -61,15 +180,82 @@
             opacity: 0;
         }
 
-    .right-side img {
+    .hero.collapsed .tagline {
+        font-size: 1rem;
+    }
+
+    .hero-image img {
         max-width: 100%;
         max-height: 100%;
         object-fit: contain;
+        transition: max-height 1s ease-in-out;
+    }
+
+    .hero.collapsed .hero-image img {
+        max-height: 80%;
+    }
+
+    /* Intro-Grid blendet ein, sobald Hero kollabiert */
+    .intro-grid {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.8s ease-out 0.3s, transform 0.8s ease-out 0.3s;
+    }
+
+    .intro-grid.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Rotator: zeigt nur das aktive Item */
+    .rotator {
+        position: relative;
+    }
+
+    .rotator-item {
+        display: none;
+        animation: rotator-fade 0.4s ease-in;
+    }
+
+    .rotator-item.active {
+        display: block;
+    }
+
+    @@keyframes rotator-fade {
+        from {
+            opacity: 0;
+            transform: translateY(4px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .hero {
+            height: 70vh;
+        }
+
+        .hero.collapsed {
+            height: auto;
+            padding: 1rem 0;
+        }
+
+            .hero.collapsed .hero-inner {
+                flex-direction: row;
+            }
+
+        .hero-text h1 {
+            font-size: 2.5rem;
+        }
     }
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
+        // Tagline-Wechsel (bestehende Logik)
         const taglines = [
             "Code, Coffee & Creative Chaos",
             "Debugging Life Since 1972",
@@ -91,24 +277,40 @@
             "Think Different, Code Better"
         ];
 
-        const taglineElement = document.getElementById('tagline');
-        let currentIndex = 0;
-
+        const taglineEl = document.getElementById('tagline');
+        let tagIdx = 0;
         function changeTagline() {
-            // Fade out
-            taglineElement.classList.add('fade-out');
-
+            taglineEl.classList.add('fade-out');
             setTimeout(() => {
-                // Change text
-                currentIndex = (currentIndex + 1) % taglines.length;
-                taglineElement.textContent = taglines[currentIndex];
-
-                // Fade in
-                taglineElement.classList.remove('fade-out');
-            }, 250); // Half of transition time
+                tagIdx = (tagIdx + 1) % taglines.length;
+                taglineEl.textContent = taglines[tagIdx];
+                taglineEl.classList.remove('fade-out');
+            }, 250);
         }
-
-        // Change tagline every 3 seconds
         setInterval(changeTagline, 3000);
+
+        // Hero schrumpft nach 1.5s, Intro-Grid fadet ein
+        const hero = document.getElementById('hero');
+        const introGrid = document.getElementById('introGrid');
+        setTimeout(() => {
+            hero.classList.add('collapsed');
+            introGrid.classList.add('visible');
+        }, 1500);
+
+        // Rotator: jedes .rotator wechselt seine .rotator-items
+        document.querySelectorAll('.rotator').forEach(rotator => {
+            const items = rotator.querySelectorAll('.rotator-item');
+            if (items.length === 0) return;
+            items[0].classList.add('active');
+            if (items.length === 1) return;
+
+            const interval = parseInt(rotator.dataset.rotatorInterval || '5000', 10);
+            let idx = 0;
+            setInterval(() => {
+                items[idx].classList.remove('active');
+                idx = (idx + 1) % items.length;
+                items[idx].classList.add('active');
+            }, interval);
+        });
     });
 </script>

@@ -1,8 +1,9 @@
 ﻿@page
 @model PrivacyModel
+@inject SiteSettings Site
 @{
     ViewData["Title"] = "Datenschutzerklärung";
-    ViewData["MetaDescription"] = "Datenschutzerklärung von piwonka.cc - Transparenz über die Verarbeitung Ihrer personenbezogenen Daten";
+    ViewData["MetaDescription"] = $"Datenschutzerklärung von {Site.Name} - Transparenz über die Verarbeitung Ihrer personenbezogenen Daten";
 }
 
 <div class="container py-4">
@@ -18,12 +19,12 @@
                 <div class="card-body">
                     <p><strong>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</strong></p>
                     <address>
-                        Georg Piwonka<br>
-                        Reichsstraße 150a<br>
-                        6800 Feldkirch<br>
-                        Österreich<br><br>
-                        E-Mail: georg@Piwonka.cc<br>
-                        
+                        @Site.Author<br>
+                        @Site.Street<br>
+                        @Site.Zip @Site.City<br>
+                        @Site.CountryName<br><br>
+                        E-Mail: @Site.ContactEmail<br>
+
                     </address>
                 </div>
             </div>

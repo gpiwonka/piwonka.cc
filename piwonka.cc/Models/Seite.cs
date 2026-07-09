@@ -24,6 +24,9 @@ namespace Piwonka.CC.Models
         [StringLength(500)]
         public string? MetaKeywords { get; set; }
 
+        [StringLength(50)]
+        public string? JsonLdTyp { get; set; }
+
         public bool IstVeroeffentlicht { get; set; } = true;
 
         public bool ImMenuAnzeigen { get; set; } = false;

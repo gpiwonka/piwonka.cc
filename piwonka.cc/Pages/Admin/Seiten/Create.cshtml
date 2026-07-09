@@ -1,10 +1,12 @@
-﻿@page
+@page
 @model Piwonka.CC.Pages.Admin.Seiten.CreateModel
 @{
     ViewData["Title"] = "Neue Seite erstellen";
 }
 
 <div class="container py-4">
+    @await Component.InvokeAsync("AdminNav")
+
     <div class="row mb-4">
         <div class="col">
             <h1>Neue Seite erstellen</h1>
@@ -16,85 +18,7 @@
             <form method="post" id="createSeiteForm">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                <div class="mb-3">
-                    <label asp-for="SeiteViewModel.Titel" class="form-label">Titel</label>
-                    <input asp-for="SeiteViewModel.Titel" class="form-control" required />
-                    <span asp-validation-for="SeiteViewModel.Titel" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="SeiteViewModel.Language" class="form-label">Sprache</label>
-                    <select asp-for="SeiteViewModel.Language" class="form-select">
-                        <option value="0">🇩🇪 Deutsch</option>
-                        <option value="1">🇬🇧 English</option>
-                    </select>
-                    <span asp-validation-for="SeiteViewModel.Language" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="SeiteViewModel.Slug" class="form-label">URL-Slug</label>
-                    <div class="input-group">
-                        <span class="input-group-text">/seite/</span>
-                        <input asp-for="SeiteViewModel.Slug" class="form-control" />
-                    </div>
-                    <div class="form-text">Wird automatisch aus dem Titel generiert, falls leer gelassen.</div>
-                    <span asp-validation-for="SeiteViewModel.Slug" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="SeiteViewModel.Inhalt" class="form-label">Inhalt</label>
-                    <span asp-validation-for="SeiteViewModel.Inhalt" class="text-danger"></span>
-
-                    <!-- TinyMCE Editor für Inhalt -->
-                    <textarea id="SeiteViewModel_Inhalt" name="SeiteViewModel.Inhalt" rows="15" class="form-control">@Html.Raw(Model.SeiteViewModel?.Inhalt)</textarea>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="SeiteViewModel.MetaDescription" class="form-label">Meta-Beschreibung</label>
-                            <textarea asp-for="SeiteViewModel.MetaDescription" class="form-control" rows="3" maxlength="200"></textarea>
-                            <div class="form-text">Für Suchmaschinen (max. 200 Zeichen)</div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="SeiteViewModel.MetaKeywords" class="form-label">Meta-Keywords</label>
-                            <input asp-for="SeiteViewModel.MetaKeywords" class="form-control" />
-                            <div class="form-text">Komma-getrennt</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="mb-3 form-check">
-                            <input asp-for="SeiteViewModel.IstVeroeffentlicht" class="form-check-input" />
-                            <label asp-for="SeiteViewModel.IstVeroeffentlicht" class="form-check-label">Veröffentlichen</label>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3 form-check">
-                            <input asp-for="SeiteViewModel.ImMenuAnzeigen" class="form-check-input" />
-                            <label asp-for="SeiteViewModel.ImMenuAnzeigen" class="form-check-label">Im Menü anzeigen</label>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label asp-for="SeiteViewModel.Reihenfolge" class="form-label">Reihenfolge im Menü</label>
-                            <input asp-for="SeiteViewModel.Reihenfolge" type="number" class="form-control" min="0" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="SeiteViewModel.Template" class="form-label">Template</label>
-                    <select asp-for="SeiteViewModel.Template" class="form-select">
-                        <option value="Standard">Standard</option>
-                        <option value="Kontakt">Kontakt</option>
-                        <option value="Vollbreite">Vollbreite</option>
-                    </select>
-                </div>
+                <partial name="_SeiteForm" for="SeiteViewModel" />
 
                 <div class="mb-3">
                     <a asp-page="./Index" class="btn btn-secondary">Abbrechen</a>
@@ -120,6 +44,12 @@
                         <li><strong>Standard:</strong> Normale Seite mit Sidebar</li>
                         <li><strong>Kontakt:</strong> Spezial-Layout für Kontaktseiten</li>
                         <li><strong>Vollbreite:</strong> Ohne Sidebar</li>
+                    </ul>
+
+                    <h6>Menü-Gruppe vs. Parent</h6>
+                    <ul class="small">
+                        <li><strong>Menü-Gruppe:</strong> Für Dropdown-Menüs</li>
+                        <li><strong>Parent:</strong> Für echte Hierarchien</li>
                     </ul>
                 </div>
             </div>
@@ -150,8 +80,6 @@
                 return;
             }
 
-            console.log('Initialisiere TinyMCE für Seiten-Inhalt...');
-
             tinymce.init({
                 selector: '#SeiteViewModel_Inhalt',
                 height: 500,
@@ -161,9 +89,18 @@
                 toolbar_sticky: true,
                 entity_encoding: 'raw',
 
+                paste_data_images: true,
+                automatic_uploads: true,
+                images_upload_url: '/api/admin/upload-image',
+                images_reuse_filename: false,
+
                 init_instance_callback: function(editor) {
-                    console.log('Seiten-Editor initialisiert:', editor.id);
                     seiteEditorInitialized = true;
+
+                    var textarea = document.getElementById('SeiteViewModel_Inhalt');
+                    if (textarea && textarea.value) {
+                        editor.setContent(textarea.value);
+                    }
                 },
 
                 setup: function(editor) {
@@ -182,8 +119,7 @@
             if (titelInput && slugInput) {
                 titelInput.addEventListener('input', function() {
                     if (slugInput.value === '') {
-                        const slug = generateSlug(this.value);
-                        slugInput.value = slug;
+                        slugInput.value = generateSlug(this.value);
                     }
                 });
             }
@@ -198,21 +134,16 @@
                 .replace(/[^a-z0-9\s-]/g, '')
                 .replace(/\s+/g, '-')
                 .replace(/-+/g, '-')
-                .trim('-');
+                .replace(/^-|-$/g, '');
         }
 
         function saveSeite() {
-            console.log('saveSeite() aufgerufen');
-
-            // TinyMCE-Inhalt explizit speichern
             var editor = tinymce.get('SeiteViewModel_Inhalt');
             if (editor) {
                 var content = editor.getContent();
                 document.getElementById('SeiteViewModel_Inhalt').value = content;
-                console.log('Seiten-Inhalt gesetzt:', content.substring(0, 100) + '...');
             }
 
-            // Form absenden
             document.getElementById('createSeiteForm').submit();
         }
     </script>

@@ -1,0 +1,104 @@
+@page
+@model Piwonka.CC.Pages.Tickets.CreateModel
+@{
+    ViewData["Title"] = "Ticket erstellen";
+    ViewData["MetaDescription"] = "Bug melden oder Feature wünschen für Nova SQL.";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1>Bug melden oder Feature wünschen</h1>
+            <p class="lead">Hilf mit, Nova SQL zu verbessern. Beschreibe den Fehler oder den gewünschten Feature so genau wie möglich.</p>
+
+            @if (Model.Submitted)
+            {
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading"><i class="fas fa-check-circle me-2"></i>Ticket gesendet!</h4>
+                    <p class="mb-0">Vielen Dank für deine Meldung. Ich melde mich bei Bedarf unter der angegebenen E-Mail-Adresse.</p>
+                </div>
+                <a asp-page="/Index" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Zurück zur Startseite
+                </a>
+            }
+            else
+            {
+                @if (Model.HasError)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Fehler</h4>
+                        <p class="mb-0">@Model.ErrorMessage</p>
+                    </div>
+                }
+
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                            <input type="hidden" asp-for="Ticket.FormGeneriertUm" />
+
+                            <div class="mb-3">
+                                <label class="form-label d-block">Kategorie</label>
+                                <div class="btn-group" role="group" aria-label="Kategorie">
+                                    <input type="radio" class="btn-check" asp-for="Ticket.Typ" value="@((int)Piwonka.CC.Models.TicketTyp.Bug)" id="typ-bug" autocomplete="off">
+                                    <label class="btn btn-outline-danger" for="typ-bug"><i class="fas fa-bug me-2"></i>Bug</label>
+
+                                    <input type="radio" class="btn-check" asp-for="Ticket.Typ" value="@((int)Piwonka.CC.Models.TicketTyp.FeatureRequest)" id="typ-feature" autocomplete="off">
+                                    <label class="btn btn-outline-primary" for="typ-feature"><i class="fas fa-lightbulb me-2"></i>Feature Request</label>
+                                </div>
+                                <span asp-validation-for="Ticket.Typ" class="text-danger small d-block"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Ticket.Titel" class="form-label"></label>
+                                <input asp-for="Ticket.Titel" class="form-control" placeholder="Kurze Zusammenfassung" />
+                                <span asp-validation-for="Ticket.Titel" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Ticket.Beschreibung" class="form-label"></label>
+                                <textarea asp-for="Ticket.Beschreibung" class="form-control" rows="6" placeholder="Schritte zum Reproduzieren, erwartetes vs. tatsächliches Verhalten, Version, ..."></textarea>
+                                <span asp-validation-for="Ticket.Beschreibung" class="text-danger small"></span>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Ticket.MelderName" class="form-label"></label>
+                                    <input asp-for="Ticket.MelderName" class="form-control" placeholder="Dein Name" />
+                                    <span asp-validation-for="Ticket.MelderName" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Ticket.MelderEmail" class="form-label"></label>
+                                    <input asp-for="Ticket.MelderEmail" class="form-control" type="email" placeholder="deine.email@beispiel.com" />
+                                    <span asp-validation-for="Ticket.MelderEmail" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="hp-field" aria-hidden="true">
+                                <label for="Ticket_Website">Website (Dieses Feld nicht ausfüllen)</label>
+                                <input asp-for="Ticket.Website" tabindex="-1" autocomplete="off" />
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Ticket senden
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .hp-field {
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,215 @@
+@page
+@model PlanAdviceModel
+@using Piwonka.CC.Services
+@inject SiteSettings Site
+@{
+    ViewData["Title"] = "SQL Plan Advice";
+    ViewData["MetaDescription"] = "MSSQL Execution Plan Analyzer - Get AI-powered optimization advice for your SQL Server execution plans.";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <h1><i class="fas fa-database me-2"></i>SQL Plan Advice</h1>
+            <p class="lead">MSSQL-Ausführungspläne von Claude AI analysieren lassen.</p>
+
+            <div class="alert alert-info d-flex align-items-start" role="alert">
+                <i class="fas fa-gift me-3 mt-1 fa-lg"></i>
+                <div>
+                    <strong>Dieses Tool ist kostenlos</strong> und funktioniert, solange das Token-Budget reicht.
+                    Die Analyse-Qualität ist das, was sie ist &mdash; AI-generiert, ohne Garantie.
+                    Wenn dir das Tool hilft, freue ich mich über einen
+                    <a href="@Site.CoffeeUrl" target="_blank" class="alert-link"><i class="fas fa-coffee me-1"></i>Kaffee</a>.
+                </div>
+            </div>
+
+            @if (Model.HasError)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
+                </div>
+            }
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0"><i class="fas fa-clipboard-list me-2"></i>Ausführungsplan einfügen</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="planForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Sprache der Analyse / Analysis Language</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Language" id="langDe" value="de"
+                                           checked="@(Model.Language == "de")">
+                                    <label class="form-check-label" for="langDe">Deutsch</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Language" id="langEn" value="en"
+                                           checked="@(Model.Language == "en")">
+                                    <label class="form-check-label" for="langEn">English</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="executionPlan" class="form-label fw-bold">
+                                Execution Plan (XML oder Text)
+                            </label>
+                            <textarea id="executionPlan" name="ExecutionPlan" class="form-control font-monospace"
+                                      rows="12" placeholder="SET STATISTICS XML ON;&#10;-- Query ausführen, dann den XML-Plan hier einfügen...&#10;&#10;Oder den textuellen Ausführungsplan aus SSMS einfügen."
+                                      style="font-size: 0.85rem;">@Model.ExecutionPlan</textarea>
+                            <div class="d-flex justify-content-between mt-1">
+                                <small id="charCounter" class="text-muted">0 Zeichen</small>
+                                <small class="text-muted">
+                                    Limit: @(PlanAdviceService.MaxDirectChars.ToString("N0")) Zeichen direkt &mdash; darüber werden automatisch die teuersten Operationen extrahiert
+                                </small>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-magic me-2"></i>Analysieren
+                        </button>
+                        <span id="loadingIndicator" class="ms-3 d-none">
+                            <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                            <span class="text-muted ms-1">Claude analysiert...</span>
+                        </span>
+                    </form>
+                </div>
+            </div>
+
+            @if (Model.AnalysisComplete && Model.AnalysisResult != null)
+            {
+                @if (Model.WasTruncated)
+                {
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-cut me-2"></i>
+                        <strong>Plan war zu groß (@Model.CharCount.ToString("N0") Zeichen).</strong>
+                        Die teuersten Operationen wurden automatisch aus dem XML extrahiert und analysiert.
+                        Für eine vollständige Analyse ggf. einzelne Statements separat einfügen.
+                    </div>
+                }
+                <div class="card mb-4">
+                    <div class="card-header bg-success bg-opacity-10 d-flex justify-content-between align-items-center">
+                        <h2 class="h5 mb-0"><i class="fas fa-lightbulb me-2 text-success"></i>Analyse-Ergebnis</h2>
+                        <form method="post" asp-page-handler="Share" class="d-inline">
+                            <input type="hidden" name="ExecutionPlan" value="@Model.ExecutionPlan" />
+                            <input type="hidden" name="AnalysisResult" value="@Model.AnalysisResult" />
+                            <input type="hidden" name="Language" value="@Model.Language" />
+                            <input type="hidden" name="WasTruncated" value="@Model.WasTruncated" />
+                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-share-alt me-1"></i>Teilen
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card-body" id="analysisResult">
+                        @Html.Raw(ConvertMarkdownToHtml(Model.AnalysisResult))
+                    </div>
+                </div>
+            }
+
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5><i class="fas fa-info-circle me-2"></i>Tipps</h5>
+                    <ul class="mb-0 small">
+                        <li>In SSMS: <code>SET STATISTICS XML ON</code> vor der Query ausführen, dann den XML-Plan kopieren.</li>
+                        <li>Oder: Rechtsklick auf den grafischen Plan &rarr; "Show Execution Plan XML".</li>
+                        <li>Auch textuelle Pläne von <code>SET STATISTICS PROFILE ON</code> oder <code>SET SHOWPLAN_TEXT ON</code> werden unterstützt.</li>
+                        <li>Die Analyse erfolgt durch Claude AI (Anthropic).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+    .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+    }
+    .form-control:focus {
+        border-color: var(--papaya);
+        box-shadow: 0 0 0 0.2rem rgba(255, 154, 60, 0.25);
+    }
+    #analysisResult h1, #analysisResult h2, #analysisResult h3 {
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    #analysisResult h1 { font-size: 1.5rem; }
+    #analysisResult h2 { font-size: 1.3rem; }
+    #analysisResult h3 { font-size: 1.1rem; }
+    #analysisResult pre {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        overflow-x: auto;
+    }
+    #analysisResult code {
+        color: #d63384;
+    }
+    #analysisResult pre code {
+        color: inherit;
+    }
+    #analysisResult ul, #analysisResult ol {
+        padding-left: 1.5rem;
+    }
+    #analysisResult table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+    }
+    #analysisResult th, #analysisResult td {
+        border: 1px solid #dee2e6;
+        padding: 0.5rem;
+        text-align: left;
+    }
+    #analysisResult th {
+        background: #f8f9fa;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        var textarea = document.getElementById('executionPlan');
+        var counter = document.getElementById('charCounter');
+        var limit = @(PlanAdviceService.MaxDirectChars);
+
+        function updateCounter() {
+            var len = textarea.value.length;
+            counter.textContent = len.toLocaleString('de-DE') + ' Zeichen';
+            if (len > limit) {
+                counter.classList.remove('text-muted');
+                counter.classList.add('text-warning', 'fw-bold');
+                counter.textContent += ' (wird automatisch extrahiert)';
+            } else {
+                counter.classList.remove('text-warning', 'fw-bold');
+                counter.classList.add('text-muted');
+            }
+        }
+
+        textarea.addEventListener('input', updateCounter);
+        updateCounter();
+
+        document.getElementById('planForm').addEventListener('submit', function() {
+            var plan = textarea.value.trim();
+            if (plan.length > 0) {
+                document.getElementById('submitBtn').disabled = true;
+                document.getElementById('loadingIndicator').classList.remove('d-none');
+            }
+        });
+    </script>
+}
+
+@functions {
+    string ConvertMarkdownToHtml(string markdown)
+    {
+        return Piwonka.CC.Helpers.MarkdownHelper.ToHtml(markdown);
+    }
+}

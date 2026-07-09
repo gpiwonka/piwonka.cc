@@ -1,8 +1,5 @@
 ﻿using Piwonka.CC.Models;
-using Piwonka.CC.Validation;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.Serialization;
 
 namespace Piwonka.CC.Models
 {
@@ -33,8 +30,6 @@ namespace Piwonka.CC.Models
         [DataType(DataType.Date)]
         public DateTime ErstelltAm { get; set; } = DateTime.Now;
 
-        public string? BildUrl { get; set; }
-
         public bool IstVeroeffentlicht { get; set; } = false;
 
 		public virtual Language Language { get; set; } = Language.DE;
@@ -45,11 +40,7 @@ namespace Piwonka.CC.Models
         public virtual Kategorie? Kategorie { get; set; }
 
 
-		[NotMapped]
-        [OptionalFile]
-        public IFormFile UploadedImage { get; set; } = default!;
-
-        public string GetLanguageCode()
+	        public string GetLanguageCode()
         {
             return Language switch
             {

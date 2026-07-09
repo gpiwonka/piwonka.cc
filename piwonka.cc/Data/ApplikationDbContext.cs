@@ -17,6 +17,13 @@ namespace Piwonka.CC.Data
 
         public DbSet<Analytics> Analytics { get; set; }
         public DbSet<UserSession> UserSessions { get; set; }
+        public DbSet<PlanAdviceResult> PlanAdviceResults { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<IndexFeature> IndexFeatures { get; set; }
+        public DbSet<AboutCard> AboutCards { get; set; }
+        public DbSet<DownloadApp> DownloadApps { get; set; }
+        public DbSet<DownloadDatei> DownloadDateien { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -26,7 +33,17 @@ namespace Piwonka.CC.Data
                 .HasIndex(s => s.Slug)
                 .IsUnique();
 
-           
+            modelBuilder.Entity<PlanAdviceResult>()
+                .HasIndex(p => p.Hash)
+                .IsUnique();
+
+            // Beim Löschen einer App werden ihre Dateien mitgelöscht
+            modelBuilder.Entity<DownloadDatei>()
+                .HasOne(d => d.App)
+                .WithMany(a => a.Dateien)
+                .HasForeignKey(d => d.DownloadAppId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }

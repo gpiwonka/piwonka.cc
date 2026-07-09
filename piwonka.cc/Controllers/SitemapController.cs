@@ -49,12 +49,12 @@ namespace Piwonka.CC.Controllers
 
         private async Task<string> GenerateSitemapAsync(string baseUrl)
         {
-            XNamespace xmlns = "http://www.sitemaps.org/schemas/sitemap/0.9";
-
-            var urlElements = new List<XElement>();
+            var sb = new StringBuilder();
+            sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+            sb.AppendLine("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
 
             // Homepage
-            urlElements.Add(CreateUrlElement(xmlns, baseUrl, "/", DateTime.UtcNow, "daily", "1.0"));
+            AppendUrl(sb, baseUrl, "/", DateTime.UtcNow, "daily", "1.0");
 
             // Blog-Hauptseite
             var latestBlogUpdate = await _context.Posts
@@ -63,12 +63,12 @@ namespace Piwonka.CC.Controllers
                 .Select(p => p.ErstelltAm)
                 .FirstOrDefaultAsync();
 
-            urlElements.Add(CreateUrlElement(xmlns, baseUrl, "/blog",
+            AppendUrl(sb, baseUrl, "/blog",
                 latestBlogUpdate != default ? latestBlogUpdate : DateTime.UtcNow,
-                "daily", "0.9"));
+                "daily", "0.9");
 
             // Suchseite
-            urlElements.Add(CreateUrlElement(xmlns, baseUrl, "/search", DateTime.UtcNow, "monthly", "0.5"));
+            AppendUrl(sb, baseUrl, "/search", DateTime.UtcNow, "monthly", "0.5");
 
             // Seiten
             var seiten = await _context.Seiten
@@ -81,7 +81,7 @@ namespace Piwonka.CC.Controllers
                 var changeFreq = GetChangeFrequency(seite.Template);
                 var priority = GetPriority(seite.Template, seite.ImMenuAnzeigen);
 
-                urlElements.Add(CreateUrlElement(xmlns, baseUrl, $"/seite/{seite.Slug}", lastMod, changeFreq, priority));
+                AppendUrl(sb, baseUrl, $"/seite/{seite.Slug}", lastMod, changeFreq, priority);
             }
 
             // Blog-Posts
@@ -91,7 +91,7 @@ namespace Piwonka.CC.Controllers
 
             foreach (var post in posts)
             {
-                urlElements.Add(CreateUrlElement(xmlns, baseUrl, $"/blog/{post.Slug}", post.ErstelltAm, "monthly", "0.7"));
+                AppendUrl(sb, baseUrl, $"/blog/{post.Slug}", post.ErstelltAm, "monthly", "0.7");
             }
 
             // Kategorien
@@ -101,25 +101,21 @@ namespace Piwonka.CC.Controllers
 
             foreach (var kategorie in kategorien)
             {
-                urlElements.Add(CreateUrlElement(xmlns, baseUrl, $"/blog/kategorie/{kategorie.Slug}", kategorie.ErstelltAm, "weekly", "0.6"));
+                AppendUrl(sb, baseUrl, $"/blog/kategorie/{kategorie.Slug}", kategorie.ErstelltAm, "weekly", "0.6");
             }
 
-            var document = new XDocument(
-                new XDeclaration("1.0", "UTF-8", null),
-                new XElement(xmlns + "urlset", urlElements)
-            );
-
-            return document.ToString();
+            sb.AppendLine("</urlset>");
+            return sb.ToString();
         }
 
-        private XElement CreateUrlElement(XNamespace xmlns, string baseUrl, string location, DateTime lastMod, string changeFreq, string priority)
+        private void AppendUrl(StringBuilder sb, string baseUrl, string location, DateTime lastMod, string changeFreq, string priority)
         {
-            return new XElement(xmlns + "url",
-                new XElement(xmlns + "loc", Uri.EscapeUriString($"{baseUrl}{location}")),
-                new XElement(xmlns + "lastmod", lastMod.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")),
-                new XElement(xmlns + "changefreq", changeFreq),
-                new XElement(xmlns + "priority", priority)
-            );
+            sb.AppendLine("  <url>");
+            sb.AppendLine($"    <loc>{baseUrl}{location}</loc>");
+            sb.AppendLine($"    <lastmod>{lastMod:yyyy-MM-dd}</lastmod>");
+            sb.AppendLine($"    <changefreq>{changeFreq}</changefreq>");
+            sb.AppendLine($"    <priority>{priority}</priority>");
+            sb.AppendLine("  </url>");
         }
 
         private string GetChangeFrequency(string template)
@@ -150,21 +146,15 @@ namespace Piwonka.CC.Controllers
 
         private string GenerateMinimalSitemap(string baseUrl)
         {
-            XNamespace xmlns = "http://www.sitemaps.org/schemas/sitemap/0.9";
-
-            var document = new XDocument(
-                new XDeclaration("1.0", "UTF-8", null),
-                new XElement(xmlns + "urlset",
-                    new XElement(xmlns + "url",
-                        new XElement(xmlns + "loc", baseUrl + "/"),
-                        new XElement(xmlns + "lastmod", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")),
-                        new XElement(xmlns + "changefreq", "daily"),
-                        new XElement(xmlns + "priority", "1.0")
-                    )
-                )
-            );
-
-            return document.ToString();
+            return $@"<?xml version=""1.0"" encoding=""UTF-8""?>
+<urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
+  <url>
+    <loc>{baseUrl}/</loc>
+    <lastmod>{DateTime.UtcNow:yyyy-MM-dd}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>";
         }
     }
 }

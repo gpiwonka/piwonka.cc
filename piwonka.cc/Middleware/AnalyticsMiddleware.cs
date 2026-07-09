@@ -30,13 +30,9 @@ namespace Piwonka.CC.Middleware
                 {
                     var sessionId = GetOrCreateSessionId(context);
                     var ipAddress = GetClientIpAddress(context);
-                    var userAgent = context.Request.Headers["User-Agent"];
+                    var userAgent = context.Request.Headers["User-Agent"].ToString();
 
-                    // Async tracking (nicht warten)
-                    _ = Task.Run(async () =>
-                    {
-                        await analyticsService.TrackPageViewAsync(sessionId, ipAddress, userAgent);
-                    });
+                    await analyticsService.TrackPageViewAsync(sessionId, ipAddress, userAgent);
                 }
                 catch (Exception ex)
                 {

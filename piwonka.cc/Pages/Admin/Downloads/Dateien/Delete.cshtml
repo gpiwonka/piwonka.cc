@@ -1,0 +1,29 @@
+@page "{id:int}"
+@model Piwonka.CC.Pages.Admin.Downloads.Dateien.DeleteModel
+@{
+    ViewData["Title"] = "Download-Datei löschen";
+}
+
+<h1>Datei löschen</h1>
+
+<div class="alert alert-warning">
+    Eintrag <strong>@Model.Datei.Plattform</strong> von <strong>@Model.AppName</strong> wirklich löschen?
+    <div class="mt-2 small">Die per FTP hochgeladene Datei selbst bleibt auf dem Server bestehen.</div>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Version</dt>
+    <dd class="col-sm-9">@(Model.Datei.Version ?? "—")</dd>
+
+    <dt class="col-sm-3">Datei-Pfad / URL</dt>
+    <dd class="col-sm-9">@Model.Datei.DateiPfad</dd>
+
+    <dt class="col-sm-3">Hinweis</dt>
+    <dd class="col-sm-9">@(Model.Datei.Hinweis ?? "—")</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="Datei.Id" />
+    <button type="submit" class="btn btn-danger">Endgültig löschen</button>
+    <a asp-page="../Index" class="btn btn-outline-secondary">Abbrechen</a>
+</form>

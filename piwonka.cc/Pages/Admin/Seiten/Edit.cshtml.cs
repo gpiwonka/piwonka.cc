@@ -38,7 +38,7 @@ namespace Piwonka.CC.Pages.Admin.Seiten
                 return NotFound();
             }
 
-            // Verfügbare Parent-Seiten laden (außer der aktuellen Seite)
+            // Verfï¿½gbare Parent-Seiten laden (auï¿½er der aktuellen Seite)
             var verfuegbareParents = await _menuService.GetSeitenHierarchyAsync(id);
 
             // Entity zu ViewModel konvertieren
@@ -50,6 +50,7 @@ namespace Piwonka.CC.Pages.Admin.Seiten
                 Inhalt = seite.Inhalt,
                 MetaDescription = seite.MetaDescription,
                 MetaKeywords = seite.MetaKeywords,
+                JsonLdTyp = seite.JsonLdTyp,
                 IstVeroeffentlicht = seite.IstVeroeffentlicht,
                 ImMenuAnzeigen = seite.ImMenuAnzeigen,
                 Reihenfolge = seite.Reihenfolge,
@@ -67,10 +68,10 @@ namespace Piwonka.CC.Pages.Admin.Seiten
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // Verfügbare Parents für den Fall eines Validation-Fehlers neu laden
+            // Verfï¿½gbare Parents fï¿½r den Fall eines Validation-Fehlers neu laden
             SeiteViewModel.VerfuegbareParents = await _menuService.GetSeitenHierarchyAsync(SeiteViewModel.Id);
 
-            // Explizit Inhalt aus Form holen (für TinyMCE)
+            // Explizit Inhalt aus Form holen (fï¿½r TinyMCE)
             var formInhalt = Request.Form["SeiteViewModel.Inhalt"].ToString();
             if (string.IsNullOrEmpty(SeiteViewModel.Inhalt) && !string.IsNullOrEmpty(formInhalt))
             {
@@ -79,7 +80,7 @@ namespace Piwonka.CC.Pages.Admin.Seiten
 
             using var context = _contextFactory.CreateDbContext();
 
-            // Prüfen, ob Slug bereits existiert (außer bei der aktuellen Seite)
+            // Prï¿½fen, ob Slug bereits existiert (auï¿½er bei der aktuellen Seite)
             var existingSlug = await context.Seiten
                 .AnyAsync(s => s.Slug == SeiteViewModel.Slug && s.Id != SeiteViewModel.Id);
             if (existingSlug)
@@ -87,13 +88,13 @@ namespace Piwonka.CC.Pages.Admin.Seiten
                 ModelState.AddModelError("SeiteViewModel.Slug", "Dieser Slug ist bereits vergeben.");
             }
 
-            // Prüfen auf zirkuläre Referenzen bei Parent-Child-Beziehungen
+            // Prï¿½fen auf zirkulï¿½re Referenzen bei Parent-Child-Beziehungen
             if (SeiteViewModel.ParentId.HasValue)
             {
                 var wouldCreateCircle = await WouldCreateCircularReference(context, SeiteViewModel.Id, SeiteViewModel.ParentId.Value);
                 if (wouldCreateCircle)
                 {
-                    ModelState.AddModelError("SeiteViewModel.ParentId", "Diese Auswahl würde eine zirkuläre Referenz erstellen.");
+                    ModelState.AddModelError("SeiteViewModel.ParentId", "Diese Auswahl wï¿½rde eine zirkulï¿½re Referenz erstellen.");
                 }
             }
 
@@ -109,12 +110,13 @@ namespace Piwonka.CC.Pages.Admin.Seiten
                 return NotFound();
             }
 
-            // ViewModel-Daten auf Entity übertragen
+            // ViewModel-Daten auf Entity ï¿½bertragen
             existingSeite.Titel = SeiteViewModel.Titel;
             existingSeite.Slug = SeiteViewModel.Slug;
             existingSeite.Inhalt = SeiteViewModel.Inhalt;
             existingSeite.MetaDescription = SeiteViewModel.MetaDescription;
             existingSeite.MetaKeywords = SeiteViewModel.MetaKeywords;
+            existingSeite.JsonLdTyp = string.IsNullOrWhiteSpace(SeiteViewModel.JsonLdTyp) ? null : SeiteViewModel.JsonLdTyp;
             existingSeite.IstVeroeffentlicht = SeiteViewModel.IstVeroeffentlicht;
             existingSeite.ImMenuAnzeigen = SeiteViewModel.ImMenuAnzeigen;
             existingSeite.Reihenfolge = SeiteViewModel.Reihenfolge;
@@ -160,7 +162,7 @@ namespace Piwonka.CC.Pages.Admin.Seiten
             {
                 if (currentParentId == seiteId)
                 {
-                    return true; // Zirkuläre Referenz gefunden
+                    return true; // Zirkulï¿½re Referenz gefunden
                 }
 
                 var parent = await context.Seiten.FindAsync(currentParentId);

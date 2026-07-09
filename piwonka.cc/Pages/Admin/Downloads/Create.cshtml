@@ -1,0 +1,54 @@
+@page
+@model Piwonka.CC.Pages.Admin.Downloads.CreateModel
+@{
+    ViewData["Title"] = "Neue Download-App";
+}
+
+<h1>Neue App</h1>
+
+<form method="post" class="mt-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="App.Name" class="form-label">Name</label>
+        <input asp-for="App.Name" class="form-control" placeholder="z. B. Nova SQL" />
+        <span asp-validation-for="App.Name" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="App.Beschreibung" class="form-label">Beschreibung (optional)</label>
+        <textarea asp-for="App.Beschreibung" class="form-control" rows="3" placeholder="Kurze Erklärung zur App."></textarea>
+        <span asp-validation-for="App.Beschreibung" class="text-danger small"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label asp-for="App.Icon" class="form-label">Icon (optional, FontAwesome-Klasse)</label>
+            <input asp-for="App.Icon" class="form-control" placeholder="z. B. fas fa-database" />
+            <span asp-validation-for="App.Icon" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="App.Reihenfolge" class="form-label">Reihenfolge</label>
+            <input asp-for="App.Reihenfolge" type="number" class="form-control" />
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="App.Language" class="form-label">Sprache</label>
+            <select asp-for="App.Language" class="form-select">
+                <option value="@((int)Piwonka.CC.Models.Language.DE)">Deutsch</option>
+                <option value="@((int)Piwonka.CC.Models.Language.EN)">English</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="App.Aktiv" class="form-check-input" type="checkbox" />
+        <label asp-for="App.Aktiv" class="form-check-label">Aktiv</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Anlegen</button>
+    <a asp-page="./Index" class="btn btn-outline-secondary">Abbrechen</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

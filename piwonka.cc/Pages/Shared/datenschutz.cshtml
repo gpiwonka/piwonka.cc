@@ -1,8 +1,9 @@
 ﻿@page "/datenschutz"
 @model Piwonka.CC.Pages.DatenschutzModel
+@inject SiteSettings Site
 @{
     ViewData["Title"] = "Datenschutz";
-    ViewData["MetaDescription"] = "Datenschutz bei piwonka.cc - Vollständige Transparenz über unseren Umgang mit Ihren Daten. Kein Google Analytics, kein Tracking.";
+    ViewData["MetaDescription"] = $"Datenschutz bei {Site.Name} - Vollständige Transparenz über unseren Umgang mit Ihren Daten. Kein Google Analytics, kein Tracking.";
     ViewData["MetaKeywords"] = "Datenschutz, DSGVO, Privacy, Tracking-frei, Google Analytics frei";
 }
 
@@ -65,18 +66,17 @@
                                 <div class="col-md-6">
                                     <h6>Kontaktdaten:</h6>
                                     <address>
-                                        <strong>[Ihr Name/Firmenname]</strong><br>
-                                        [Straße Hausnummer]<br>
-                                        [PLZ Ort]<br>
-                                        Österreich
+                                        <strong>@Site.Author</strong><br>
+                                        @Site.Street<br>
+                                        @Site.Zip @Site.City<br>
+                                        @Site.CountryName
                                     </address>
                                 </div>
                                 <div class="col-md-6">
                                     <h6>Kontakt:</h6>
                                     <ul class="list-unstyled">
-                                        <li><i class="fas fa-envelope me-2"></i> <a href="mailto:[email]">[Ihre E-Mail]</a></li>
-                                        <li><i class="fas fa-phone me-2"></i> [Telefonnummer]</li>
-                                        <li><i class="fas fa-globe me-2"></i> piwonka.cc</li>
+                                        <li><i class="fas fa-envelope me-2"></i> <a href="mailto:@Site.ContactEmail">@Site.ContactEmail</a></li>
+                                        <li><i class="fas fa-globe me-2"></i> @Site.Name</li>
                                     </ul>
                                 </div>
                             </div>

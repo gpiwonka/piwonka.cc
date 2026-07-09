@@ -1,0 +1,171 @@
+@model Piwonka.CC.ViewModels.SeiteFormViewModelBase
+
+<!-- Basis-Informationen -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5>Basis-Informationen</h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label asp-for="Titel" class="form-label">Titel</label>
+            <input asp-for="Titel" class="form-control" required />
+            <span asp-validation-for="Titel" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Language" class="form-label">Sprache</label>
+            <select asp-for="Language" class="form-select">
+                <option value="0">🇩🇪 Deutsch</option>
+                <option value="1">🇬🇧 English</option>
+            </select>
+            <span asp-validation-for="Language" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Slug" class="form-label">URL-Slug</label>
+            <div class="input-group">
+                <span class="input-group-text">/seite/</span>
+                <input asp-for="Slug" class="form-control" />
+            </div>
+            <div class="form-text">Wird automatisch aus dem Titel generiert, falls leer gelassen.</div>
+            <span asp-validation-for="Slug" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Template" class="form-label">Template</label>
+            <select asp-for="Template" class="form-select">
+                <option value="Standard">Standard</option>
+                <option value="Kontakt">Kontakt</option>
+                <option value="Vollbreite">Vollbreite</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Menü-Konfiguration -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5>Menü-Konfiguration</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3 form-check">
+                    <input asp-for="ImMenuAnzeigen" class="form-check-input" />
+                    <label asp-for="ImMenuAnzeigen" class="form-check-label">Im Menü anzeigen</label>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input asp-for="IstMenuGruppe" class="form-check-input" />
+                    <label asp-for="IstMenuGruppe" class="form-check-label">Ist Menü-Gruppe (ohne eigene Seite)</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="Reihenfolge" class="form-label">Reihenfolge im Menü</label>
+                    <input asp-for="Reihenfolge" type="number" class="form-control" min="0" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="ParentId" class="form-label">Übergeordnete Seite</label>
+                    <select asp-for="ParentId" class="form-select">
+                        <option value="">-- Keine (Top-Level) --</option>
+                        @foreach (var option in Model.VerfuegbareParents)
+                        {
+                            <option value="@option.Id">@option.DisplayTitel</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="MenuGruppe" class="form-label">Menü-Gruppe</label>
+                    <input asp-for="MenuGruppe" class="form-control" />
+                    <div class="form-text">z.B. "Tools", "Apps" für Dropdown-Gruppen</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="MenuTitel" class="form-label">Menü-Titel (optional)</label>
+            <input asp-for="MenuTitel" class="form-control" />
+            <div class="form-text">Falls im Menü ein anderer Titel angezeigt werden soll</div>
+        </div>
+    </div>
+</div>
+
+<!-- Inhalt -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5>Inhalt</h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <span asp-validation-for="Inhalt" class="text-danger"></span>
+            <textarea id="SeiteViewModel_Inhalt" name="SeiteViewModel.Inhalt" rows="15" class="form-control">@Html.Raw(Model.Inhalt)</textarea>
+        </div>
+    </div>
+</div>
+
+<!-- SEO -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5>SEO & Meta-Daten</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="MetaDescription" class="form-label">Meta-Beschreibung</label>
+                    <textarea asp-for="MetaDescription" class="form-control" rows="3" maxlength="200"></textarea>
+                    <div class="form-text">Für Suchmaschinen (max. 200 Zeichen)</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="MetaKeywords" class="form-label">Meta-Keywords</label>
+                    <input asp-for="MetaKeywords" class="form-control" />
+                    <div class="form-text">Komma-getrennt</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="JsonLdTyp" class="form-label">JSON-LD-Typ (Schema.org)</label>
+            <select asp-for="JsonLdTyp" class="form-select">
+                <option value="">— Keine strukturierten Daten —</option>
+                <option value="WebPage">WebPage (generisch)</option>
+                <option value="Article">Article (Artikel)</option>
+                <option value="AboutPage">AboutPage (Über mich/uns)</option>
+                <option value="ContactPage">ContactPage (Kontakt)</option>
+            </select>
+            <div class="form-text">Wenn gesetzt, wird passendes JSON-LD im Head ausgegeben. Empfohlen für inhaltsstarke Seiten.</div>
+        </div>
+    </div>
+</div>
+
+<!-- Veröffentlichung -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5>Veröffentlichung</h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3 form-check">
+            <input asp-for="IstVeroeffentlicht" class="form-check-input" />
+            <label asp-for="IstVeroeffentlicht" class="form-check-label">Veröffentlichen</label>
+        </div>
+
+        @if (Model is Piwonka.CC.ViewModels.SeiteEditViewModel editModel)
+        {
+            <div class="mb-3">
+                <small class="text-muted">
+                    Erstellt am: @editModel.ErstelltAm.ToString("dd.MM.yyyy HH:mm")
+                </small>
+            </div>
+        }
+    </div>
+</div>

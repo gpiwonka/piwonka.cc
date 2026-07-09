@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Piwonka.CC.Pages.admin.Posts.IndexModel
 @{
     ViewData["Title"] = "Post-Verwaltung";
@@ -9,10 +9,28 @@
     <a asp-page="./Create" class="btn btn-primary">Neuen Post erstellen</a>
 </div>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
 <table class="table table-striped">
     <thead>
         <tr>
             <th>Titel</th>
+            <th>Sprache</th>
+            <th>Kategorie</th>
             <th>Erstellungsdatum</th>
             <th>Status</th>
             <th>Aktionen</th>
@@ -23,6 +41,17 @@
         {
             <tr>
                 <td>@item.Titel</td>
+                <td>
+                    @if (item.Language == Piwonka.CC.Models.Language.DE)
+                    {
+                        <span class="badge bg-primary">🇩🇪 DE</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">🇬🇧 EN</span>
+                    }
+                </td>
+                <td>@(item.Kategorie?.Name ?? "—")</td>
                 <td>@item.ErstelltAm.ToString("dd.MM.yyyy")</td>
                 <td>
                     @if (item.IstVeroeffentlicht)
@@ -37,6 +66,12 @@
                 <td>
                     <div class="btn-group">
                         <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Bearbeiten</a>
+                        <form method="post" asp-page-handler="Kopieren" asp-route-id="@item.Id" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                    title="Kopie als @(item.Language == Piwonka.CC.Models.Language.DE ? "🇬🇧 EN" : "🇩🇪 DE")-Entwurf zum Übersetzen anlegen">
+                                Kopieren → @(item.Language == Piwonka.CC.Models.Language.DE ? "EN" : "DE")
+                            </button>
+                        </form>
                         <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Löschen</a>
                     </div>
                 </td>

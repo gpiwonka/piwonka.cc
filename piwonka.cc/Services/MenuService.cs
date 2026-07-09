@@ -17,18 +17,22 @@ namespace Piwonka.CC.Services
     public class MenuService : IMenuService
     {
         private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        private readonly ILanguageService _languageService;
 
-        public MenuService(IDbContextFactory<ApplicationDbContext> contextFactory)
+        public MenuService(IDbContextFactory<ApplicationDbContext> contextFactory, ILanguageService languageService)
         {
             _contextFactory = contextFactory;
+            _languageService = languageService;
         }
 
         public async Task<MenuViewModel> GetMenuAsync()
         {
+            var currentLanguage = await _languageService.GetCurrentLanguageAsync();
+
             using var context = _contextFactory.CreateDbContext();
 
             var seiten = await context.Seiten
-                .Where(s => s.IstVeroeffentlicht && s.ImMenuAnzeigen)
+                .Where(s => s.IstVeroeffentlicht && s.ImMenuAnzeigen && s.Language == currentLanguage)
                 .OrderBy(s => s.Reihenfolge)
                 .ThenBy(s => s.Titel)
                 .ToListAsync();

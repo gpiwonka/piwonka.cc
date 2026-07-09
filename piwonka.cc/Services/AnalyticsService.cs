@@ -36,16 +36,17 @@ namespace Piwonka.CC.Services
                         SessionId = sessionId,
                         IpAddress = HashIpAddress(ipAddress),
                         UserAgent = userAgent?.Substring(0, Math.Min(500, userAgent.Length)),
-                        Date = today
+                        Date = today,
+                        PageViewCount = 1
                     };
 
                     _context.UserSessions.Add(newSession);
                 }
                 else
                 {
-                    // Letzte Aktivität updaten
+                    // PageView zählen und letzte Aktivität updaten
+                    existingSession.PageViewCount++;
                     existingSession.LastActivity = DateTime.Now;
-                    _context.UserSessions.Update(existingSession);
                 }
 
                 await _context.SaveChangesAsync();
@@ -70,8 +71,20 @@ namespace Piwonka.CC.Services
         {
             var today = DateOnly.FromDateTime(DateTime.Now);
             using var _context = await _contextFactory.CreateDbContextAsync();
-            return await _context.Analytics
-                .FirstOrDefaultAsync(a => a.Date == today);
+
+            var todaySessions = await _context.UserSessions
+                .Where(s => s.Date == today)
+                .ToListAsync();
+
+            if (!todaySessions.Any())
+                return null;
+
+            return new Analytics
+            {
+                Date = today,
+                UniqueVisitors = todaySessions.Count,
+                PageViews = todaySessions.Sum(s => s.PageViewCount)
+            };
         }
 
         public async Task ProcessDailyAnalyticsAsync()
@@ -96,10 +109,10 @@ namespace Piwonka.CC.Services
                     .Where(s => s.Date == yesterday)
                     .CountAsync();
 
-                // Page Views schätzen (könnte später erweitert werden)
+                // Page Views aus den Sessions summieren
                 var pageViews = await _context.UserSessions
                     .Where(s => s.Date == yesterday)
-                    .SumAsync(s => 1); // Vereinfacht: 1 PageView pro Session
+                    .SumAsync(s => s.PageViewCount);
 
                 if (uniqueVisitors > 0)
                 {

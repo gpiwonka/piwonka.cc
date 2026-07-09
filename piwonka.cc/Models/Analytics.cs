@@ -30,6 +30,8 @@ namespace Piwonka.CC.Models
         [StringLength(500)]
         public string? UserAgent { get; set; }
 
+        public int PageViewCount { get; set; } = 1;
+
         public DateTime FirstVisit { get; set; } = DateTime.Now;
 
         public DateTime LastActivity { get; set; } = DateTime.Now;

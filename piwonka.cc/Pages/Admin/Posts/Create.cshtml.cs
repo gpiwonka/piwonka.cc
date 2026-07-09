@@ -15,14 +15,10 @@ namespace Piwonka.CC.Pages.Admin.Posts
     public class CreateModel : PageModel
     {
         private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
-        private readonly FileUploadService _fileUploadService;
-        private readonly IIndexNowService _indexNowService;        
 
-        public CreateModel(IDbContextFactory<ApplicationDbContext> contextFactory, FileUploadService fileUploadService, IIndexNowService indexNowService)
+        public CreateModel(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
-            _fileUploadService = fileUploadService;
-            _indexNowService = indexNowService; 
         }
 
         [BindProperty]
@@ -39,22 +35,22 @@ namespace Piwonka.CC.Pages.Admin.Posts
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // KRITISCHER FIX: Explizit Inhalt aus Form holen (für TinyMCE)
+            // KRITISCHER FIX: Explizit Inhalt aus Form holen (fï¿½r TinyMCE)
             var formInhalt = Request.Form["Post.Inhalt"].ToString();
             if (string.IsNullOrEmpty(Post.Inhalt) && !string.IsNullOrEmpty(formInhalt))
             {
                 Post.Inhalt = formInhalt;
-                Console.WriteLine($"Blog-Inhalt aus Form übernommen: {formInhalt.Substring(0, Math.Min(100, formInhalt.Length))}...");
+                Console.WriteLine($"Blog-Inhalt aus Form ï¿½bernommen: {formInhalt.Substring(0, Math.Min(100, formInhalt.Length))}...");
             }
 
-            // DEBUG: Überprüfen was angekommen ist
+            // DEBUG: ï¿½berprï¿½fen was angekommen ist
             Console.WriteLine($"=== POST DEBUG ===");
             Console.WriteLine($"Post.Titel: {Post.Titel}");
             Console.WriteLine($"Post.Inhalt Length: {Post.Inhalt?.Length ?? 0}");
             Console.WriteLine($"Post.Excerpt Length: {Post.Excerpt?.Length ?? 0}");
             Console.WriteLine($"FormInhalt Length: {formInhalt?.Length ?? 0}");
 
-            // ZUSÄTZLICHE DEBUG-INFO: Alle Form-Daten loggen
+            // ZUSï¿½TZLICHE DEBUG-INFO: Alle Form-Daten loggen
             LogFormData();
 
             // Slug generieren falls leer
@@ -67,7 +63,7 @@ namespace Piwonka.CC.Pages.Admin.Posts
                 Post.Slug = GenerateSlug(Post.Slug);
             }
 
-            // Prüfen, ob Slug bereits existiert
+            // Prï¿½fen, ob Slug bereits existiert
             using var _context = await _contextFactory.CreateDbContextAsync();
             if (!string.IsNullOrWhiteSpace(Post.Slug))
             {
@@ -105,23 +101,6 @@ namespace Piwonka.CC.Pages.Admin.Posts
                 return Page();
             }
 
-            // Bild Upload verarbeiten
-            if (Post.UploadedImage != null)
-            {
-                try
-                {
-                    Post.BildUrl = await _fileUploadService.UploadImageAsync(Post.UploadedImage);
-                    Console.WriteLine($"Bild hochgeladen: {Post.BildUrl}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Fehler beim Bild-Upload: {ex.Message}");
-                    ModelState.AddModelError("Post.UploadedImage", "Fehler beim Hochladen des Bildes.");
-                    await LoadSelectLists();
-                    return Page();
-                }
-            }
-
             try
             {
                 // Post mit bereinigten Daten erstellen
@@ -135,11 +114,10 @@ namespace Piwonka.CC.Pages.Admin.Posts
                     MetaKeywords = string.IsNullOrWhiteSpace(Post.MetaKeywords) ? null : Post.MetaKeywords.Trim(),
                     IstVeroeffentlicht = Post.IstVeroeffentlicht,
                     Language = Post.Language,
-                    ErstelltAm = DateTime.Now,
-                    BildUrl = Post.BildUrl
+                    ErstelltAm = DateTime.Now
                 };
 
-                // Kategorie zuweisen, falls ausgewählt
+                // Kategorie zuweisen, falls ausgewï¿½hlt
                 if (Post.Kategorie != null)
                 {
                     var kategorie = await _context.Kategorien.FindAsync(Post.Kategorie.Id);
@@ -153,21 +131,7 @@ namespace Piwonka.CC.Pages.Admin.Posts
                 // Post erstellen
                 _context.Posts.Add(newPost);
                 await _context.SaveChangesAsync();
-                if (newPost.IstVeroeffentlicht)
-                {
-                    _ = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            await _indexNowService.NotifyPostCreatedAsync(newPost.Slug);
-                        }
-                        catch (Exception ex)
-                        {
-                            // Logging
-                            Console.WriteLine($"IndexNow notification failed: {ex.Message}");
-                        }
-                    });
-                }
+                // IndexNow wird automatisch via SitemapUpdateMiddleware benachrichtigt
                 Console.WriteLine($"Post erfolgreich erstellt mit ID: {newPost.Id}");
                 TempData["SuccessMessage"] = $"Post '{newPost.Titel}' wurde erfolgreich erstellt.";
                 return RedirectToPage("./Index");
@@ -181,12 +145,27 @@ namespace Piwonka.CC.Pages.Admin.Posts
             }
         }
 
+        public async Task<IActionResult> OnGetCategoriesForLanguageAsync(int language)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var lang = (Language)language;
+            var kategorien = await context.Kategorien
+                .Where(k => k.Language == lang)
+                .OrderBy(k => k.Name)
+                .Select(k => new { id = k.Id, name = k.Name })
+                .ToListAsync();
+            return new JsonResult(kategorien);
+        }
+
         private async Task LoadSelectLists()
         {
             using var _context = await _contextFactory.CreateDbContextAsync();
 
-            // Kategorien laden
-            var kategorien = await _context.Kategorien.ToListAsync();
+            // Kategorien nach Sprache laden
+            var kategorien = await _context.Kategorien
+                .Where(k => k.Language == Post.Language)
+                .OrderBy(k => k.Name)
+                .ToListAsync();
             KategorieOptions = new SelectList(kategorien, "Id", "Name");
 
             // Sprachen laden
@@ -203,13 +182,13 @@ namespace Piwonka.CC.Pages.Admin.Posts
             if (string.IsNullOrWhiteSpace(text))
                 return string.Empty;
 
-            text = text.Replace("ä", "ae")
-                      .Replace("ö", "oe")
-                      .Replace("ü", "ue")
-                      .Replace("Ä", "ae")
-                      .Replace("Ö", "oe")
-                      .Replace("Ü", "ue")
-                      .Replace("ß", "ss")
+            text = text.Replace("ï¿½", "ae")
+                      .Replace("ï¿½", "oe")
+                      .Replace("ï¿½", "ue")
+                      .Replace("ï¿½", "ae")
+                      .Replace("ï¿½", "oe")
+                      .Replace("ï¿½", "ue")
+                      .Replace("ï¿½", "ss")
                       .Replace("&", "und");
 
             text = text.ToLowerInvariant();
@@ -220,7 +199,7 @@ namespace Piwonka.CC.Pages.Admin.Posts
             return text;
         }
 
-        // ZUSÄTZLICHE DEBUG-METHODE
+        // ZUSï¿½TZLICHE DEBUG-METHODE
         private void LogFormData()
         {
             Console.WriteLine("=== FORM DATA DEBUG ===");

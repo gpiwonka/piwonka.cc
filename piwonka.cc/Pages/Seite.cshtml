@@ -1,5 +1,6 @@
 ﻿@page "/seite/{slug}"
 @model Piwonka.CC.Pages.SeiteModel
+@inject SiteSettings Site
 @{
     ViewData["Title"] = Model.Seite.Titel;
     if (!string.IsNullOrEmpty(Model.Seite.MetaDescription))
@@ -9,6 +10,10 @@
     if (!string.IsNullOrEmpty(Model.Seite.MetaKeywords))
     {
         ViewData["MetaKeywords"] = Model.Seite.MetaKeywords;
+    }
+    if (string.Equals(Model.Seite.JsonLdTyp, "Article", StringComparison.OrdinalIgnoreCase))
+    {
+        ViewData["OgType"] = "article";
     }
 }
 
@@ -29,12 +34,11 @@
                     <h5>Kontakt-Informationen</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>E-Mail:</strong> kontakt@piwonka.cc</p>
-                    <p><strong>Telefon:</strong> +43 123 456 789</p>
+                    <p><strong>E-Mail:</strong> @Site.ContactEmail</p>
                     <p>
                         <strong>Adresse:</strong><br>
-                        Musterstraße 123<br>
-                        6800 Feldkirch, Österreich
+                        @Site.Street<br>
+                        @Site.Zip @Site.City, @Site.CountryName
                     </p>
                 </div>
             </div>
@@ -109,4 +113,61 @@ else
             </div>
         </div>
     </div>
+}
+
+@section JsonLd {
+    @if (!string.IsNullOrWhiteSpace(Model.Seite.JsonLdTyp))
+    {
+        var allowedTypes = new[] { "WebPage", "Article", "AboutPage", "ContactPage" };
+        var schemaType = allowedTypes.Contains(Model.Seite.JsonLdTyp, StringComparer.OrdinalIgnoreCase)
+            ? Model.Seite.JsonLdTyp
+            : "WebPage";
+
+        var siteRoot = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
+        var pageUrl = $"{siteRoot}/seite/{Model.Seite.Slug}";
+        var langCode = Model.Seite.GetLanguageCode();
+
+        var jsonName = System.Web.HttpUtility.JavaScriptStringEncode(Model.Seite.Titel ?? "");
+        var jsonDesc = System.Web.HttpUtility.JavaScriptStringEncode(Model.Seite.MetaDescription ?? "");
+        var jsonKeywords = System.Web.HttpUtility.JavaScriptStringEncode(Model.Seite.MetaKeywords ?? "");
+        var datePublished = Model.Seite.ErstelltAm.ToString("yyyy-MM-dd");
+        var dateModified = (Model.Seite.BearbeitetAm ?? Model.Seite.ErstelltAm).ToString("yyyy-MM-dd");
+        var isArticle = string.Equals(schemaType, "Article", StringComparison.OrdinalIgnoreCase);
+
+        <script type="application/ld+json">
+        {
+          "@@context": "https://schema.org",
+          "@@type": "@schemaType",
+          @if (isArticle)
+          {
+              <text>"headline": "@Html.Raw(jsonName)",</text>
+          }
+          else
+          {
+              <text>"name": "@Html.Raw(jsonName)",</text>
+          }
+          @if (!string.IsNullOrWhiteSpace(Model.Seite.MetaDescription))
+          {
+              <text>"description": "@Html.Raw(jsonDesc)",</text>
+          }
+          @if (!string.IsNullOrWhiteSpace(Model.Seite.MetaKeywords))
+          {
+              <text>"keywords": "@Html.Raw(jsonKeywords)",</text>
+          }
+          "url": "@pageUrl",
+          "inLanguage": "@langCode",
+          "datePublished": "@datePublished",
+          "dateModified": "@dateModified",
+          @if (isArticle)
+          {
+              <text>
+              "mainEntityOfPage": { "@@type": "WebPage", "@@id": "@pageUrl" },
+              "author": { "@@type": "Person", "name": "@Site.Author", "url": "@siteRoot" },
+              "publisher": { "@@type": "Person", "name": "@Site.Author", "url": "@siteRoot" },
+              </text>
+          }
+          "isPartOf": { "@@type": "WebSite", "name": "@Site.Name", "url": "@siteRoot" }
+        }
+        </script>
+    }
 }

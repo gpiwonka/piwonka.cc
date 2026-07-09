@@ -1,0 +1,126 @@
+@page
+@model Piwonka.CC.Pages.Tools.IndexAdvisorModel
+@inject SiteSettings Site
+@{
+    ViewData["Title"] = "SQL Index Advisor";
+    ViewData["MetaDescription"] = "KI-gestützte Index-Empfehlungen für SQL Server — DDL und Queries analysieren lassen.";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <h1><i class="fas fa-list-ol me-2"></i>SQL Index Advisor</h1>
+            <p class="lead">Tabellendefinitionen und Queries analysieren — optimale Indizes vorschlagen lassen.</p>
+
+            <div class="alert alert-info d-flex align-items-start" role="alert">
+                <i class="fas fa-gift me-3 mt-1 fa-lg"></i>
+                <div>
+                    <strong>Dieses Tool ist kostenlos</strong> und funktioniert, solange das Token-Budget reicht.
+                    Wenn dir das Tool hilft, freue ich mich über einen
+                    <a href="@Site.CoffeeUrl" target="_blank" class="alert-link"><i class="fas fa-coffee me-1"></i>Kaffee</a>.
+                </div>
+            </div>
+
+            @if (Model.HasError)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
+                </div>
+            }
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0"><i class="fas fa-keyboard me-2"></i>DDL und Queries einfügen</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="toolForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Sprache / Language</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Language" id="langDe" value="de"
+                                           checked="@(Model.Language == "de")">
+                                    <label class="form-check-label" for="langDe">Deutsch</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Language" id="langEn" value="en"
+                                           checked="@(Model.Language == "en")">
+                                    <label class="form-check-label" for="langEn">English</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ddlAndQueries" class="form-label fw-bold">
+                                Tabellen-DDL und Queries
+                            </label>
+                            <textarea id="ddlAndQueries" name="DdlAndQueries" class="form-control font-monospace"
+                                      rows="14" placeholder="-- Tabellendefinition einfügen:&#10;CREATE TABLE Orders (&#10;    Id INT PRIMARY KEY,&#10;    CustomerId INT,&#10;    OrderDate DATETIME,&#10;    Status INT,&#10;    Total DECIMAL(18,2)&#10;);&#10;&#10;-- Und die häufigsten Queries:&#10;SELECT * FROM Orders WHERE CustomerId = @@id AND Status = 1 ORDER BY OrderDate DESC;"
+                                      style="font-size: 0.85rem;">@Model.DdlAndQueries</textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-magic me-2"></i>Analysieren
+                        </button>
+                        <span id="loadingIndicator" class="ms-3 d-none">
+                            <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                            <span class="text-muted ms-1">Claude analysiert...</span>
+                        </span>
+                    </form>
+                </div>
+            </div>
+
+            @if (Model.AnalysisComplete && Model.AnalysisResult != null)
+            {
+                <div class="card mb-4">
+                    <div class="card-header bg-success bg-opacity-10 d-flex justify-content-between align-items-center">
+                        <h2 class="h5 mb-0"><i class="fas fa-lightbulb me-2 text-success"></i>Index-Empfehlungen</h2>
+                        <form method="post" asp-page-handler="Share" class="d-inline">
+                            <input type="hidden" name="DdlAndQueries" value="@Model.DdlAndQueries" />
+                            <input type="hidden" name="AnalysisResult" value="@Model.AnalysisResult" />
+                            <input type="hidden" name="Language" value="@Model.Language" />
+                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-share-alt me-1"></i>Teilen
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card-body" id="analysisResult">
+                        @Html.Raw(ConvertMarkdownToHtml(Model.AnalysisResult))
+                    </div>
+                </div>
+            }
+
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5><i class="fas fa-info-circle me-2"></i>Tipps</h5>
+                    <ul class="mb-0 small">
+                        <li>Am besten CREATE TABLE Statements und die wichtigsten SELECT/UPDATE/DELETE Queries zusammen einfügen.</li>
+                        <li>Bestehende Indizes (CREATE INDEX) mit einfügen, damit die KI Redundanzen erkennen kann.</li>
+                        <li>Je mehr Kontext (Tabellengrößen, Zugriffsmuster), desto besser die Empfehlungen.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_ToolStyles")
+
+@section Scripts {
+    <script>
+        document.getElementById('toolForm').addEventListener('submit', function () {
+            var input = document.getElementById('ddlAndQueries').value.trim();
+            if (input.length > 0) {
+                document.getElementById('submitBtn').disabled = true;
+                document.getElementById('loadingIndicator').classList.remove('d-none');
+            }
+        });
+    </script>
+}
+
+@functions {
+    string ConvertMarkdownToHtml(string markdown)
+    {
+        return Piwonka.CC.Helpers.MarkdownHelper.ToHtml(markdown);
+    }
+}

@@ -99,37 +99,6 @@
 
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0">Bild & Medien</h5>
-                </div>
-                <div class="card-body">
-                    @if (!string.IsNullOrEmpty(Model.Post.BildUrl))
-                    {
-                        <div class="mb-3">
-                            <label class="form-label">Aktuelles Bild</label>
-                            <div>
-                                <img src="@Model.Post.BildUrl" alt="Current image" class="img-thumbnail" style="max-height: 200px;" />
-                            </div>
-                        </div>
-                    }
-
-                    <div class="mb-3">
-                        <label asp-for="Post.BildUrl" class="form-label">Bild URL</label>
-                        <input asp-for="Post.BildUrl" class="form-control" />
-                        <span asp-validation-for="Post.BildUrl" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Post.UploadedImage" class="form-label">Neues Bild hochladen</label>
-                        <!-- ✅ KORREKTUR: data-val="false" verhindert clientseitige Validierung -->
-                        <input asp-for="Post.UploadedImage" type="file" class="form-control" accept="image/*" data-val="false" />
-                        <div class="form-text">Überschreibt die Bild URL</div>
-                        <!-- ✅ Validation-Span entfernen, da optional -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header">
                     <h5 class="mb-0">SEO & Meta</h5>
                 </div>
                 <div class="card-body">
@@ -235,30 +204,30 @@
                 toolbar_sticky: true,
                 height: 400,
 
-                // WICHTIGSTE EINSTELLUNGEN für das Speichern:
+                paste_data_images: true,
+                automatic_uploads: true,
+                images_upload_url: '/api/admin/upload-image',
+                images_reuse_filename: false,
+
                 setup: function(editor) {
-                    // Content synchronisieren bei jeder Änderung
                     editor.on('change', function() {
                         tinymce.triggerSave();
                     });
+                    editor.on('blur', function() {
+                        tinymce.triggerSave();
+                    });
+                }
+            });
 
-        // ✅ ÄNDERUNG 2: Kategorien bei Sprachwechsel neu laden
-        document.addEventListener('DOMContentLoaded', function() {
+            // Kategorien bei Sprachwechsel neu laden
             const languageSelect = document.querySelector('select[name="Post.Language"]');
             const categorySelect = document.querySelector('select[name="SelectedKategorieId"]');
-
             if (languageSelect && categorySelect) {
                 languageSelect.addEventListener('change', function() {
-                    const selectedLanguage = this.value;
-
-                    // AJAX-Aufruf um Kategorien für die gewählte Sprache zu laden
-                    fetch(`/Admin/Posts/GetCategoriesForLanguage?language=${selectedLanguage}`)
+                    fetch(`/Admin/Posts/Edit/@Model.Post.Id?handler=CategoriesForLanguage&language=${this.value}`)
                         .then(response => response.json())
                         .then(categories => {
-                            // Dropdown leeren
                             categorySelect.innerHTML = '<option value="">-- Keine Kategorie --</option>';
-
-                            // Neue Kategorien hinzufügen
                             categories.forEach(category => {
                                 const option = document.createElement('option');
                                 option.value = category.id;
@@ -266,18 +235,9 @@
                                 categorySelect.appendChild(option);
                             });
                         })
-                        .catch(error => {
-                            console.error('Fehler beim Laden der Kategorien:', error);
-                        });
+                        .catch(error => console.error('Fehler beim Laden der Kategorien:', error));
                 });
             }
-        });
-
-                    editor.on('blur', function() {
-                        tinymce.triggerSave();
-                    });
-                }
-            });
 
             // Form Submit Handler
             const form = document.querySelector('form');
@@ -291,14 +251,6 @@
                     // Debug Log
                     const content = document.getElementById('post-content-editor').value;
                     console.log('Submitting content:', content);
-
-                    // ✅ File-Input Validierung deaktivieren
-                    const fileInput = document.querySelector('input[name="Post.UploadedImage"]');
-                    if (fileInput) {
-                        fileInput.removeAttribute('required');
-                        fileInput.setAttribute('data-val', 'false');
-                        console.log('File input validation disabled');
-                    }
 
                     // Falls Content leer ist, verhindern und Warnung anzeigen
                     if (!content || content.trim() === '' || content === '<p></p>') {

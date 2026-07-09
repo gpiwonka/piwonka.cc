@@ -10,7 +10,6 @@ namespace Piwonka.CC.Services
     {
         private readonly ILogger<DailyAnalyticsBackgroundService> _logger;
         private readonly IServiceProvider _serviceProvider;
-        private Timer? _timer;
 
         public DailyAnalyticsBackgroundService(
             ILogger<DailyAnalyticsBackgroundService> logger,
@@ -22,33 +21,37 @@ namespace Piwonka.CC.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            // Berechne Zeit bis zur nächsten Ausführung (täglich um 2:00 Uhr)
-            var now = DateTime.Now;
-            var nextRun = DateTime.Today.AddDays(1).AddHours(2); // Morgen um 2:00 Uhr
-
-            // Falls es schon nach 2:00 Uhr heute ist, führe heute noch aus
-            if (now.Hour >= 2)
+            while (!stoppingToken.IsCancellationRequested)
             {
-                nextRun = DateTime.Today.AddHours(2);
+                // Berechne Zeit bis zur nächsten Ausführung (täglich um 2:00 Uhr)
+                var now = DateTime.Now;
+                DateTime nextRun;
+
+                if (now.Hour < 2)
+                {
+                    // Noch vor 2 Uhr heute -> heute um 2:00 ausführen
+                    nextRun = DateTime.Today.AddHours(2);
+                }
+                else
+                {
+                    // Schon nach 2 Uhr -> morgen um 2:00 ausführen
+                    nextRun = DateTime.Today.AddDays(1).AddHours(2);
+                }
+
+                var delay = nextRun - now;
+                _logger.LogInformation("Daily Analytics Service: Nächste Ausführung um {NextRun}", nextRun);
+
+                try
+                {
+                    await Task.Delay(delay, stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+
+                await ProcessAnalytics();
             }
-
-            var initialDelay = nextRun - now;
-
-            _logger.LogInformation("Daily Analytics Service startet. Nächste Ausführung: {NextRun}", nextRun);
-
-            // Warte bis zur ersten Ausführung
-            if (initialDelay.TotalMilliseconds > 0)
-            {
-                await Task.Delay(initialDelay, stoppingToken);
-            }
-
-            ProcessAnalytics();
-
-            // Erstelle Timer für tägliche Ausführung (alle 24 Stunden)
-            _timer = new Timer(async _ => await ProcessAnalytics(), null, TimeSpan.Zero, TimeSpan.FromHours(24));
-
-            // Halte den Service am Leben
-            await Task.Delay(Timeout.Infinite, stoppingToken);
         }
 
         private async Task ProcessAnalytics()
@@ -70,10 +73,5 @@ namespace Piwonka.CC.Services
             }
         }
 
-        public override void Dispose()
-        {
-            _timer?.Dispose();
-            base.Dispose();
-        }
     }
 }

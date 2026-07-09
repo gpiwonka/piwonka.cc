@@ -1,0 +1,76 @@
+@page
+@model Piwonka.CC.Pages.DownloadsModel
+@{
+    var isEn = Model.CurrentLanguage == Piwonka.CC.Models.Language.EN;
+    ViewData["Title"] = isEn ? "Downloads" : "Downloads";
+    ViewData["MetaDescription"] = isEn
+        ? "Download apps and tools by platform and version."
+        : "Apps und Tools zum Download, nach Plattform und Version.";
+
+    var lblPlatform = isEn ? "Platform" : "Plattform";
+    var lblVersion = isEn ? "Version" : "Version";
+    var lblNote = isEn ? "Note" : "Hinweis";
+    var lblSize = isEn ? "Size" : "Größe";
+    var lblDate = isEn ? "Date" : "Datum";
+    var lblDownload = isEn ? "Download" : "Download";
+    var lblEmpty = isEn ? "No downloads available yet." : "Noch keine Downloads verfügbar.";
+}
+
+<h1 class="mb-4">Downloads</h1>
+
+@if (!Model.Apps.Any())
+{
+    <div class="alert alert-light border text-muted">@lblEmpty</div>
+}
+
+@foreach (var app in Model.Apps)
+{
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white">
+            <h2 class="h4 mb-0">
+                @if (!string.IsNullOrEmpty(app.Icon))
+                {
+                    <i class="@app.Icon me-2"></i>
+                }
+                @app.Name
+            </h2>
+        </div>
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(app.Beschreibung))
+            {
+                <p class="text-muted">@app.Beschreibung</p>
+            }
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>@lblPlatform</th>
+                            <th>@lblVersion</th>
+                            <th>@lblNote</th>
+                            <th>@lblSize</th>
+                            <th>@lblDate</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in app.Dateien.OrderBy(x => x.Reihenfolge).ThenBy(x => x.Plattform))
+                        {
+                            <tr>
+                                <td>@d.Plattform</td>
+                                <td>@(string.IsNullOrEmpty(d.Version) ? "—" : d.Version)</td>
+                                <td><small class="text-muted">@d.Hinweis</small></td>
+                                <td><small>@(string.IsNullOrEmpty(d.Dateigroesse) ? "" : d.Dateigroesse)</small></td>
+                                <td><small>@(d.VeroeffentlichtAm?.ToString("yyyy-MM-dd") ?? "")</small></td>
+                                <td class="text-end">
+                                    <a href="@d.DateiPfad" class="btn btn-sm btn-primary" download>
+                                        <i class="fas fa-download me-1"></i>@lblDownload
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

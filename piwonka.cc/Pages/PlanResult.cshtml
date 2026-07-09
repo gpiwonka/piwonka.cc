@@ -1,0 +1,83 @@
+@page "/plan/{hash}"
+@model PlanResultModel
+@{
+    var toolInfo = Model.Result?.ToolType switch
+    {
+        "QueryFormatter" => new { Title = "SQL Query Formatter", Icon = "fa-code", BackLink = "/Tools/QueryFormatter" },
+        "IndexAdvisor" => new { Title = "SQL Index Advisor", Icon = "fa-list-ol", BackLink = "/Tools/IndexAdvisor" },
+        "DeadlockAnalyzer" => new { Title = "Deadlock Analyzer", Icon = "fa-lock", BackLink = "/Tools/DeadlockAnalyzer" },
+        "QueryConverter" => new { Title = "Query Converter", Icon = "fa-exchange-alt", BackLink = "/Tools/QueryConverter" },
+        _ => new { Title = "SQL Plan Advice", Icon = "fa-database", BackLink = "/PlanAdvice" }
+    };
+
+    ViewData["Title"] = toolInfo.Title + " - Geteiltes Ergebnis";
+    ViewData["MetaDescription"] = "Geteilte Analyse: " + toolInfo.Title;
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <h1><i class="fas @toolInfo.Icon me-2"></i>@toolInfo.Title</h1>
+
+            @if (Model.IsExpired)
+            {
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-clock me-2"></i>
+                    <strong>Dieses Ergebnis ist abgelaufen.</strong>
+                    Geteilte Analysen sind 30 Tage lang verfügbar.
+                    <a href="@toolInfo.BackLink" class="alert-link">Neue Analyse starten</a>.
+                </div>
+            }
+            else if (Model.Result != null)
+            {
+                <p class="text-muted small">
+                    <i class="fas fa-calendar me-1"></i>Erstellt am @Model.Result.ErstelltAm.ToString("dd.MM.yyyy HH:mm") Uhr
+                    &mdash; gültig bis @Model.Result.AblaufAm.ToString("dd.MM.yyyy")
+                    &mdash; Sprache: @(Model.Result.Language == "de" ? "Deutsch" : "English")
+                </p>
+
+                @if (Model.Result.WasTruncated)
+                {
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-cut me-2"></i>
+                        <strong>Der ursprüngliche Plan war zu groß.</strong>
+                        Die teuersten Operationen wurden automatisch extrahiert und analysiert.
+                    </div>
+                }
+
+                <div class="card mb-4">
+                    <div class="card-header bg-success bg-opacity-10">
+                        <h2 class="h5 mb-0"><i class="fas fa-lightbulb me-2 text-success"></i>Analyse-Ergebnis</h2>
+                    </div>
+                    <div class="card-body" id="analysisResult">
+                        @Html.Raw(Piwonka.CC.Helpers.MarkdownHelper.ToHtml(Model.Result.AnalysisResult))
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="copyLink()">
+                        <i class="fas fa-link me-1"></i>Link kopieren
+                    </button>
+                    <a href="@toolInfo.BackLink" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-plus me-1"></i>Neue Analyse
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("Tools/_ToolStyles")
+
+@section Scripts {
+    <script>
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(function () {
+                var btn = event.target.closest('button');
+                var original = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check me-1"></i>Kopiert!';
+                setTimeout(function () { btn.innerHTML = original; }, 2000);
+            });
+        }
+    </script>
+}

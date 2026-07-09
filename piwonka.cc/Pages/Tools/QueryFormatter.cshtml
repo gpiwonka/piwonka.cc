@@ -1,0 +1,146 @@
+@page
+@model Piwonka.CC.Pages.Tools.QueryFormatterModel
+@inject SiteSettings Site
+@{
+    ViewData["Title"] = "SQL Query Formatter";
+    ViewData["MetaDescription"] = "SQL-Abfragen automatisch formatieren und erklären lassen — kostenlos, optional KI-gestützt.";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <h1><i class="fas fa-code me-2"></i>SQL Query Formatter</h1>
+            <p class="lead">SQL-Abfragen formatieren und optional mit KI erklären lassen.</p>
+
+            <div class="alert alert-info d-flex align-items-start" role="alert">
+                <i class="fas fa-gift me-3 mt-1 fa-lg"></i>
+                <div>
+                    <strong>Dieses Tool ist kostenlos</strong> und funktioniert, solange das Token-Budget reicht.
+                    Wenn dir das Tool hilft, freue ich mich über einen
+                    <a href="@Site.CoffeeUrl" target="_blank" class="alert-link"><i class="fas fa-coffee me-1"></i>Kaffee</a>.
+                </div>
+            </div>
+
+            @if (Model.HasError)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
+                </div>
+            }
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0"><i class="fas fa-keyboard me-2"></i>SQL-Abfrage einfügen</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="toolForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Sprache / Language</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Language" id="langDe" value="de"
+                                           checked="@(Model.Language == "de")">
+                                    <label class="form-check-label" for="langDe">Deutsch</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Language" id="langEn" value="en"
+                                           checked="@(Model.Language == "en")">
+                                    <label class="form-check-label" for="langEn">English</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="sqlInput" class="form-label fw-bold">SQL-Abfrage</label>
+                            <textarea id="sqlInput" name="SqlInput" class="form-control font-monospace"
+                                      rows="10" placeholder="SELECT * FROM Users u JOIN Orders o ON u.Id = o.UserId WHERE u.Status = 1 AND o.Date > '2024-01-01' ORDER BY o.Date DESC"
+                                      style="font-size: 0.85rem;">@Model.SqlInput</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       id="useAiSwitch" name="UseAi" value="true"
+                                       @(Model.UseAi ? "checked" : "")>
+                                <label class="form-check-label" for="useAiSwitch">
+                                    <i class="fas fa-robot me-1"></i>Mit KI-Erklärung
+                                    <span class="text-muted small">(Claude analysiert und erklärt die Abfrage)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-magic me-2"></i>Formatieren
+                        </button>
+                        <span id="loadingIndicator" class="ms-3 d-none">
+                            <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                            <span class="text-muted ms-1">Claude analysiert...</span>
+                        </span>
+                    </form>
+                </div>
+            </div>
+
+            @if (Model.AnalysisComplete && Model.AnalysisResult != null)
+            {
+                <div class="card mb-4">
+                    <div class="card-header bg-success bg-opacity-10 d-flex justify-content-between align-items-center">
+                        <h2 class="h5 mb-0">
+                            <i class="fas fa-check-circle me-2 text-success"></i>Ergebnis
+                            @if (!Model.UsedAi)
+                            {
+                                <span class="badge bg-secondary ms-2 small">Lokal formatiert</span>
+                            }
+                        </h2>
+                        <form method="post" asp-page-handler="Share" class="d-inline">
+                            <input type="hidden" name="SqlInput" value="@Model.SqlInput" />
+                            <input type="hidden" name="AnalysisResult" value="@Model.AnalysisResult" />
+                            <input type="hidden" name="Language" value="@Model.Language" />
+                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-share-alt me-1"></i>Teilen
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card-body" id="analysisResult">
+                        @Html.Raw(ConvertMarkdownToHtml(Model.AnalysisResult))
+                    </div>
+                </div>
+            }
+
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5><i class="fas fa-info-circle me-2"></i>Tipps</h5>
+                    <ul class="mb-0 small">
+                        <li>Einfach die unformatierte SQL-Abfrage einfügen — egal ob einzeilig oder mehrzeilig.</li>
+                        <li><strong>Ohne KI:</strong> Sofortige lokale Formatierung (Keywords uppercase, Einrückung, Zeilenumbrüche).</li>
+                        <li><strong>Mit KI:</strong> Claude formatiert und erklärt zusätzlich, was die Abfrage tut.</li>
+                        <li>Funktioniert mit allen SQL-Dialekten (T-SQL, PostgreSQL, MySQL, etc.).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_ToolStyles")
+
+@section Scripts {
+    <script>
+        document.getElementById('toolForm').addEventListener('submit', function () {
+            var input = document.getElementById('sqlInput').value.trim();
+            if (input.length > 0) {
+                document.getElementById('submitBtn').disabled = true;
+                var useAi = document.getElementById('useAiSwitch').checked;
+                if (useAi) {
+                    document.getElementById('loadingIndicator').classList.remove('d-none');
+                }
+            }
+        });
+    </script>
+}
+
+@functions {
+    string ConvertMarkdownToHtml(string markdown)
+    {
+        return Piwonka.CC.Helpers.MarkdownHelper.ToHtml(markdown);
+    }
+}

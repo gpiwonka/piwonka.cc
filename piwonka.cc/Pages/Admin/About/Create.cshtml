@@ -1,0 +1,79 @@
+@page
+@model Piwonka.CC.Pages.Admin.About.CreateModel
+@{
+    ViewData["Title"] = "Neue About-Karte";
+}
+
+<h1>Neue About-Karte</h1>
+
+<form method="post" class="mt-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="row">
+        <div class="col-md-8 mb-3">
+            <label asp-for="About.Titel" class="form-label">Titel</label>
+            <input asp-for="About.Titel" class="form-control" placeholder="z. B. Wer ich bin" />
+            <span asp-validation-for="About.Titel" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="About.Language" class="form-label">Sprache</label>
+            <select asp-for="About.Language" class="form-select">
+                <option value="@((int)Piwonka.CC.Models.Language.DE)">Deutsch</option>
+                <option value="@((int)Piwonka.CC.Models.Language.EN)">English</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="About.Inhalt" class="form-label">Inhalt</label>
+        <textarea asp-for="About.Inhalt" id="about-content-editor" rows="10" class="form-control"></textarea>
+        <span asp-validation-for="About.Inhalt" class="text-danger small"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="About.Icon" class="form-label">Icon (optional, FontAwesome-Klasse)</label>
+            <input asp-for="About.Icon" class="form-control" placeholder="z. B. fas fa-user" />
+            <span asp-validation-for="About.Icon" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6 mb-3 d-flex align-items-end">
+            <div class="form-check">
+                <input asp-for="About.Aktiv" class="form-check-input" type="checkbox" />
+                <label asp-for="About.Aktiv" class="form-check-label">Aktiv</label>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Anlegen</button>
+    <a asp-page="./Index" class="btn btn-outline-secondary">Abbrechen</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            tinymce.init({
+                selector: '#about-content-editor',
+                plugins: 'preview searchreplace autolink code visualblocks visualchars fullscreen image link media table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help quickbars',
+                menubar: 'file edit view insert format tools table help',
+                toolbar: 'undo redo | bold italic underline | blocks | alignleft aligncenter alignright | numlist bullist | forecolor backcolor removeformat | link image | code preview fullscreen',
+                toolbar_sticky: true,
+                height: 320,
+                paste_data_images: true,
+                automatic_uploads: true,
+                images_upload_url: '/api/admin/upload-image',
+                setup: function (editor) {
+                    editor.on('change', function () { tinymce.triggerSave(); });
+                    editor.on('blur', function () { tinymce.triggerSave(); });
+                }
+            });
+
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function () {
+                    tinymce.triggerSave();
+                });
+            }
+        });
+    </script>
+}

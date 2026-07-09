@@ -1,0 +1,70 @@
+@page
+@model Piwonka.CC.Pages.Admin.About.IndexModel
+@{
+    ViewData["Title"] = "About-Karten";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>About-Karten</h1>
+    <a asp-page="./Create" class="btn btn-primary">Neue About-Karte</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<p class="text-muted">Diese Karte erscheint links auf der Startseite ("Wer ich bin"). Pro Sprache wird die aktivste, neueste Karte angezeigt.</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Sprache</th>
+            <th>Titel</th>
+            <th>Inhalt</th>
+            <th>Aktiv</th>
+            <th>Erstellt</th>
+            <th>Aktionen</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model.AboutCards)
+        {
+            <tr>
+                <td><span class="badge bg-info text-uppercase">@(a.Language == Piwonka.CC.Models.Language.DE ? "DE" : "EN")</span></td>
+                <td>
+                    @if (!string.IsNullOrEmpty(a.Icon))
+                    {
+                        <i class="@a.Icon me-1"></i>
+                    }
+                    @a.Titel
+                </td>
+                <td><small>@(a.Inhalt.Length > 100 ? a.Inhalt.Substring(0, 100) + "..." : a.Inhalt)</small></td>
+                <td>
+                    @if (a.Aktiv)
+                    {
+                        <span class="badge bg-success">Aktiv</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Inaktiv</span>
+                    }
+                </td>
+                <td><small>@a.ErstelltAm.ToString("dd.MM.yyyy")</small></td>
+                <td>
+                    <div class="btn-group">
+                        <a asp-page="./Edit" asp-route-id="@a.Id" class="btn btn-sm btn-outline-primary">Bearbeiten</a>
+                        <a asp-page="./Delete" asp-route-id="@a.Id" class="btn btn-sm btn-outline-danger">Löschen</a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.AboutCards.Any())
+{
+    <div class="text-center my-5">
+        <p class="text-muted">Noch keine About-Karten. Lege die erste an.</p>
+    </div>
+}

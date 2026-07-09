@@ -12,5 +12,6 @@ namespace Piwonka.CC.Services
         Task NotifySeiteCreatedAsync(string slug);
         Task NotifySeiteUpdatedAsync(string slug);
         Task NotifySitemapUpdatedAsync();
+        string GetApiKey();
     }
 }

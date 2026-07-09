@@ -1,0 +1,28 @@
+@page "{id:int}"
+@model Piwonka.CC.Pages.Admin.IndexFeatures.DeleteModel
+@{
+    ViewData["Title"] = "Feature löschen";
+}
+
+<h1>Feature löschen</h1>
+
+<div class="alert alert-warning">
+    <strong>@Model.Feature.Titel</strong> wirklich löschen?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Beschreibung</dt>
+    <dd class="col-sm-9">@Model.Feature.Beschreibung</dd>
+
+    <dt class="col-sm-3">Link</dt>
+    <dd class="col-sm-9">@(Model.Feature.Link ?? "—")</dd>
+
+    <dt class="col-sm-3">Reihenfolge</dt>
+    <dd class="col-sm-9">@Model.Feature.Reihenfolge</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="Feature.Id" />
+    <button type="submit" class="btn btn-danger">Endgültig löschen</button>
+    <a asp-page="./Index" class="btn btn-outline-secondary">Abbrechen</a>
+</form>
