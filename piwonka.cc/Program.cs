@@ -117,26 +117,44 @@ namespace Piwonka.CC
                 {
                     var context = services.GetRequiredService<ApplicationDbContext>();
 
-                    // Sicherstellen, dass alte Migrations in History eingetragen sind
+                    // Legacy-Backfill NUR für die bestehende piwonka-DB, deren Tabellen vor Einführung
+                    // der EF-Migrationen out-of-band angelegt wurden: die 4 Alt-Migrationen als "bereits
+                    // angewendet" markieren, damit Migrate() nicht versucht, existierende Tabellen neu zu
+                    // erstellen. Erkennungsmerkmal ist die Legacy-Tabelle [Posts].
+                    // Bei einer FRISCHEN, leeren DB (z.B. neues Deployment wie plainvanilla.tech) existiert
+                    // [Posts] nicht -> der Block ist ein No-op und Migrate() baut das Schema komplett von
+                    // Grund auf auf (inkl. der 4 Alt-Migrationen).
                     context.Database.ExecuteSqlRaw(@"
-                        IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = '20250614103503_init')
+                        IF OBJECT_ID(N'[Posts]', N'U') IS NOT NULL
                         BEGIN
-                            INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES
-                            ('20250614103503_init', '9.0.5'),
-                            ('20250614174143_feldlaengen', '9.0.5'),
-                            ('20250615081856_Analytics', '9.0.5'),
-                            ('20260322100354_bild raus', '9.0.5');
+                            IF OBJECT_ID(N'[__EFMigrationsHistory]', N'U') IS NULL
+                            BEGIN
+                                CREATE TABLE [__EFMigrationsHistory] (
+                                    [MigrationId] nvarchar(150) NOT NULL,
+                                    [ProductVersion] nvarchar(32) NOT NULL,
+                                    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+                                );
+                            END
+
+                            IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = '20250614103503_init')
+                            BEGIN
+                                INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES
+                                ('20250614103503_init', '9.0.5'),
+                                ('20250614174143_feldlaengen', '9.0.5'),
+                                ('20250615081856_Analytics', '9.0.5'),
+                                ('20260322100354_bild raus', '9.0.5');
+                            END
                         END
                     ");
 
-                    // Automatisch Migrationen anwenden
+                    // Automatisch Migrationen anwenden (baut bei frischer DB das komplette Schema)
                     context.Database.Migrate();
-
-
+                    Console.WriteLine("Database migration check completed");
                 }
                 catch (Exception ex)
                 {
-
+                    // Sichtbar machen — sonst startet die App bei fehlgeschlagener Migration still mit leerer DB.
+                    Console.WriteLine($"Database migration failed: {ex.Message}");
                     // Optional: App beenden, wenn Migration fehlschlägt
                     // Environment.Exit(1);
                 }
